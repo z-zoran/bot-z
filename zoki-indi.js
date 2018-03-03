@@ -11,15 +11,15 @@ console.log(tulind.version);
 
 // STANDARDNA to jest Z. DEVIJACIJA
 // input su kendlovi
-// 1 treba izračunati mean
-// 2 onda udaljenost svakog kendla od meana
+// 1 treba izračunati mean perioda
+// 2 onda udaljenost svakog od kendla od meana
 // 3 onda svaku udaljenost kvadriramo
 // 4 zbrojimo ih sve za period
 // 5 podjelimo s periodom
 // 6 tražimo korjen od rezultata
 
 // inače ekipa računa korak 2 na način da oduzmu closing cijenu kendla od meana.
-// ja mislim da je to suludo. zanima nas varijacija cijene, boli me k jel close ili high ili low
+// ja mislim da je to suludo. zanima nas varijacija cijene, boli me k jel close ili high ili low.
 // stoga, moja dodana čarolija je da tražim NAJUDALJENIJU cijenu od meana za svaki kendl.
 
 // druga stvar, ekipa na koraku 1 inače traži mean (average) cijene kroz neki period. međutim, kendlovi nisu samo jedna cijena
@@ -46,7 +46,7 @@ function zDevijacija(data, period) {  // inputi su lista kendlova (zadnji najnov
   // dijelimo s periodom da dobijemo mean cijelog perioda
   subSet.periodMean = subSet.sumaMeanova / period;
   subSet.sumaKvadrata = 0;
-  for (let j = 0; j < period; i++) {
+  for (let j = 0; j < period; j++) {
     // računamo udaljenost najudaljenije cijene svakog kendla od meana cijelog perioda
     let meanDoHigh = Math.abs(subSet.kendl[j].H - subSet.periodMean);
     let meanDoLow = Math.abs(subSet.kendl[j].L - subSet.periodMean);
@@ -67,4 +67,8 @@ function zDevijacija(data, period) {  // inputi su lista kendlova (zadnji najnov
   // treba kalkulirati kao da je taj kendl zadnji u periodu.
   return stDevijacija;
 
+}
+
+module.exports = {
+  zDev: zDevijacija
 }

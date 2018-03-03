@@ -1,54 +1,52 @@
 "use strict";
-// BACKTEST ALAT:
+// (zasad) BACKTEST ALAT:
 // AGREGATOR TREJDOVA. PARSA CSV SVIH TREJDOVA I PRETVARA IH U ARRAY OBJEKATA.
 // VRAĆA NAM ARRAYEVE S 1min, 5min, 15min, 1h, 6h kendlovima
 // 
+// Nije DRY ali funkcionira. Funkcionalnost prije optimizacije!
+// (tri funkcije za agregaciju bi se dale pretvorit u jednu koja prima veličine kendlova kao argumente... al nije bitno.)
 
-// trebamo fs za učitavanje fajla
-var fs = require('fs');
+// OBJEKTIFIKATOR - učitava csv listu svih trejdova i objektifira trejdove
+// format csv-a: {vrijeme (datum h:m:s), volumen (+/- ovisno je li buy/sell), cijena}
 
-// ovo je array svih trejdova 
-var arrayTrejdova = [];
-/* format trejd objekta:
-{
+const fs = require('fs');
+
+function objektifikator(putanja) {
+    // ovo je array svih trejdova 
+    var arrayTrejdova = [];
+    /* format trejd objekta:
+    {
     datum: '2017-08-24',
     sat: '10',
     minuta: '14',
     sekunda: '43',
     volumen: -0.12,
     cijena: 123.12
-}
-*/
-
-// OBJEKTIFIKATOR - učitava csv listu svih trejdova i objektifira trejdove
-// format csv-a: {vrijeme (datum h:m:s), volumen (+/- ovisno je li buy/sell), cijena}
-var sirovi = String(fs.readFileSync('./exchdata/testdata.txt'));    // ovo je fajl za testiranje
-var rezani = sirovi.split('\n');    // narežemo retke (sad imamo array stringova, svaki je jedan trejd)
-for (let i = 1; i < rezani.length-1; i++) {     // iz nekog razloga brejka 'i < rezani.length;', ali hoće rezani.length-1. nemam pojma.
-    let sjeckani = rezani[i].split(',');        // režemo redak sa ','
-    let vrijeme = sjeckani[0].split(' ');       // režemo vrijeme sa ' '
-    let hms = vrijeme[1].split(':');            // drugi u 'vrijeme' režemo sa ':'
-    // sad ćemo definirat objekt sa svim ovim narezanim propertijima
-    let trejd = {};
-    trejd.datum = vrijeme[0];
-    trejd.sat = Number(hms[0]); 
-    trejd.minuta = Number(hms[1]);
-    trejd.sekunda = Number(hms[2]);
-    trejd.volumen = Number(sjeckani[1]);     
-    trejd.cijena = Number(sjeckani[2]);
-    // na kraju pushamo taj objekt u globalni array
-    arrayTrejdova.push(trejd);
+    }
+    */
+    var sirovi = String(fs.readFileSync(putanja));    // ovo je fajl za testiranje
+    var rezani = sirovi.split('\n');    // narežemo retke (sad imamo array stringova, svaki je jedan trejd)
+    for (let i = 1; i < rezani.length-1; i++) {     // iz nekog razloga brejka 'i < rezani.length;', ali hoće rezani.length-1. nemam pojma.
+        let sjeckani = rezani[i].split(',');        // režemo redak sa ','
+        let vrijeme = sjeckani[0].split(' ');       // režemo vrijeme sa ' '
+        let hms = vrijeme[1].split(':');            // drugi u 'vrijeme' režemo sa ':'
+        // sad ćemo definirat objekt sa svim ovim narezanim propertijima
+        let trejd = {};
+        trejd.datum = vrijeme[0];
+        trejd.sat = Number(hms[0]); 
+        trejd.minuta = Number(hms[1]);
+        trejd.sekunda = Number(hms[2]);
+        trejd.volumen = Number(sjeckani[1]);     
+        trejd.cijena = Number(sjeckani[2]);
+        // na kraju pushamo taj objekt u globalni array
+        arrayTrejdova.push(trejd);
+    }
+    return arrayTrejdova;
 }
 // console.log(arrayTrejdova);
 
-
-
 // KENDLIZATOR - agregira trejdove u minutne kendlove i popunjava array.
 // ovaj array je baza za dalje se zajebavati.
-var array1minKendlova = []; 
-
-// s kendlizatorom, dobivamo array 1-min kendlova.
-array1minKendlova = kendlizator(arrayTrejdova);
 
 function kendlizator(arr) {     // proslijeđujemo mu array trejdova.
     let arrKendlovi = [];
@@ -225,8 +223,29 @@ function agregator1h(arr15min) {
     return arr1h;    
 }
 
-let array5minKendlova = agregator5min(array1minKendlova);
-let array15minKendlova = agregator15min(array5minKendlova);
-let array1hKendlova = agregator1h(array15minKendlova);
 
-console.log(array1hKendlova);
+
+function paketKendlova(putanjaTrejdova) {
+    // ovo je putanja za testiranje
+    let putanja = './exchdata/testdata.txt';
+    // objektifikator pretvara trejdove u objekte
+    let arrayTrejdova = objektifikator(putanja); // ako se izvana daje putanja onda ovdje proslijeđujemo putanjaTrejdova
+    // s kendlizatorom, dobivamo array 1-min kendlova.
+    let array1minKendlova = kendlizator(arrayTrejdova);
+    // agregatori rade ostale kendlove iz 1-min kendlova.
+    let array5minKendlova = agregator5min(array1minKendlova);
+    let array15minKendlova = agregator15min(array5minKendlova);
+    let array1hKendlova = agregator1h(array15minKendlova);
+    // vraćamo objekt s kendl arrayevima kao propertyjima
+    return {
+        arrTrejdovi: arrayTrejdova,
+        arr1min: array1minKendlova, 
+        arr5min: array5minKendlova, 
+        arr15min: array15minKendlova, 
+        arr1h: array1hKendlova
+    }
+}
+
+let paket = paketKendlova();
+
+module.exports = paket;
