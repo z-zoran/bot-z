@@ -3,3 +3,5 @@
 ## Testiranje git-a na kompujteru doma.
 
 Testis na kompu laptop.
+
+Testis na poslu komp...
