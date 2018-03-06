@@ -124,7 +124,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
   // odmakTrailing je odmak trailing stopa, recimo 1/3 odmakPhi
   let odmakTrailing = odmakPhi / 3;
 
-  // DEFINIRAMO camelCase LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
+  // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
   let nemaNijedanLimit = (!sviLimitTriggeri.sell && !sviLimitTriggeri.buy);
   let imaBaremJedanLimit = (sviLimitTriggeri.sell || sviLimitTriggeri.buy);
 
@@ -144,10 +144,12 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
   
   /*-----------------------AKO IMA BAREM JEDAN LIMIT-----------------------*/
   } else if (imaBaremJedanLimit) {
+    
+    // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     // ako nema limita iznad, znači da imamo stop trigger iznad
-    let imamoStopTriggerIznadCijene = (!sviLimitTriggeri.sell); 
+    let imamoStopTriggerIznadCijene = !sviLimitTriggeri.sell; 
     // ako nema limita ispod, znači da imamo stop trigger ispod
-    let imamoStopTriggerIspodCijene = (!sviLimitTriggeri.buy);  
+    let imamoStopTriggerIspodCijene = !sviLimitTriggeri.buy;  
     // ako bi stop trigger trebao biti iznad cijene, a cijena je sad iznad stop triggera, znači da je triggeran stop trigger!
     let stopTriggerIznadJeTriggeran = imamoStopTriggerIznadCijene && (cijenaSad > stopTrig.triggerCijena);
     // inače ako je obratna situacija (triger treba biti ispod, a ispada da je cijena sad ispod triggera!)
@@ -166,6 +168,13 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
     // sad kad imamo poziciju, nabrzaka povučemo ulaznu cijenu i id pozicije
     let cijenaOvePozicije = ovaPozicija.ulazniQuoteIznos / ovaPozicija.ulazniBaseIznos;
     let idOvePozicije = ovaPozicija.idPozicije;
+
+    // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
+    // ako ima buy limit, a daleko je od cijene - treba ga približiti
+    let buyLimitPostojiAliDalekoJe = sviLimitTriggeri.buy && 
+    // ako ima sell limit, a daleko je od cijene - treba ga približiti
+
+
 
     /*-----------------------STOP TRIGGER IZNAD JE TRIGGERAN?-----------------------*/
     if (stopTriggerIznadJeTriggeran) {
@@ -200,49 +209,9 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
 
     /*-----------------------IMA BUY LIMIT I DALEKO NAM JE?-----------------------*/      
     } else if () {
-      // inače ako nije triggeran nikakav stop trigger, vraćamo otfikareni stop trigger nazad u array sviStopTriggeri...
+      // nije triggeran nikakav stop trigger, pa vraćamo otfikareni stop trigger nazad u array sviStopTriggeri...
       sviStopTriggeri.push(stopTrig);
-      
-      
-    /*-----------------------IMA SELL LIMIT I DALEKO NAM JE?-----------------------*/            
-    } else if () {
-      // inače ako nije triggeran nikakav stop trigger, vraćamo otfikareni stop trigger nazad u array sviStopTriggeri...
-      sviStopTriggeri.push(stopTrig);
-      
 
-    }
-
-
-
-
-
-  }
-
-  // POSTOJI STOP TRIGGER?
-  // DA.
-  if (imaStopTriggera) { // ako postoji stop trigger
-    
-    /*
-    STOP TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
-    sviStopTriggeri: [
-      0: {idParentPozicije: ...,
-          triggerCijena: ...},
-      1: {idParentPozicije: ...,
-          triggerCijena: ...},
-      (...)
-    ]
-    Dodajemo ih na kraj arraya kako nastaju novi, a otfikarujemo ih s kraja kad bivaju triggerani
-    */
-    
-    
-    // STOP TRIGGER JE IZNAD I TRIGGERAN JE?
-    if (stopTriggerIznadJeTriggeran) {
-    
-    // STOP TRIGGER JE ISPOD I TRIGGERAN JE?
-    } else if (stopTriggerIspodJeTriggeran) {
-    
-    // NIJE TRIGGERAN STOP TRIGGER.
-    } else {
       // KOREKCIJA LIMITA - LIMIT JE ISPOD
       // provjeravamo gdje je cijena u kanalu i podešavamo limit ako bi ga to približilo
       if (sviLimitTriggeri.buy) {
@@ -262,6 +231,29 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
           }
 
         }
+
+      
+      
+    /*-----------------------IMA SELL LIMIT I DALEKO NAM JE?-----------------------*/            
+    } else if () {
+      // nije triggeran nikakav stop trigger, pa vraćamo otfikareni stop trigger nazad u array sviStopTriggeri...
+      sviStopTriggeri.push(stopTrig);
+      
+
+    }
+
+
+
+
+
+  }
+
+  // POSTOJI STOP TRIGGER?
+  // DA.
+  if (imaStopTriggera) { // ako postoji stop trigger
+
+    // NIJE TRIGGERAN STOP TRIGGER.
+    } else {
 
       // KOREKCIJA LIMITA - LIMIT JE IZNAD
       } else if (sviLimitTriggeri.sell) {
