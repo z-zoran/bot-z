@@ -1,7 +1,7 @@
 "use strict";
 
 // Library sa strategijama
-// Workhorse funkcije cijelog programa
+// Workhorse funkcije (funkcije mazge? funkcije tovari? neznam.)
 
 // Trebati će poubacivati metode/funkcije za komunikaciju s exchangeovima.
 // Nađi u fajlu di god piše 'exchange komunikacija'
@@ -143,6 +143,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
     emitterko.emit('postaviBuyLimit');
   
   /*-----------------------AKO IMA BAREM JEDAN LIMIT-----------------------*/
+  // (u normalnim uvjetima uvijek ima barem jedan, nekad i dva)
   } else if (imaBaremJedanLimit) {
     
     // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
@@ -150,30 +151,35 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
     let imamoStopTriggerIznadCijene = !sviLimitTriggeri.sell; 
     // ako nema limita ispod, znači da imamo stop trigger ispod
     let imamoStopTriggerIspodCijene = !sviLimitTriggeri.buy;  
+    // stop trigger (pojedinačni) ćemo definirati tu, da ostane lokalan cijeloj ovoj else-if grani (ne samo u slijedećem if bloku)
+    let stopTrig = {};
+
+    // ČUPANJE STOP TRIGGERA (AKO GA IMA) I TRAŽENJE ODGOVARAJUĆE POZICIJE
+    if (imamoStopTriggerIznadCijene || imamoStopTriggerIspodCijene) {
+      // čupamo zadnji stop trigger (otfikarili smo ga s arraya - vratiti ćemo ga ako nije triggeran)
+      stopTrig = sviStopTriggeri.pop();
+      // tražimo poziciju čiji je stop trigger - idemo unazad po arrayu jer je vjerojatno pri kraju arraya
+      let ovaPozicija = {};
+      for (let i = svePozicijeIkada.length - 1; i >= 0; i--) {
+        if (svePozicijeIkada[i].idPozicije === stopTrig.idParentPozicije) {
+          ovaPozicija = svePozicijeIkada[i];
+          break;
+        }
+      }
+      // sad kad imamo poziciju, nabrzaka povučemo ulaznu cijenu i id pozicije
+      let cijenaOvePozicije = ovaPozicija.ulazniQuoteIznos / ovaPozicija.ulazniBaseIznos;
+      let idOvePozicije = ovaPozicija.idPozicije;
+    }
+
+    // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     // ako bi stop trigger trebao biti iznad cijene, a cijena je sad iznad stop triggera, znači da je triggeran stop trigger!
     let stopTriggerIznadJeTriggeran = imamoStopTriggerIznadCijene && (cijenaSad > stopTrig.triggerCijena);
     // inače ako je obratna situacija (triger treba biti ispod, a ispada da je cijena sad ispod triggera!)
     let stopTriggerIspodJeTriggeran = imamoStopTriggerIspodCijene && (cijenaSad < stopTrig.triggerCijena);
-
-    // čupamo zadnji stop trigger (otfikarili smo ga s arraya - vratiti ćemo ga ako nije triggeran)
-    let stopTrig = sviStopTriggeri.pop();
-    // tražimo poziciju čiji je stop trigger - idemo unazad po arrayu jer je vjerojatno pri kraju arraya
-    let ovaPozicija = {};
-    for (let i = svePozicijeIkada.length - 1; i >= 0; i--) {
-      if (svePozicijeIkada[i].idPozicije === stopTrig.idParentPozicije) {
-        ovaPozicija = svePozicijeIkada[i];
-        break;
-      }
-    }
-    // sad kad imamo poziciju, nabrzaka povučemo ulaznu cijenu i id pozicije
-    let cijenaOvePozicije = ovaPozicija.ulazniQuoteIznos / ovaPozicija.ulazniBaseIznos;
-    let idOvePozicije = ovaPozicija.idPozicije;
-
-    // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     // ako ima buy limit, a daleko je od cijene - treba ga približiti
-    let buyLimitPostojiAliDalekoJe = sviLimitTriggeri.buy && 
+    let buyLimitPostojiAliDalekoJe = sviLimitTriggeri.buy && ( odnosTriBroja(stopTrig.triggerCijena, cijenaSad, sviLimitTriggeri.buy.cijenaLimit) > 50 );
     // ako ima sell limit, a daleko je od cijene - treba ga približiti
-
+    let sellLimitPostojiAliDalekoJe = sviLimitTriggeri.sell && ( odnosTriBroja(sviLimitTriggeri.sell.cijenaLimit, cijenaSad, stopTrig.triggerCijena) < 50 );
 
 
     /*-----------------------STOP TRIGGER IZNAD JE TRIGGERAN?-----------------------*/
