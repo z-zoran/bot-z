@@ -116,6 +116,7 @@ function odnosTriBroja(gornja, srednja, donja) {
 }
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
+// THE strategija
 stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, odmakLambda) {  // strategija za jahanje cijene 
   // cijenaSad je trenutna cijena
   // odmakPhi je odmak stop triggera (željeni profit)
@@ -180,10 +181,16 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       // inače ako je obratna situacija (triger treba biti ispod, a ispada da je cijena sad ispod triggera!)
       stopTriggerIspodJeTriggeran = imamoStopTriggerIspodCijene && (cijenaSad < stopTrig.triggerCijena);
       
+      // odnos tri broja - (gornji, srednji, donji); odnosno (stop trig, trenutna cijena, buy limit), ili (sell limit, trenutna cijena, stop trig).
+      // Ako imamo buy limit ispod i stop trigger iznad onda (stopTrig.triggerCijena, cijenaSad, sviLimitTriggeri.buy.cijenaLimit)
+      let cijenaJeuGornjemKanalu = odnosTriBroja(stopTrig.triggerCijena, cijenaSad, sviLimitTriggeri.buy.cijenaLimit) > 50;
+      // Ako imamo sell limit iznad i stop trigger ispod onda (sviLimitTriggeri.sell.cijenaLimit, cijenaSad, stopTrig.triggerCijena)
+      let cijenaJeuDonjemKanalu = odnosTriBroja(sviLimitTriggeri.sell.cijenaLimit, cijenaSad, stopTrig.triggerCijena) < 50;
+
       // ako ima buy limit, a daleko je od cijene - treba ga približiti
-      buyLimitPostojiAliDalekoJe = sviLimitTriggeri.buy && ( odnosTriBroja(stopTrig.triggerCijena, cijenaSad, sviLimitTriggeri.buy.cijenaLimit) > 50 );
+      buyLimitPostojiAliDalekoJe = sviLimitTriggeri.buy && cijenaJeuGornjemKanalu;
       // ako ima sell limit, a daleko je od cijene - treba ga približiti
-      sellLimitPostojiAliDalekoJe = sviLimitTriggeri.sell && ( odnosTriBroja(sviLimitTriggeri.sell.cijenaLimit, cijenaSad, stopTrig.triggerCijena) < 50 );
+      sellLimitPostojiAliDalekoJe = sviLimitTriggeri.sell && cijenaJeuDonjemKanalu;
     }
 
     /*-----------------------STOP TRIGGER IZNAD JE TRIGGERAN?-----------------------*/
@@ -222,148 +229,33 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       // nije triggeran nikakav stop trigger, pa vraćamo otfikareni stop trigger nazad u array sviStopTriggeri...
       sviStopTriggeri.push(stopTrig);
 
-      // KOREKCIJA LIMITA - LIMIT JE ISPOD
-      // provjeravamo gdje je cijena u kanalu i podešavamo limit ako bi ga to približilo
-      if (sviLimitTriggeri.buy) {
-        let goreStopTrigger = stopTrig.triggerCijena;
-        let sredinaCijenaSad = cijenaSad;
-        let doljeLimitTrigger = sviLimitTriggeri.buy.cijenaLimit;
-        let uKanaluPostotak = odnosTriBroja(goreStopTrigger, sredinaCijenaSad, doljeLimitTrigger);
-        
-        if (uKanaluPostotak > 50) { // ako je trenutna cijena bliža (gornjem) stop triggeru
-          // korekcija buy limita
-          let mozdaNoviBuyLimit = cijenaSad - odmakLambda;
-          let trebaPomaknutiLimit = mozdaNoviBuyLimit > sviLimitTriggeri.buy.cijenaLimit;
-          
-          if (trebaPomaknutiLimit) {
-            sviLimitTriggeri.buy.cijenaLimit = mozdaNoviBuyLimit;
-            emitterko.emit('postaviBuyLimit');
-          }
-
-        }
-
+      // korekcija buy limita
+      let mozdaNoviBuyLimit = cijenaSad - odmakLambda;
+      let trebaPomaknutiLimit = mozdaNoviBuyLimit > sviLimitTriggeri.buy.cijenaLimit;
+      
+      if (trebaPomaknutiLimit) {
+        sviLimitTriggeri.buy.cijenaLimit = mozdaNoviBuyLimit;
+        emitterko.emit('postaviBuyLimit');
       }
       
     /*-----------------------IMA SELL LIMIT I DALEKO NAM JE?-----------------------*/            
     } else if (sellLimitPostojiAliDalekoJe) {
       // nije triggeran nikakav stop trigger, pa vraćamo otfikareni stop trigger nazad u array sviStopTriggeri...
       sviStopTriggeri.push(stopTrig);
+
+      // korekcija buy limita
+      let mozdaNoviSellLimit = cijenaSad + odmakLambda;
+      let trebaPomaknutiLimit = mozdaNoviSellLimit < sviLimitTriggeri.buy.cijenaLimit;
       
-
-    }
-
-
-
-
-
-  }
-
-  // POSTOJI STOP TRIGGER?
-  // DA.
-  if (imaStopTriggera) { // ako postoji stop trigger
-
-    // NIJE TRIGGERAN STOP TRIGGER.
-    } else {
-
-      // KOREKCIJA LIMITA - LIMIT JE IZNAD
-      } else if (sviLimitTriggeri.sell) {
-        let doljeStopTrigger = stopTrig.triggerCijena;
-        let sredinaCijenaSad = cijenaSad;
-        let goreLimitTrigger = sviLimitTriggeri.sell.cijenaLimit;
-        let uKanaluPostotak = odnosTriBroja(goreLimitTrigger, sredinaCijenaSad, doljeStopTrigger);
-        
-        if (uKanaluPostotak < 50) { // ako je trenutna cijena bliža (gornjem) stop triggeru
-          // korekcija buy limita
-          let mozdaNoviSellLimit = cijenaSad + odmakLambda;
-          let trebaPomaknutiLimit = mozdaNoviSellLimit < sviLimitTriggeri.sell.cijenaLimit;
-          
-          if (trebaPomaknutiLimit) {
-            sviLimitTriggeri.sell.cijenaLimit = mozdaNoviSellLimit;
-            emitterko.emit('postaviSellLimit');
-          }
-
+      if (trebaPomaknutiLimit) {
+        sviLimitTriggeri.sell.cijenaLimit = mozdaNoviSellLimit;
+        emitterko.emit('postaviSellLimit');
       }
-
-      let buyLimitJeTriggeran = imamoStopTriggerIznadCijene && (cijenaSad < sviLimitTriggeri.buy.cijenaLimit);
-      let sellLimitJeTriggeran = imamoStopTriggerIspodCijene && (cijenaSad > sviLimitTriggeri.sell.cijenaLimit);
-
-      // JE LI TRIGGERAN BUY LIMIT?
-      if (buyLimitJeTriggeran) {
-        // (novi stop trigger)
-        sviLimitTriggeri.buy.cijenaLimit = cijenaSad - odmakLambda;
-        emitterko.emit('triggeranBuyLimit');
-
-      // JE LI TRIGGERAN SELL LIMIT?
-      } else if (sellLimitJeTriggeran) {
-        // pozicioniranje
-        // (novi stop trigger)
-        sviLimitTriggeri.sell.cijenaLimit = cijenaSad + odmakLambda;
-        emitterko.emit('triggeranSellLimit');
       
-      // AKO NIŠTA NIJE TRIGERANO, PRONAĐI GDJE JE CIJENA U KANALU I KORIGIRAJ UDALJENIJI LIMIT.
-      } else {
-        let doljeLimit = sviLimitTriggeri.buy.cijenaLimit;
-        let sredinaCijenaSad = cijenaSad;
-        let goreLimit = sviLimitTriggeri.sell.cijenaLimit;
-        let uKanaluPostotak = odnosTriBroja(goreLimit, sredinaCijenaSad, doljeLimit);
-        
-        if (uKanaluPostotak < 50) { // ako je trenutna cijena bliža (gornjem) stop triggeru
-          // korekcija sell limita
-          let mozdaNoviSellLimit = cijenaSad + odmakLambda;
-          let trebaPomaknutiSellLimit = mozdaNoviSellLimit < sviLimitTriggeri.sell.cijenaLimit;
-          
-          // KORIGIRAJ SELL LIMIT
-          if (trebaPomaknutiSellLimit) {
-            sviLimitTriggeri.sell.cijenaLimit = mozdaNoviSellLimit;
-            emitterko.emit('postaviSellLimit');
-          }
-        
-        } else if (uKanaluPostotak > 50) {
-          let mozdaNoviBuyLimit = cijenaSad - odmakLambda;
-          let trebaPomaknutiBuyLimit = mozdaNoviBuyLimit > sviLimitTriggeri.buy.cijenaLimit;
+    } // zatvaranje zadnjeg if-a
+  } // zatvaranje "AKO IMA BAREM JEDAN LIMIT"
+} // zatvaranje cijele funkcije
 
-          // KORIGIRAJ BUY LIMIT
-          if (trebaPomaknutiBuyLimit) {
-            sviLimitTriggeri.buy.cijenaLimit = mozdaNoviBuyLimit;
-            emitterko.emit('postaviBuyLimit');
-          }
-          
-        }
-
-      }
-
-    }
-
-  // POSTOJI STOP TRIGGER?
-  // NE.
-  } else if (!imaStopTriggera) {  // ako ne postoji stop trigger - znači i gore i dole imamo limit
-
-    // prvo provjera je li triggeran neki limit.
-    // ako nije, provjera gdje je cijena u kanalu
-    // onda podešavanje udaljenijeg limita
-    let buyLimitJeTriggeran = cijenaSad < sviLimitTriggeri.buy.cijenaLimit;
-    let sellLimitJeTriggeran = cijenaSad > sviLimitTriggeri.sell.cijenaLimit;
-
-    // JE LI TRIGGERAN BUY LIMIT?
-    if (buyLimitJeTriggeran) {
-      // pozicioniranje
-      // (novi stop trigger)
-      sviLimitTriggeri.buy.cijenaLimit = cijenaSad - odmakLambda;
-      emitterko.emit('triggeranBuyLimit');
-
-    // JE LI TRIGGERAN SELL LIMIT?
-    } else if (sellLimitJeTriggeran) {
-      // pozicioniranje
-      // (novi stop trigger)
-      sviLimitTriggeri.sell.cijenaLimit = cijenaSad + odmakLambda;
-      emitterko.emit('triggeranSellLimit');
-
-    // NIŠTA NIJE TRIGGERANO, KORIGIRAJ UDALJENIJI LIMIT!
-    } else {
-      // korekcijaLimita();
-    }
-  }
-}
 
   // strategija za arbitražu
 stratty.stratArbitrazniTrokut = function stratArbitrazniTrokut(ab, ac, cb) {
@@ -426,14 +318,14 @@ stratty.grobarPozicija = function grobarPozicija(trenutnaCijena, vrijeme) {
       if (profitMargina < (tolerancija * lossMargina)) {
         // recimo
         let profitLossOdnos = profitMargina / lossMargina;
-        let 
-        poz.izlazak()
+        // let 
+        // poz.izlazak()
       }
       
       if (stopTrigger > trenutnaCijena) {
-        let postotak = odnosTriBroja(stopTrigger, ulaznaCijena, trenutnaCijena)
+        let postotak = odnosTriBroja(stopTrigger, ulaznaCijena, trenutnaCijena);
       } else if (stopTrigger < trenutnaCijena) {
-        let postotak = odnosTriBroja(trenutnaCijena, ulaznaCijena, stopTrigger)
+        let postotak = odnosTriBroja(trenutnaCijena, ulaznaCijena, stopTrigger);
       } 
       if (postotak > 50) {
         // cijena pobjegla u lošem smjeru
