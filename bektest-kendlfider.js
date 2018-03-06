@@ -3,7 +3,7 @@
 // MODUL ZA FIDANJE KENDLOVA U BEKTESTER.
 // LAYER ISPOD JE AGREGATOR. IZNAD JE BEKTESTER.
 
-let kendlInput = require('./zoki-agro.js');
+let kendlInput = require('./zAggry.js');
 let kendlovi = kendlInput;
 
 // data paket za chartove
@@ -29,6 +29,10 @@ let config = konverterZaChart(chDataPaket);
 
 /* onclick metode za fast forward i rewind */
 chartKontrole.napred24h = function () {
+	i1 += 1440; // 24 * 60  1min
+	i5 += 288; // 24 * 12  5min
+	i15 += 96; // 24 * 4  15min
+	i60 += 24;	// 24 * 1  60min
 	alert("Napred 24 sata");
 }
 

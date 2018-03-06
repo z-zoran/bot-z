@@ -18,8 +18,8 @@ const events = require('events');
 
 /*---------------------kastom zoki.js moduli--------------------------*/
 
-const agro = require('./zoki-agro.js');
-const stratty = require('./zoki-strat.js');
+const agro = require('./zAggry.js');
+const stratty = require('./zStratty.js');
 const plotty = require('./zoki-plot.js');
 
 /*---------------------varijable--------------------------*/
