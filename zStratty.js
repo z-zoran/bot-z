@@ -3,8 +3,7 @@
 // Library sa strategijama
 // Workhorse funkcije (funkcije mazge? funkcije tovari? neznam.)
 
-// Trebati će poubacivati metode/funkcije za komunikaciju s exchangeovima.
-// Nađi u fajlu di god piše 'exchange komunikacija'
+// U tijeku povezivanje s zEventty-jem
 
 // treba složiti funkciju "pozicioniranje" koja traži najpovoljniju poziciju iz koje bi se izašlo u novu poziciju
 /* nešto tipa 
@@ -14,6 +13,8 @@
 
 /*-------------------REQUIRE------------------*/
 
+// event emitter objekat
+let emitterko = require('./zEventty.js');
 
 // vučemo library s pozicijama
 let pozzy = require('./zPozzy.js');
@@ -95,6 +96,7 @@ function odnosTriBroja(gornja, srednja, donja) {
   return postotak;
 }
 
+// NIJE DOBRO. PROČITAJ NA DNU ISPOD STRATEGIJE.
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
 stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, odmakLambda) {  // strategija za jahanje cijene 
@@ -117,12 +119,12 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
     sviLimitTriggeri.sell = {};
     sviLimitTriggeri.sell.cijenaLimit = cijenaSad + odmakLambda;
     sviLimitTriggeri.sell.idParentPozicije = 0;
-    emitterko.emit('postaviSellLimit');
+    emitterko.emit('postaviSellLimit', sviLimitTriggeri.sell.cijenaLimit);
 
     sviLimitTriggeri.buy = {};
     sviLimitTriggeri.buy.cijenaLimit = cijenaSad - odmakLambda;
     sviLimitTriggeri.buy.idParentPozicije = 0;
-    emitterko.emit('postaviBuyLimit');
+    emitterko.emit('postaviBuyLimit', sviLimitTriggeri.buy.cijenaLimit);
   
   // opcija 2
   /*-----------------------AKO IMA BAREM JEDAN LIMIT-----------------------*/
@@ -181,7 +183,8 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       // stvaramo novi trailing take profit odozdo
       let trailingTakeProfit = new TrailingStop(idOvePozicije, cijenaOvePozicije, odmakTrailing * (-1));
       sviTrailingStopovi.push(trailingTakeProfit);
-      emitterko.emit('triggeranStopPremaGore');
+      let cijenaZaTrailer = cijenaSad - odmakTrailing;
+      emitterko.emit('triggeranStopPremaGore', cijenaZaTrailer);
 
       
       // korekcija buy limita
@@ -189,7 +192,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       let trebaPomaknutiLimit = mozdaNoviBuyLimit > sviLimitTriggeri.buy.cijenaLimit;
       if (trebaPomaknutiLimit) {
         sviLimitTriggeri.buy.cijenaLimit = mozdaNoviBuyLimit;
-        emitterko.emit('postaviBuyLimit');
+        emitterko.emit('postaviBuyLimit', sviLimitTriggeri.buy.cijenaLimit);
       }
 
     // if broj 2
@@ -198,14 +201,15 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       // stvaramo novi trailing take profit odozgo
       let trailingTakeProfit = new TrailingStop(idOvePozicije, cijenaOvePozicije, odmakTrailing);
       sviTrailingStopovi.push(trailingTakeProfit);
-      emitterko.emit('triggeranStopPremaDole');
+      let cijenaZaTrailer = cijenaSad + odmakTrailing;
+      emitterko.emit('triggeranStopPremaDole', cijenaZaTrailer);
       
       // korekcija sell limita
       let mozdaNoviSellLimit = cijenaSad + odmakLambda;
       let trebaPomaknutiLimit = mozdaNoviSellLimit < sviLimitTriggeri.sell.cijenaLimit;
       if (trebaPomaknutiLimit) {
         sviLimitTriggeri.sell.cijenaLimit = mozdaNoviSellLimit;
-        emitterko.emit('postaviSellLimit');
+        emitterko.emit('postaviSellLimit', sviLimitTriggeri.sell.cijenaLimit);
       }
 
     // if broj 3
@@ -220,7 +224,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       
       if (trebaPomaknutiLimit) {
         sviLimitTriggeri.buy.cijenaLimit = mozdaNoviBuyLimit;
-        emitterko.emit('postaviBuyLimit');
+        emitterko.emit('postaviBuyLimit', sviLimitTriggeri.buy.cijenaLimit);
       }
       
     // if broj 4
@@ -235,7 +239,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       
       if (trebaPomaknutiLimit) {
         sviLimitTriggeri.sell.cijenaLimit = mozdaNoviSellLimit;
-        emitterko.emit('postaviSellLimit');
+        emitterko.emit('postaviSellLimit', sviLimitTriggeri.sell.cijenaLimit);
       }
       
     } else { 
@@ -246,6 +250,11 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
 } // zatvaranje cijele funkcije
 
 // SAD KAD SAM NAPRAVIO CIJELU STRATEGIJU KAO SERIJU IF-OVA, SAD SAM SE SJETIO DA SAM SE NEKI DAN SJETIO DA BI TREBALO SLOŽIT JEBENI SWITCH. KURAC PIČKA!
+
+// NIJE DOBRO. ZABORAVIO SAM BUY I SELL LIMIT TRIGGERE.
+// DRUGA STVAR, TREBA RAZJASNITI KAKO TRETIRATI TRAILERE.
+// OVO JE PRILIKA DA PONOVO NAPIŠEM CIJELU STVAR KAO SWITCH.
+// ALI PRVO MORAM NA PAPIRU RAZJASNITI STVARI ....
 
 
   // strategija za arbitražu

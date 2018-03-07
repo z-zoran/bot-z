@@ -3,5 +3,5 @@ let emitterko = require('./test.js');
 
 
 
-emitterko.emit('event', 'mirko123');
+emitterko.emit('triggeranStopPremaDole');
 
