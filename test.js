@@ -2,6 +2,35 @@
 SKRIPTICA ZA IZDVOJENO TESTIRANJE KONCEPTIĆA
 */
 
+// test eventemittera - dal može bit u izdvojenom modulu a zvan odnekud drugdje?
+
+// eventovi
+const EventEmitter = require('events').EventEmitter;
+
+const emitterko = new EventEmitter();
+
+
+
+let blaBla = function () {
+	console.log('testis 123!');
+}
+
+emitterko.on('event', blaBla);
+
+
+module.exports = emitterko;
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 // PITANJE: da li mogu unutar for-a reći let ovo ono? Izgleda da mogu.
 // FOR petlja zaboravlja sve šta je let deklarirano u njoj, sa svakim loop-om. 
@@ -23,6 +52,7 @@ module.exports = {
 	tester: mirko
 }
 */
+/*
 let a = 12;
 let b = {}
 b.q = {};
@@ -34,3 +64,4 @@ console.log(a);
 console.log(b);
 console.log(b.q);
 console.log(buyLimitJeTriggeran);
+*/
