@@ -11,6 +11,13 @@ http.createServer(function (req, res) {
 }).listen(8080); //the server object listens on port 8080
 */
 
+// FUNKCIJA KOJA BI TREBALA POSPAJATI HTML + JS KOD ZA PUNJENJE CHARTOVA
+function bigMac(gornjePecivo, srednjePecivo, donjePecivo) {
+
+}
+
+
+
 function plotty() {
 	fs.readFile('./index.html', function (err, html) {
 	    if (err) {
