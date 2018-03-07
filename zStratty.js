@@ -14,29 +14,6 @@
 
 /*-------------------REQUIRE------------------*/
 
-// eventovi
-const EventEmitter = require('events');
-
-class OrderEmitter extends EventEmitter {}
-
-const emitterko = new OrderEmitter();
-emitterko.on('triggeranBuyLimit', console.log('Triggeran BUY LIMIT'));
-emitterko.on('triggeranSellLimit', console.log('Triggeran SELL LIMIT'));
-
-emitterko.on('triggeranStopPremaGore', console.log('Triggeran STOP PREMA GORE. Postavljen TRAILER!'));
-emitterko.on('triggeranStopPremaDole', console.log('Triggeran STOP PREMA DOLE. Postavljen TRAILER!'));
-
-emitterko.on('triggeranPenjuciTrailer', console.log('Triggeran TRAILER KOJI PRATI ODOZDO. Profit!'));
-emitterko.on('triggeranSpustajuciTrailer', console.log('Triggeran TRAILER KOJI PRATI ODOZGO. Profit!'));
-
-emitterko.on('postaviBuyLimit', console.log('Korigiram BUY LIMIT'));
-emitterko.on('postaviSellLimit', console.log('Korigiram SELL LIMIT'));
-
-emitterko.on('procurioSam', console.log('POZOR!!! Procurio sam kroz if-ove!!! OVO SE NE SMIJE DEŠAVATI!'));
-
-
-
-//emitterko.emit('event');
 
 // vučemo library s pozicijama
 let pozzy = require('./zPozzy.js');
