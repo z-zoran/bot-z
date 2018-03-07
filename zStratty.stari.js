@@ -1,8 +1,7 @@
 "use strict";
 
 // Library sa strategijama
-// Logika koja se vrti sa svakom novom informacijom s burze.
-// Za potrebe backtestiranja, kendlfider bi trebao na kapaljku davati trejdove.
+// Workhorse funkcije (funkcije mazge? funkcije tovari? neznam.)
 
 // U tijeku povezivanje s zEventty-jem
 
@@ -14,9 +13,7 @@
 
 /*-------------------REQUIRE------------------*/
 
-// event mašina. unutra su podešene funkcije i triggeri.
-// logika zStratty-ja treba samo odlučiti kad šta zvati s .emit-ovima
-// a u zEventty-ju je sva logika koja odrađuje pojedine stvari.
+// event emitter objekat
 let emitterko = require('./zEventty.js');
 
 // vučemo library s pozicijama
@@ -30,22 +27,39 @@ let devijacija = indi.zDev;
 let stratty = {};
 
 /*-------------TRČUĆE VARIJABLE---------------*/
-
+  // Array koji sadrži sve pozicije ikada. 
+  // Dopunjavamo pri stvaranju nove pozicije (metoda .izlazak)
 let svePozicijeIkada = stratty.svePozicijeIkada = pozzy.svePozicijeIkada; 
 
 let sviLimitTriggeri = stratty.sviLimitTriggeri = pozzy.sviLimitTriggeri;	
-
+/*
+LIMIT TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
+sviLimitTriggeri: {
+  buy: {idParentPozicije: ...,
+        cijenaLimit: ...}, 
+  sell:{idParentPozicije: ...,
+        cijenaLimit: ...}
+}
+*/
 let sviStopTriggeri = stratty.sviStopTriggeri = pozzy.sviStopTriggeri;	
-
+/*
+STOP TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
+sviStopTriggeri: [
+  0: {idParentPozicije: ...,
+      triggerCijena: ...},
+  1: {idParentPozicije: ...,
+      triggerCijena: ...},
+  (...)
+]
+*/
 let sviTrailingStopovi = stratty.sviTrailingStopovi = pozzy.sviTrailingStopovi;	
-
+/*
+TRAILING STOPOVI IMAJU SVOJU KLASU.
+Njih samo treba svaki krug izvrtiti svima metodu .korekcija, da se prilagode kretanju cijene.
+*/
 
 /*--------------------------FUNKCIJE----------------------------*/
 
-/*
-OVO JE TIP FUNKCIJE KOJU TREBA SKLONITI U ZASEBAN MODUL. NEKAKAV zUtilly
-ILI TAKO NEŠTO. NEMA SMISLA DA JE TU SA STRATEGIJAMA.
-*/
 stratty.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena) { 	
   // popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
   // U formatu { EUR:1.00, ETH:750.00, BTC:8500.00, XYZ:0.123 }
@@ -59,6 +73,19 @@ stratty.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena) {
   	}
   }
   return ukupnoEura;
+}
+
+function pozicioniranje(arrayPozicija) {   // funkcija za okrupnjavanje pozicija
+  let arraySlobodnihPozicija = [];
+  for (let i = 0; i < arrayPozicija.length; i++) {
+    if (arrayPozicija[i].slobodna) {
+      arraySlobodnihPozicija.push(arrayPozicija[i]);
+    }
+  }
+  let orderaniArraySlobodnihPozicija = [];
+  // unshift() ili push()
+  // dovršiti logiku za sortiranje od najpovoljnije do najmanje povoljne pozicije
+
 }
 
 // funkcija vraća odnos 3 broja kao postotak (na koliko posto je srednji)
@@ -89,18 +116,15 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
   // ako nema niti buy niti sell limita, znači da smo na baš prvom loopu strategije.
   // trebamo inicijalizirati strategiju, na način da postavimo oba limita.
   if (nemaNijedanLimit) {
-    // postavimo sell limit
     sviLimitTriggeri.sell = {};
-    let ciljanaSellCijena = cijenaSad + odmakLambda;
-    sviLimitTriggeri.sell.cijenaLimit = ciljanaSellCijena;
+    sviLimitTriggeri.sell.cijenaLimit = cijenaSad + odmakLambda;
     sviLimitTriggeri.sell.idParentPozicije = 0;
-    emitterko.emit('postaviSellLimit', ciljanaSellCijena);
-    // postavimo buy limit
+    emitterko.emit('postaviSellLimit', sviLimitTriggeri.sell.cijenaLimit);
+
     sviLimitTriggeri.buy = {};
-    let ciljanaBuyCijena = cijenaSad - odmakLambda;
-    sviLimitTriggeri.buy.cijenaLimit = ciljanaBuyCijena;
+    sviLimitTriggeri.buy.cijenaLimit = cijenaSad - odmakLambda;
     sviLimitTriggeri.buy.idParentPozicije = 0;
-    emitterko.emit('postaviBuyLimit', ciljanaBuyCijena);
+    emitterko.emit('postaviBuyLimit', sviLimitTriggeri.buy.cijenaLimit);
   
   // opcija 2
   /*-----------------------AKO IMA BAREM JEDAN LIMIT-----------------------*/
@@ -112,22 +136,13 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
     let imamoStopTriggerIznadCijene = !sviLimitTriggeri.sell; 
     // ako nema limita ispod, znači da imamo stop trigger ispod
     let imamoStopTriggerIspodCijene = !sviLimitTriggeri.buy;  
-    // ako imamo buy limit, a cijena je trenutno niža, znači da je triggeran
-    let triggeranBuyLimit = sviLimitTriggeri.buy && (sviLimitTriggeri.buy.cijenaLimit > cijenaSad);
-    // ako imamo sell limit, a cijena je trenutno viša, znači da je triggeran
-    let triggeranSellLimit = sviLimitTriggeri.sell && (sviLimitTriggeri.sell.cijenaLimit < cijenaSad);
-    // za live izvođenje moramo biti precizniji jer je moguće da se npr. buy limit djelomično potroši, 
-    // a cijena nikad ne propadne ispod. program uopće ne bi kužio da je ušao u poziciju.
-    // to se da doraditi provjerama svaki krug -> da li limiti u programu odgovaraju limitima na burzi.
-    
+    // stop trigger (pojedinačni) ćemo definirati tu, da ostane lokalan cijeloj ovoj else-if grani (ne samo u slijedećem if pod-bloku)
+    let stopTrig = {};
     // ostale logičke konstrukcije koje ćemo isto deklarirati ovdje zbog scope-a, a definirati u slijedećem if-u
     let stopTriggerIznadJeTriggeran;
     let stopTriggerIspodJeTriggeran;
     let buyLimitPostojiAliDalekoJe;
     let sellLimitPostojiAliDalekoJe;
-
-    // stop trigger (pojedinačni) ćemo definirati tu, da ostane lokalan cijeloj ovoj else-if grani (ne samo u slijedećem if pod-bloku)
-    let stopTrig = {};
 
     // ČUPANJE STOP TRIGGERA (AKO GA IMA) I TRAŽENJE ODGOVARAJUĆE POZICIJE
     if ((imamoStopTriggerIznadCijene || imamoStopTriggerIspodCijene) && (sviStopTriggeri.length > 0)) { // drugi uvjet je redundantan ali neka ga za svaki slučaj.
@@ -150,6 +165,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       // inače ako je obratna situacija (triger treba biti ispod, a ispada da je cijena sad ispod triggera!)
       stopTriggerIspodJeTriggeran = imamoStopTriggerIspodCijene && (cijenaSad < stopTrig.triggerCijena);
       
+      // odnos tri broja - (gornji, srednji, donji); odnosno (stop trig, trenutna cijena, buy limit), ili (sell limit, trenutna cijena, stop trig).
       // Ako imamo buy limit ispod i stop trigger iznad onda (stopTrig.triggerCijena, cijenaSad, sviLimitTriggeri.buy.cijenaLimit)
       let cijenaJeuGornjemKanalu = odnosTriBroja(stopTrig.triggerCijena, cijenaSad, sviLimitTriggeri.buy.cijenaLimit) > 50;
       // Ako imamo sell limit iznad i stop trigger ispod onda (sviLimitTriggeri.sell.cijenaLimit, cijenaSad, stopTrig.triggerCijena)
@@ -165,7 +181,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
     /*-----------------------STOP TRIGGER IZNAD JE TRIGGERAN?-----------------------*/
     if (stopTriggerIznadJeTriggeran) {
       // stvaramo novi trailing take profit odozdo
-      let trailingTakeProfit = new TrailingStop(idOvePozicije, cijenaOvePozicije, (odmakTrailing * (-1)));
+      let trailingTakeProfit = new TrailingStop(idOvePozicije, cijenaOvePozicije, odmakTrailing * (-1));
       sviTrailingStopovi.push(trailingTakeProfit);
       let cijenaZaTrailer = cijenaSad - odmakTrailing;
       emitterko.emit('triggeranStopPremaGore', cijenaZaTrailer);
@@ -196,29 +212,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
         emitterko.emit('postaviSellLimit', sviLimitTriggeri.sell.cijenaLimit);
       }
 
-
     // if broj 3
-    /*-----------------------BUY LIMIT JE TRIGGERAN?-----------------------*/     
-    } else if (triggeranBuyLimit) {
-      
-      // STVORI NOVU POZICIJU
-      // POPRAVI (STVORI NOVI) BUY LIMIT
-      // STVORI NOVI STOP TRIGGER
-
-
-
-
-    // if broj 4
-    /*-----------------------SELL LIMIT JE TRIGGERAN?-----------------------*/     
-    } else if (triggeranSellLimit) {
-      // STVORI NOVU POZICIJU
-      // POPRAVI (STVORI NOVI) SELL LIMIT
-      // STVORI NOVI STOP TRIGGER
-
-      
-
-
-    // if broj 5
     /*-----------------------IMA BUY LIMIT I DALEKO NAM JE?-----------------------*/      
     } else if (buyLimitPostojiAliDalekoJe) {
       // nije triggeran nikakav stop trigger, pa vraćamo otfikareni stop trigger nazad u array sviStopTriggeri...
@@ -233,7 +227,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
         emitterko.emit('postaviBuyLimit', sviLimitTriggeri.buy.cijenaLimit);
       }
       
-    // if broj 6
+    // if broj 4
     /*-----------------------IMA SELL LIMIT I DALEKO NAM JE?-----------------------*/            
     } else if (sellLimitPostojiAliDalekoJe) {
       // nije triggeran nikakav stop trigger, pa vraćamo otfikareni stop trigger nazad u array sviStopTriggeri...
@@ -263,7 +257,82 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
 // ALI PRVO MORAM NA PAPIRU RAZJASNITI STVARI ....
 
 
+  // strategija za arbitražu
+stratty.stratArbitrazniTrokut = function stratArbitrazniTrokut(ab, ac, cb) {
+  // Proslijeđujemo funkciji 3 cijene. Za potrebe testiranja, konvencija je redoslijedom A/B, A/C, C/B (npr. ETHEUR, ETHBTC, BTCEUR).
+  // Dalo bi se relativno straightforward isprogramirati da može primit bilo koja 3 para, samo treba logika za hendlanje tikera i cijene...
+  
+  if ((ab / ac) > cb) {	// 
+  	//
+  	// kupi CB, prodaj AC
+  	//
+  } else if ((ab / ac) < cb) {
+  	//
+  	// prodaj AC, kupi CB
+  	//
+  };
+
+  /*
+	Primjer:
+	ETHEUR - cijena 1: 750,00
+	ETHBTC - cijena 2: 0,0866
+	BTCEUR - cijena 3: 8700,00
+
+	1 ETH = 750 EUR
+	1 ETH = 0,0866 BTC
+	___________________
+	750 EUR = 0,0866 BTC
+	1 BTC = 8660,50 EUR
+
+	Razlika u cijeni je 8700,00 - 8660,50 =
+	= 39,50 EUR / BTC
+
+	Kapitalizirati na način da odmah prodajemo BTCEUR (skuplju cijenu) i kupujemo odgovarajuću količinu ETHBTC (jeftiniju cijenu).
+	Ovo treba biti istovremeno i insta.
+	Kada bi izračunata cijena iz prve dvije bila veća od treće cijene, onda postupamo obratno - kupujemo BTCEUR i prodajemo ETHBTC
+
+	U arbitraži, izbor šta kupiti a šta prodati ovisi o tome kolike su nam pozicije u raznim valutama. 
+	U načelu, platiti valutom s kojom imamo najveću otvorenu poziciju.
+
+	U stvarnoj instanci ove strategije, obavezno uzimati u obzir dubinu orderbooka i feejeve.
+
+  */
+}
 
 
+/*
+// neovisna funkcija koja ublažuje lossove svih loših pozicija
+stratty.grobarPozicija = function grobarPozicija(trenutnaCijena, vrijeme) {
+  for (let poz in svePozicijeIkada) {   // pregledavamo sve pozicije
+  
+    let ulaznaCijena = poz.ulazniQuoteIznos / poz.ulazniBaseIznos;  
+    let stopTrigger = poz.stopTrigger;
+    if (!poz.slobodna && !poz.zatvorena) {  // provjeravamo je li ne-slobodna i ne-zatvorena
+      // ako jest, provjeravamo odnos u kakvom je stanju profita pozicija  
+      let profitMargina = Math.abs(stopTrigger - ulaznaCijena);
+      let lossMargina = Math.abs(ulaznaCijena - trenutnaCijena);
+      
+      // dopuštamo poziciji da ode u loss do (veličine profit margine * tolerancija). ako počne ić više u loss, počinjemo ju rezati postepeno.
+      let tolerancija = 1.5;
+      
+      if (profitMargina < (tolerancija * lossMargina)) {
+        // recimo
+        let profitLossOdnos = profitMargina / lossMargina;
+        // let 
+        // poz.izlazak()
+      }
+      
+      if (stopTrigger > trenutnaCijena) {
+        let postotak = odnosTriBroja(stopTrigger, ulaznaCijena, trenutnaCijena);
+      } else if (stopTrigger < trenutnaCijena) {
+        let postotak = odnosTriBroja(trenutnaCijena, ulaznaCijena, stopTrigger);
+      } 
+      if (postotak > 50) {
+        // cijena pobjegla u lošem smjeru
+      } 
+    }
+  }   
+} 
+*/
 
 module.exports = stratty;

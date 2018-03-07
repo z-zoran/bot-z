@@ -2,6 +2,7 @@
 
 // Event mašina
 // Tu definiramo glavni EventEmitter koji sluša eventove i aktivira potrebne funkcije.
+// Također definiramo i dotične funkcije.
 // Moduli koji trebaju event komunikaciju, uključuju ovaj modul da mogu emitirati
 
 // Trebati će poubacivati metode/funkcije za komunikaciju s exchangeovima za skoro svaki event.
