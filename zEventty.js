@@ -76,7 +76,7 @@ let popraviSellLimit = function (cijena) {
 emitterko.on('postaviSellLimit', popraviSellLimit);
 
 /**************************PIZDARIJA*************************************** */
-// ako na neku foru algoritam procuri kroz neki od if-ova 1-4 u zStratty, onda je ovo hvatač tog errora
+// ako na neku foru algoritam procuri kroz neki od if-ova 1-6 u zStratty, onda je ovo hvatač tog errora
 // (jer je jedini način da je procurilo = nekakav error u programu, odnosno ne daje željene rezultate)
 let procuriloJe = function () {
     console.log('ERROR!!! Procurio sam kroz if-ove!!! OVO SE NE SMIJE DEŠAVATI!');

@@ -1,6 +1,6 @@
 "use strict";
 
-// lib za logiranje svega u fajlove
+// lib za logiranje eventova u fajlove
 
 const fs = require('fs');
 
@@ -13,6 +13,10 @@ const loggy = function loggy() {
         switch (tip) {
             case 'postLimit':
                 this.postLimitCounter += 1;
+                let counterString = (this.postLimitCounter.toString()).padStart(6, "0");
+                let imeFajla = './rom/pL' + counterString + '.txt';
+                let JSONiziraniPodatak = JSON.stringify(podatak);
+                //fs.writeFile
                 break;
             case 'trigLimit':
                 this.trigLimitCounter += 1;

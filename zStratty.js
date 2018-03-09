@@ -241,7 +241,7 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
       }
       
     } else { 
-      // hvatamo error ako je algoritam procurio kroz if-ove 1-4. 
+      // hvatamo error ako je algoritam procurio kroz if-ove 1-6. 
       emitterko.emit('procurioSam');
     }
   } // zatvaranje "AKO IMA BAREM JEDAN LIMIT" (opcija 2)
