@@ -3,14 +3,42 @@
 // Library s pozicijama.
 
 
-// assignamo sve u objekt "pozzy" koji ćemo module.exportati na kraju
+// assignamo sve varijable, funkcije i klase u objekt "pozzy" koji ćemo module.exportati na kraju
 let pozzy = {};
+pozzy.svePozicijeIkada = [];
+pozzy.sviLimitTriggeri = {};
+pozzy.sviStopTriggeri = [];
+pozzy.sviTrailingStopovi = [];
 
-let memorija = require('./zMemy.js');
-let svePozicijeIkada = memorija.pozicije; 
-let sviLimitTriggeri = memorija.limiti;	
-let sviStopTriggeri = memorija.stopovi;	
-let sviTrailingStopovi = memorija.traileri;	
+
+let svePozicijeIkada = pozzy.svePozicijeIkada; 
+
+let sviLimitTriggeri = pozzy.sviLimitTriggeri;	
+/*
+LIMIT TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
+sviLimitTriggeri: {
+  buy: {idParentPozicije: ...,
+        cijenaLimit: ...}, 
+  sell:{idParentPozicije: ...,
+        cijenaLimit: ...}
+}
+*/
+let sviStopTriggeri = pozzy.sviStopTriggeri;	
+/*
+STOP TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
+sviStopTriggeri: [
+  0: {idParentPozicije: ...,
+      triggerCijena: ...},
+  1: {idParentPozicije: ...,
+      triggerCijena: ...},
+  (...)
+]
+*/
+let sviTrailingStopovi = pozzy.sviTrailingStopovi;	
+/*
+TRAILING STOPOVI IMAJU SVOJU KLASU.
+Njih samo treba svaki krug izvrtiti svima metodu .korekcija, da se prilagode kretanju cijene.
+*/
 
 /*--------------POZICIJA: KONSTRUKTOR---------------------*/
 

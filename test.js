@@ -1,12 +1,10 @@
-/*
-SKRIPTICA ZA IZDVOJENO TESTIRANJE KONCEPTIĆA
-*/
+let limitData = {};
+limitData.market = 'eth-btc';
 
-// test eventemittera - dal može bit u izdvojenom modulu a zvan odnekud drugdje?
+let base = limitData.market.split('-')[0];
+let quote = limitData.market.split('-')[1];
 
-
-const emitterko = require('./zEventty.js');
-
-
-module.exports = emitterko;
-
+console.log(limitData);
+console.log(limitData.market);
+console.log(base);
+console.log(quote);

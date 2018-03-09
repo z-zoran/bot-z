@@ -14,13 +14,9 @@
 
 /*-------------------REQUIRE------------------*/
 
-// event mašina. unutra su podešene funkcije i triggeri.
-// logika zStratty-ja treba samo odlučiti kad šta zvati s .emit-ovima
-// a u zEventty-ju je sva logika koja odrađuje pojedine stvari.
 let emitterko = require('./zEventty.js');
-
-// vučemo library s pozicijama
 let pozzy = require('./zPozzy.js');
+let memorija = require('./zMemy.js');
 
 // lib sa indikatorima
 let indi = require('./zoki-indi.js');
@@ -31,14 +27,10 @@ let stratty = {};
 
 /*-------------TRČUĆE VARIJABLE---------------*/
 
-let svePozicijeIkada = stratty.svePozicijeIkada = pozzy.svePozicijeIkada; 
-
-let sviLimitTriggeri = stratty.sviLimitTriggeri = pozzy.sviLimitTriggeri;	
-
-let sviStopTriggeri = stratty.sviStopTriggeri = pozzy.sviStopTriggeri;	
-
-let sviTrailingStopovi = stratty.sviTrailingStopovi = pozzy.sviTrailingStopovi;	
-
+let svePozicijeIkada = memorija.pozicije; 
+let sviLimitTriggeri = memorija.limiti;	
+let sviStopTriggeri = memorija.stopovi;	
+let sviTrailingStopovi = memorija.traileri;	
 
 /*--------------------------FUNKCIJE----------------------------*/
 
