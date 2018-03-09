@@ -1,10 +1,15 @@
 "use strict";
 
-// Library s pozicijama.
+// Library s nultom pozicijom. To je de facto portfolio iz kojeg stvaramo nove pozicije, i u koji se vraćaju slobodne pozicije.
+
+// Prebaciti metode za stvaranje pozicija ovdje.
+// Objekt Pozicija ostati će za potrebe logiranja ali neće imati svoje metode.
 
 
-// assignamo sve varijable, funkcije i klase u objekt "pozzy" koji ćemo module.exportati na kraju
+// vučemo iz pozzy-ja
 let pozzy = require('./zPozzy.js');
+
+
 
 let svePozicijeIkada = pozzy.svePozicijeIkada;
 let sviLimitTriggeri = pozzy.sviLimitTriggeri;
