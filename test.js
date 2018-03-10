@@ -1,10 +1,19 @@
-let limitData = {};
-limitData.market = 'eth-btc';
+let fs = require('fs');
+let pisalo = fs.createWriteStream('./testwritestream.txt');
 
-let base = limitData.market.split('-')[0];
-let quote = limitData.market.split('-')[1];
+let testniPodatak = {};
 
-console.log(limitData);
-console.log(limitData.market);
-console.log(base);
-console.log(quote);
+function miksanje() {
+    for (let i = 0; i < 50; i++) {
+        let broj = Math.random() * 100;
+        testniPodatak[i] = broj;
+    }
+}
+
+for (let i = 0; i < 200; i++) {
+    miksanje();
+    console.log(testniPodatak);
+    pisalo.write(JSON.stringify(testniPodatak) + '\n');
+}
+
+pisalo.end();

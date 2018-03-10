@@ -29,8 +29,8 @@ limitData = {
 
 */
 NultaPozicija.prototype.postLimit = function postLimit(limitData) {
-	let base = limitData.market.split('-')[0];
-	let quote = limitData.market.split('-')[1];
+	let base = limitData.market.split('/')[0];
+	let quote = limitData.market.split('/')[1];
 	let umnozak = limitData.iznos * limitData.limitCijena;
 	if (limitData.tip === 'buy') {
 		// provjera imamo li dovoljno quote u NultojPoziciji za kupiti base
@@ -49,6 +49,9 @@ NultaPozicija.prototype.postLimit = function postLimit(limitData) {
 			console.log('Error! Nema dovoljno base-a za postavljanje sell limita. Market: ' + limitData.market);
 		} else {
 			// exchange komunikacija
+			this[base] -= limitData.iznos;
+			sviLimitTriggeri.sell = {};
+			sviLimitTriggeri.sell.cijenaLimit = limitData.limitCijena;
 			console.log('SELL LIMIT POSTAVLJEN. Market: ' + limitData.market + ', iznos: ' + limitData.iznos + ', limit cijena: ' + limitData.limitCijena);
 		}
 	} else {
@@ -56,7 +59,7 @@ NultaPozicija.prototype.postLimit = function postLimit(limitData) {
 	}
 }
 
-NultaPozicija.prototype.ubiLimit = function ubiLimit(idLimita) {
+NultaPozicija.prototype.ubiLimit = function ubiLimit(koji) {
     // exchange komunikacija
 
 }
