@@ -1,6 +1,7 @@
 "use strict";
 
 // Library s nultom pozicijom
+// Nulta pozicija je ustvari portfolio u koji vraćamo sve slobodne pozicije.
 
 let pozzy = require('./zPozzy.js');
 let memorija = require('./zMemy.js');

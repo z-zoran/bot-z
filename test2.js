@@ -6,7 +6,7 @@ objekt.blabla = function blaBla(podatak) {
   this.postLimitCounter += 1;
   console.log(Date.now() + ' početak funkcije ' + this.postLimitCounter);
   let counterString = (this.postLimitCounter.toString()).padStart(6, "0");
-  let imeFajla = './pL' + counterString + '.txt';
+  let imeFajla = './rom/pL' + counterString + '.txt';
   let JSONiziraniPodatak = JSON.stringify(podatak);
   console.log(Date.now() + ' prije writefile');
   fs.writeFileSync(imeFajla, JSONiziraniPodatak);
@@ -16,13 +16,6 @@ objekt.blabla = function blaBla(podatak) {
 for (let i = 0; i < 20; i++) {
   objekt.blabla(objekt);
 }
-
-
-
-
-
-
-
 
 
 
