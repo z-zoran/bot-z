@@ -38,7 +38,7 @@ TRENUTNO RAŠČIŠĆAVAM MODULE PA JU MIČEM IZ zStratty DA NE PRAVI GUŽVU BEZV
 */
 // neovisna funkcija koja ublažuje lossove svih loših pozicija
 stratty.grobarPozicija = function grobarPozicija(trenutnaCijena, vrijeme) {
-    for (let poz in svePozicijeIkada) {   // pregledavamo sve pozicije
+    for (let poz in memorija.pozicije) {   // pregledavamo sve pozicije
     
       let ulaznaCijena = poz.ulazniQuoteIznos / poz.ulazniBaseIznos;  
       let stopTrigger = poz.stopTrigger;

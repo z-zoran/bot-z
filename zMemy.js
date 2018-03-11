@@ -15,7 +15,7 @@ module.exports = memorija;
 
 /*
 LIMIT TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
-sviLimitTriggeri: {
+memorija.limiti: {
   buy: {idParentPozicije: ...,
         cijenaLimit: ...}, 
   sell:{idParentPozicije: ...,
@@ -25,7 +25,7 @@ sviLimitTriggeri: {
 
 /*
 STOP TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
-sviStopTriggeri: [
+memorija.stopovi: [
   0: {idParentPozicije: ...,
       triggerCijena: ...},
   1: {idParentPozicije: ...,

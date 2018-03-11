@@ -5,28 +5,28 @@
 
 // assignamo sve varijable, funkcije i klase u objekt "pozzy" koji ćemo module.exportati na kraju
 let pozzy = {};
-pozzy.svePozicijeIkada = [];
-pozzy.sviLimitTriggeri = {};
-pozzy.sviStopTriggeri = [];
-pozzy.sviTrailingStopovi = [];
+pozzy.memorija.pozicije = [];
+pozzy.memorija.limiti = {};
+pozzy.memorija.stopovi = [];
+pozzy.memorija.traileri = [];
 
 
-let svePozicijeIkada = pozzy.svePozicijeIkada; 
+let memorija.pozicije = pozzy.memorija.pozicije; 
 
-let sviLimitTriggeri = pozzy.sviLimitTriggeri;	
+let memorija.limiti = pozzy.memorija.limiti;	
 /*
 LIMIT TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
-sviLimitTriggeri: {
+memorija.limiti: {
   buy: {idParentPozicije: ...,
         cijenaLimit: ...}, 
   sell:{idParentPozicije: ...,
         cijenaLimit: ...}
 }
 */
-let sviStopTriggeri = pozzy.sviStopTriggeri;	
+let memorija.stopovi = pozzy.memorija.stopovi;	
 /*
 STOP TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
-sviStopTriggeri: [
+memorija.stopovi: [
   0: {idParentPozicije: ...,
       triggerCijena: ...},
   1: {idParentPozicije: ...,
@@ -34,7 +34,7 @@ sviStopTriggeri: [
   (...)
 ]
 */
-let sviTrailingStopovi = pozzy.sviTrailingStopovi;	
+let memorija.traileri = pozzy.memorija.traileri;	
 /*
 TRAILING STOPOVI IMAJU SVOJU KLASU.
 Njih samo treba svaki krug izvrtiti svima metodu .korekcija, da se prilagode kretanju cijene.
@@ -74,7 +74,7 @@ Pozicija.prototype.postaviStopTrigger = function (odmak) {
   let ulaznaCijena = this.ulazniQuoteIznos / this.ulazniBaseIznos;
   let stopTrigger = ulaznaCijena + odmak; 
   let id = this.idPozicije;
-  sviStopTriggeri[id] = stopTrigger;
+  memorija.stopovi[id] = stopTrigger;
 }	// stop trigger je fiksan kad se jednom postavi
 
 /*--------------POZICIJA: NOVI LIMIT---------------------*/
@@ -85,7 +85,7 @@ Pozicija.prototype.postaviNaredniLimit = function (odakle, odmak) {
   let kakavLimit;
   if (odmak < 0) { kakavLimit = 'buy' } 
   	else if (odmak > 0) { kakavLimit = 'sell' }
-  sviLimitTriggeri[kakavLimit] = {id: naredniLimit}
+  memorija.limiti[kakavLimit] = {id: naredniLimit}
 }	// naredni limit nije fiksan, već se podešava prema stop triggeru svaki candle
 
 /*--------------POZICIJA: IZLAZAK---------------------*/
@@ -111,13 +111,13 @@ Pozicija.prototype.izlazak = function (vrijeme, izTiker, izIznos, smanjenje) {
   	this.otvorena = false;
   }
 
-  idIzlaza = svePozicijeIkada.length; 	// Tražimo novi globalni id za novu poziciju
+  idIzlaza = memorija.pozicije.length; 	// Tražimo novi globalni id za novu poziciju
   
   // stvaranje nove pozicije
   novaPozicija = new Pozicija(idIzlaza, idParenta, vrijeme, izlazniBaseTiker, izlazniBaseIznos, izlazniQuoteTiker, izlazniQuoteIznos);
   
   this.mojiChildIzlazi[idIzlaza] = novaPozicija;	// Svaka Pozicija čuva listu svojih izlazaka. 
-  svePozicijeIkada.push(novaPozicija);	// Ovo pohranjuje poziciju u globalni array svih pozicija i automatski povećava slijedeći id.
+  memorija.pozicije.push(novaPozicija);	// Ovo pohranjuje poziciju u globalni array svih pozicija i automatski povećava slijedeći id.
 
   return novaPozicija;	// Vraćamo novostvorenu poziciju. Možda će biti korisno kasnije.
 }

@@ -11,51 +11,52 @@
 
 /*-------------------standardni node.js moduli------------------------*/
 
-const http = require('http');
 const fs = require('fs');
-const events = require('events');
-
 
 /*---------------------kastom zoki.js moduli--------------------------*/
 
-const agro = require('./zAggry.js');
+const agro = require('./zoki-agro.js');
 const stratty = require('./zStratty.js');
-const plotty = require('./zoki-plot.js');
+const pisalo = require('./zLoggy.js');
+let memorija = require('./zMemy.js');
+let nulta = require('./zNulty.js');
 
-/*---------------------varijable--------------------------*/
+/*---------------------VARIJABLE--------------------------*/
 
-const kendlEmitter = new events.EventEmitter(); // ovaj emitira kendlove
-kendlEmitter.on('kendl', )
 
-// testni materijal
 let putanja = './exchdata/testdata.txt';
 // testni trejdovi i kendlovi
 let paketKendlova = agro(putanja);
 
-// glavni testing loop
-for (let i = 0; i < 20000; i++) {
-    let jednoMaloKendlo = paketKendlova.arr1min[i];
-    kendlEmitter.emit('kendl');
+/*---------------------algoritam--------------------------*/
+
+function stratWrapper(kendl) {
+    let cijena = kendl.C;
+    pisalo.pisi();
+    pisalo.pisi();
+
+
 }
 
+for (let i = 0; i < paketKendlova.arr1min.length; i++) {
+    // izdvajamo pojedini kendl
+    let jednoKendlo = paketKendlova.arr1min[i];
+    pisalo.pisi(jednoKendlo);
+    // šaljemo kendl u wrapper koji feeda strategiju s H i L
+    stratWrapper(jednoKendlo);
 
-// kad se pojavi novi kendl, zovemo slijedeće module
-kendlEmitter.on('kendl', modulOvaj);
-kendlEmitter.on('kendl', modulOnaj);
-kendlEmitter.emit('kendl');
+}
+
+pisalo.end();
+
+/*
+agro-aj cijeli sample
+feed-aj kendl po kendl
+algoritam svaki kendl provjerava jel nešto trigerano
+    i podešava sve šta treba.
+ako je u jednom kendlu trigeran gornji limit, provjeriti je li u istom kendlu trigeran donji limit.
+ako su trigerana oba, onda javiti 
+*/
 
 let devijacije = indi.zDev(kendlovi.k5min, 20);
 // šaljemo kendlove iz -agro u -indi da dobijemo devijacije za svaki kendl
-
-// treba ovo sad osmisliti, main bi trebao čitati kendlove i onda ih feedati strategiji
-
-function bekTester() {
-    // učitamo neki period trejda
-    // izkendlamo ga 
-    // složit emiter i listener
-    // složimo setTimeout funkciju da svakih t milisekundi emita kendl
-    // strategija se odvrti sa svakim kendlom
-    // postavit ćemo da stratty emitira komande prema burzi
-    // 
-}
-

@@ -4,6 +4,14 @@
 
 const fs = require('fs');
 
+let loggy = fs.createWriteStream('./pisalo-test.txt');
+
+loggy.pisi = function pisi(data) {
+    let zaPisanje = Date.now() + ' ' + JSON.stringify(data) + '\n';
+    this.write(zaPisanje);
+}
+
+/*
 const loggy = function loggy() {
     this.postLimitCounter = 0;
     this.trigLimitCounter = 0;

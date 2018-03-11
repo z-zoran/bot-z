@@ -227,7 +227,7 @@ function agregator1h(arr15min) {
 
 function paketKendlova(putanjaTrejdova) {
     // ovo je putanja za testiranje
-    let putanja = './exchdata/testdata.txt';
+    let putanja = putanjaTrejdova;
     // objektifikator pretvara trejdove u objekte
     let arrayTrejdova = objektifikator(putanja); // ako se izvana daje putanja onda ovdje proslijeđujemo putanjaTrejdova
     // s kendlizatorom, dobivamo array 1-min kendlova.
