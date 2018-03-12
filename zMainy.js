@@ -19,7 +19,7 @@ const agro = require('./zoki-agro.js');
 const stratty = require('./zStratty.js');
 const pisalo = require('./zLoggy.js');
 let memorija = require('./zMemy.js');
-let nulta = require('./zNulty.js');
+let portfolio = require('./zPortfolio.js');
 
 /*---------------------VARIJABLE--------------------------*/
 

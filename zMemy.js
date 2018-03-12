@@ -5,7 +5,7 @@
 // Ostali moduli koji trebaju čitati/pisati te podatke, require-aju ovaj modul.
 
 let memorija = {
-    pozicije: [],
+    pozicije: {},
     limiti: {},
     stopovi: [],
     traileri: []
@@ -16,20 +16,17 @@ module.exports = memorija;
 /*
 LIMIT TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
 memorija.limiti: {
-  buy: {idParentPozicije: ...,
-        cijenaLimit: ...}, 
-  sell:{idParentPozicije: ...,
-        cijenaLimit: ...}
+    buy: limitOrder objekt, 
+    sell: limitOrder objekt
 }
 */
 
 /*
 STOP TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
 memorija.stopovi: [
-  0: {idParentPozicije: ...,
-      triggerCijena: ...},
-  1: {idParentPozicije: ...,
-      triggerCijena: ...},
-  (...)
+    0: stopTrigger objekt,
+    1: stopTrigger objekt,
+    2: stopTrigger objekt,
+    (...)
 ]
 */

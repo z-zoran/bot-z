@@ -1,19 +1,33 @@
 "use strict";
 
-// Library s nultom pozicijom
-// Nulta pozicija je ustvari portfolio u koji vraćamo sve slobodne pozicije.
+// Library s klasama. WIP
+// portfolio pozicija je ustvari portfolio u koji vraćamo sve slobodne pozicije.
 
 let pozzy = require('./zPozzy.js');
 let memorija = require('./zMemy.js');
 let pisalo = require('./zLoggy.js');
 
-// KLASA ZA NULTU POZICIJU
-const NultaPozicija = function NultaPozicija(eur, eth, btc, ltc, bch) {
+/*
+Neka osnovna logika je slijedeća:
+- Portfolio postavlja/ubija limitOrdere.
+	(njihova vrijednost se insta oduzima/dodaje od nultoj poziciji)
+	- LimitOrderi kod triggeranja se samo-ubijaju i stvaraju Poziciju i StopTrigger
+		- StopTrigger se kod triggeranja samo-ubija i stvara Trailer.
+			- Trailer se kod triggeranja samo-ubija, ubija i Poziciju i hrani njen iznos natrag u nultu poziciju.
+
+
+*/
+
+
+
+// KLASA ZA PORTFOLIO
+function Portfolio(eur, eth, btc, ltc, bch) {
 	this.EUR = eur;
 	this.ETH = eth;
 	this.BTC = btc;
 	this.LTC = ltc;
 	this.BCH = bch;
+	this.pozCounter = 0;
 	this.limitCounter = 0;
 	this.stopCounter = 0;
 	this.trailerCounter = 0;
@@ -22,14 +36,14 @@ const NultaPozicija = function NultaPozicija(eur, eth, btc, ltc, bch) {
 PODACI ZA LIMIT ORDERE
 limitData = {
 	tip: 'buy', (ili 'sell')
-	market: 'eth-eur',
+	market: 'ETH/EUR',
 	iznos: 2.345,
 	limitCijena: 756.78
 }
 */
 
 // KLASA ZA LIMIT ORDERE
-const limitOrder = function limitOrder(id, limitData) {
+function LimitOrder(id, limitData) {
 	this.id = id;	
 	this.tip = limitData.tip;
 	this.market = limitData.market;
@@ -39,7 +53,7 @@ const limitOrder = function limitOrder(id, limitData) {
 }
 
 // METODA ZA POSTAVLJANJE LIMITA
-NultaPozicija.prototype.postLimit = function postLimit(limitData) {
+Portfolio.prototype.postLimit = function postLimit(limitData) {
 	memorija.limiti[limitData.tip] = {};	// iniciramo novi ili brišemo stari limit
 	this.limitCounter += 1; 	// povečavamo counter za limit id
 	let counterString = (this.limitCounter.toString()).padStart(6, "0");
@@ -74,34 +88,43 @@ NultaPozicija.prototype.postLimit = function postLimit(limitData) {
 }
 
 // METODA ZA UBIJANJE LIMITA
-NultaPozicija.prototype.ubiLimit = function ubiLimit(koji) {
+Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
     // exchange komunikacija
+	if (koji === 'buy') {
+		this.quote += memorija.limiti.buy.umnozak;
+	} else if (koji === 'sell') {
+
+	}
 	delete memorija.limiti[koji];
+
+}
+
+/*
+PODACI ZA POZICIJE
+pozData = {
+	tip: 'buy', (ili 'sell')
+	market: 'ETH/EUR',
+	kupljeno: 2.345, (ako je 'buy' onda su ETH, ako je sell onda su 'EUR')
+	prodano: 756.78  (obratno od prodano! valuta ovisi o tome jel buy ili sell...)
+}
+*/
+
+// KLASA ZA POZICIJE
+function Pozicija(id, pozData) {
+	this.id = id;	
+	this.tip = pozData.tip;
+	this.market = pozData.market;
+	this.kupljeno = {};
+	this.prodano = {};
+
 }
 
 // KLASA ZA STOP TRIGGERE
-const stopTrigger = function stopTrigger() {
+function StopTrigger(stopData) {
 	
 }
 
-// METODA ZA POSTAVLJANJE STOP TRIGGERA
-NultaPozicija.prototype.postStopTrig = function postStopTrig() {
-	// exchange komunikacija
+// KLASA ZA TRAILERE
+function Trailer(trailerData) {
 
 }
-
-NultaPozicija.prototype.ubiStopTrig = function ubiStopTrig() {
-    // exchange komunikacija
-
-}
-
-NultaPozicija.prototype.postTrailer = function postTrailer() {
-    // exchange komunikacija
-
-}
-
-NultaPozicija.prototype.ubiTrailer = function ubiTrailer() {
-    // exchange komunikacija
-
-}
-
