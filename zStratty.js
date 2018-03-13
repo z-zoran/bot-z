@@ -6,11 +6,6 @@
 
 // U tijeku povezivanje s zEventty-jem
 
-// treba složiti funkciju "pozicioniranje" koja traži najpovoljniju poziciju iz koje bi se izašlo u novu poziciju
-/* nešto tipa 
-    1 nađi poziciju s najpovoljnijom base valutom
-    2 provjeri je li dovoljno velika za nov izlazak
-*/
 
 /*-------------------REQUIRE------------------*/
 
@@ -24,13 +19,6 @@ let devijacija = indi.zDev;
 
 // definiramo module.exports objekt "stratty" u koji ćemo sve trpati 
 let stratty = {};
-
-/*-------------TRČUĆE VARIJABLE---------------*/
-
-let memorija.pozicije = memorija.pozicije; 
-let memorija.limiti = memorija.limiti;	
-let memorija.stopovi = memorija.stopovi;	
-let memorija.traileri = memorija.traileri;	
 
 /*--------------------------FUNKCIJE----------------------------*/
 
@@ -64,7 +52,7 @@ function odnosTriBroja(gornja, srednja, donja) {
 // NIJE DOBRO. PROČITAJ NA DNU ISPOD STRATEGIJE.
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
-stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, odmakLambda) {  // strategija za jahanje cijene 
+stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, odmakPhi, odmakLambda) {  // strategija za jahanje cijene 
   // cijenaSad je trenutna cijena
   // odmakPhi je odmak stop triggera (željeni profit)
   // odmakLambda je odmak slijedećeg limita (standardna devijacija ili slično)
@@ -246,16 +234,5 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(cijenaSad, odmakPhi, od
     }
   } // zatvaranje "AKO IMA BAREM JEDAN LIMIT" (opcija 2)
 } // zatvaranje cijele funkcije
-
-// SAD KAD SAM NAPRAVIO CIJELU STRATEGIJU KAO SERIJU IF-OVA, SAD SAM SE SJETIO DA SAM SE NEKI DAN SJETIO DA BI TREBALO SLOŽIT JEBENI SWITCH. KURAC PIČKA!
-
-// NIJE DOBRO. ZABORAVIO SAM BUY I SELL LIMIT TRIGGERE.
-// DRUGA STVAR, TREBA RAZJASNITI KAKO TRETIRATI TRAILERE.
-// OVO JE PRILIKA DA PONOVO NAPIŠEM CIJELU STVAR KAO SWITCH.
-// ALI PRVO MORAM NA PAPIRU RAZJASNITI STVARI ....
-
-
-
-
 
 module.exports = stratty;
