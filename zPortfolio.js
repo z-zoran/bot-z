@@ -201,10 +201,8 @@ Trailer.prototype.korekcija = function korekcija(cijenaSad) {
 		memorija[this.portfolio].pozicije[this.id].likvidacija(cijenaSad);
 	}
 }
-  
-  
 
-
+// DOPUNITI OVAJ API S PRECIZNO DEFINIRANIM PROPERTYJIMA
 
 /*
 PODACI ZA TRAILERE
