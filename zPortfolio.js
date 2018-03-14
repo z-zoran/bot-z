@@ -126,8 +126,7 @@ Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	}
 	this.pozCounter += 1; 	// povečavamo counter za id pozicije
 	let pozCounterString = (this.pozCounter.toString()).padStart(6, "0");
-	let novaPoz = new Pozicija(pozCounterString, pozData);
-	memorija[this.portfolio].pozicije[pozCounterString] = novaPoz;
+	memorija[this.portfolio].pozicije[pozCounterString] = new Pozicija(pozCounterString, pozData);
 	let poruka = 'LimitOrder ' + memorija[this.portfolio].limiti[koja].id + ' konzumiran. Stvorena ' + koja + ' pozicija id: ' + pozCounterString + ' | iznos: ' + pozData.base.toFixed(6) + ' | cijena: ' + pozData.cijena.toFixed(2) + ' | stop: ' + pozData.stop.toFixed(2);
 	pisalo.pisi(poruka);
 	delete memorija[this.portfolio].limiti[koja];
@@ -158,7 +157,8 @@ Pozicija.prototype.stopTriggeran = function(odmak) {
 	} else if (this.tip === 'sell') {
 		trailerData.odmak = odmak;
 	}
-	memorija[this.portfolio].traileri[trailerData.id] = new Trailer(trailerData);
+	memorija[this.portfolio].traileri[this.id] = new Trailer(trailerData);
+	let poruka = 'Stop trigger ' + memorija[this.portfolio].pozicije[this.id] + 
 	delete this.stop;
 }
 
