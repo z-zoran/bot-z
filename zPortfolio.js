@@ -39,6 +39,8 @@ function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
 	this.BCH = bch;
 	this.pozCounter = 0;
 	this.limitCounter = 0;
+	this.limiti = {};
+	this.pozicije = {};
 }
 
 
@@ -58,9 +60,9 @@ function LimitOrder(id, limitData) {
 
 // METODA ZA POSTAVLJANJE LIMITA
 Portfolio.prototype.postLimit = function postLimit(limitData) {
-	memorija[this.portfolio].limiti[limitData.tip] = {};	// iniciramo novi ili brišemo stari limit
+	this.limiti[limitData.tip] = {};	// iniciramo novi ili brišemo stari limit
 	this.limitCounter += 1; 	// povečavamo counter za limit id
-	let limitCounterString = (this.limitCounter.toString()).padStart(6, "0");
+	let limitCounterString = (this.limitCounter.toString()).padStart(4, "0");
 	let baseTiker = limitData.market.split('/')[0];
 	let quoteTiker = limitData.market.split('/')[1];
 	let umnozak = limitData.iznos * limitData.limitCijena;
@@ -72,7 +74,7 @@ Portfolio.prototype.postLimit = function postLimit(limitData) {
 		} else {
 			// exchange komunikacija
 			this[quoteTiker] -= umnozak;
-			memorija[this.portfolio].limiti.buy = new LimitOrder(limitCounterString, limitData);
+			this.limiti.buy = new LimitOrder(limitCounterString, limitData);
 			poruka = 'BUY LIMIT POSTAVLJEN. LimitID: ' + limitCounterString + ', iznos: ' + limitData.iznos + ', limit cijena: ' + limitData.limitCijena;
 		}
 	} else if (limitData.tip === 'sell') {
@@ -82,7 +84,7 @@ Portfolio.prototype.postLimit = function postLimit(limitData) {
 		} else {
 			// exchange komunikacija
 			this[baseTiker] -= limitData.iznos;
-			memorija[this.portfolio].limiti.sell = new LimitOrder(limitCounterString, limitData);
+			this.limiti.sell = new LimitOrder(limitCounterString, limitData);
 			poruka = 'SELL LIMIT POSTAVLJEN. LimitID: ' + limitCounterString + ', iznos: ' + limitData.iznos + ', limit cijena: ' + limitData.limitCijena;
 		}
 	} else {
@@ -96,12 +98,12 @@ Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
     // exchange komunikacija
 	let poruka = '';
 	if (koji === 'buy') {
-		this[quoteTiker] += memorija[this.portfolio].limiti.buy.umnozak;
-		delete memorija[this.portfolio].limiti.buy;
+		this[quoteTiker] += this.limiti.buy.umnozak;
+		delete this.limiti.buy;
 		poruka = 'BUY LIMIT UBIJEN.';
 	} else if (koji === 'sell') {
-		this[baseTiker] += memorija[this.portfolio].limiti.sell.iznos;
-		delete memorija[this.portfolio].limiti.sell;
+		this[baseTiker] += this.limiti.sell.iznos;
+		delete this.limiti.sell;
 		poruka = 'SELL LIMIT UBIJEN.'
 	}
 	pisalo.pisi(poruka);
@@ -113,11 +115,11 @@ Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	// definiramo pozData za stvaranje nove pozicije.
 	pozData.portfolio = this.portfolio;
 	pozData.tip = koja;
-	pozData.market = memorija[this.portfolio].limiti[koja].market;
-	pozData.baseTiker = memorija[this.portfolio].limiti[koja].baseTiker;
-	pozData.base = memorija[this.portfolio].limiti[koja].iznos;
-	pozData.quoteTiker = memorija[this.portfolio].limiti[koja].quoteTiker;
-	pozData.quote = memorija[this.portfolio].limiti[koja].umnozak;
+	pozData.market = this.limiti[koja].market;
+	pozData.baseTiker = this.limiti[koja].baseTiker;
+	pozData.base = this.limiti[koja].iznos;
+	pozData.quoteTiker = this.limiti[koja].quoteTiker;
+	pozData.quote = this.limiti[koja].umnozak;
 	pozData.cijena = pozData.quote / pozData.base;
 	if (koja === 'buy') {
 		pozData.stop = pozData.cijena + odmakPhi;
@@ -125,11 +127,11 @@ Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 		pozData.stop = pozData.cijena - odmakPhi;
 	}
 	this.pozCounter += 1; 	// povečavamo counter za id pozicije
-	let pozCounterString = (this.pozCounter.toString()).padStart(6, "0");
-	memorija[this.portfolio].pozicije[pozCounterString] = new Pozicija(pozCounterString, pozData);
-	let poruka = 'LimitOrder ' + memorija[this.portfolio].limiti[koja].id + ' konzumiran. Stvorena ' + koja + ' pozicija id: ' + pozCounterString + ' | iznos: ' + pozData.base.toFixed(6) + ' | cijena: ' + pozData.cijena.toFixed(2) + ' | stop: ' + pozData.stop.toFixed(2);
+	let pozCounterString = (this.pozCounter.toString()).padStart(4, "0");
+	this.pozicije[pozCounterString] = new Pozicija(pozCounterString, pozData);
+	let poruka = 'LimitOrder ' + this.limiti[koja].id + ' konzumiran. Stvorena ' + koja + ' pozicija id: ' + pozCounterString + ' | iznos: ' + pozData.base.toFixed(6) + ' | cijena: ' + pozData.cijena.toFixed(2) + ' | stop: ' + pozData.stop.toFixed(2);
 	pisalo.pisi(poruka);
-	delete memorija[this.portfolio].limiti[koja];
+	delete this.limiti[koja];
 }
 
 // KLASA ZA POZICIJE
