@@ -5,7 +5,7 @@ objekt.postLimitCounter = 0;
 objekt.blabla = function blaBla(podatak) {
   this.postLimitCounter += 1;
   console.log(Date.now() + ' početak funkcije ' + this.postLimitCounter);
-  let counterString = (this.postLimitCounter.toString()).padStart(6, "0");
+  let counterString = (this.postLimitCounter.toString()).padStart(4, "0");
   let imeFajla = './rom/pL' + counterString + '.txt';
   let JSONiziraniPodatak = JSON.stringify(podatak);
   console.log(Date.now() + ' prije writefile');
