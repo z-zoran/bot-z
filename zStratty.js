@@ -86,7 +86,9 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, i
                 break;
             }
         } 
-
+        if (Object.keys(portfolio.pozicije).length === 0) {
+            
+        }
         // provjeriti da li postoji ijedna pozicija sa stopom
         // ako ne postoji, to će utjecati na neke od if-ova, jer se ravnaju prema stop trigerima pozicija.
         // ako je ovo loop broj 2 strategije, onda postoje samo dva limita, i nema pozicija nigdje
