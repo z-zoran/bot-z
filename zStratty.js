@@ -76,26 +76,37 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, i
         portfolio.postLimit(buyLimitData);
     /*-opcija 2--------------AKO IMA BAREM JEDAN LIMIT-----------------------*/
     } else if (imaBaremJedanLimit) {
-        // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
-        let triggeranBuyLimit = (portfolio.limiti.buy.limitCijena > cijenaSad);
-        let triggeranSellLimit = (portfolio.limiti.sell.limitCijena < cijenaSad);
-        
-        if (portfolio.lim)
-        
-        
         let limitCounterString = (portfolio.limitCounter.toString()).padStart(4, "0");
+        let pozCounterString;
+        // traženje pozicije koja još ima stop (stop se briše kad je triggeran)
+        for (let i = 0; i <= portfolio.pozCounter; i++) {
+            // tu dovršiti
+            pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
+            if (portfolio.pozicije[pozCounterString].stop) {
+                break;
+            }
+        } 
 
-        let zadnjiLimit = portfolio.limiti[]
-        let zadnjaPozicija = portfolio.pozicije[(portfolio.pozCounter.toString()).padStart(4, "0")];
+        // provjeriti da li postoji ijedna pozicija sa stopom
+        // ako ne postoji, to će utjecati na neke od if-ova, jer se ravnaju prema stop trigerima pozicija.
+        // ako je ovo loop broj 2 strategije, onda postoje samo dva limita, i nema pozicija nigdje
+        //
 
-        let stopTriggerIznadJeTriggeran = (zadnjaPozicija.tip === 'buy') && (cijenaSad > stopTrig.triggerCijena);
-        let stopTriggerIspodJeTriggeran = (zadnjaPozicija.tip === 'sell') && (cijenaSad < stopTrig.triggerCijena);
-        
-        let cijenaJeuGornjemKanalu = odnosTriBroja(zadnjaPozicija.stop, cijenaSad, portfolio.limiti.buy.cijenaLimit) > 50;
-        let cijenaJeuDonjemKanalu = odnosTriBroja(portfolio.limiti.sell.cijenaLimit, cijenaSad, stopTrig.triggerCijena) < 50;
-
-        let buyLimitPostojiAliDalekoJe = portfolio.limiti.buy && cijenaJeuGornjemKanalu;
-        let sellLimitPostojiAliDalekoJe = portfolio.limiti.sell && cijenaJeuDonjemKanalu;
+        let zadnjiLimit = portfolio.limiti[limitCounterString];
+        let zadnjaPozicijaSaStopomSaStopom = portfolio.pozicije[pozCounterString];
+        // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
+        // if broj 1
+        let stopTriggerIznadJeTriggeran = (zadnjaPozicijaSaStopom.tip === 'buy') && (cijenaSad > zadnjaPozicijaSaStopom.stop);
+        // if broj 2
+        let stopTriggerIspodJeTriggeran = (zadnjaPozicijaSaStopom.tip === 'sell') && (cijenaSad < zadnjaPozicijaSaStopom.stop);
+        // if broj 3
+        let triggeranBuyLimit = (portfolio.limiti.buy.limitCijena > cijenaSad);
+        // if broj 4
+        let triggeranSellLimit = (portfolio.limiti.sell.limitCijena < cijenaSad);
+        // if broj 5
+        let buyLimitPostojiAliDalekoJe = (portfolio.limiti.buy) && (odnosTriBroja(zadnjaPozicijaSaStopom.stop, cijenaSad, portfolio.limiti.buy.limitCijena) > 50);
+        // if broj 6
+        let sellLimitPostojiAliDalekoJe = (portfolio.limiti.sell) && (odnosTriBroja(portfolio.limiti.sell.limitCijena, cijenaSad, stopTrig.triggerCijena) < 50);
 
         /*-if broj 1-------------STOP TRIGGER IZNAD JE TRIGGERAN?-----------------------*/
         if (stopTriggerIznadJeTriggeran) {

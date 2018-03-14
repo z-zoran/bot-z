@@ -13,9 +13,9 @@ console.log(memorija.limiti.buy.iznos);
 
 let koja = 'buy';
 let a = memorija.limiti[koja].iznos;
-
+console.log(!memorija.pozicije);
+console.log(!!memorija.limiti.buy);
 console.log(a);
-
 
 
 /*
