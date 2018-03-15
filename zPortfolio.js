@@ -41,6 +41,7 @@ function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
 	this.limitCounter = 0;
 	this.limiti = {};
 	this.pozicije = {};
+	this.traileri = {};
 }
 
 
@@ -218,6 +219,7 @@ trailerData = {
 /*
 PODACI ZA POZICIJE
 pozData = {
+	portfolio
 	tip: 'buy', (ili 'sell')
 	market: 'ETH/EUR',
 	base: 2.345, 
@@ -229,6 +231,7 @@ pozData = {
 /*
 PODACI ZA LIMIT ORDERE
 limitData = {
+	portfolio
 	tip: 'buy', (ili 'sell')
 	market: 'ETH/EUR',
 	iznos: 2.345,
