@@ -87,7 +87,8 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, i
             let mozdaNoviBuyLimit = cijenaSad - odmakLambda;
             let trebaPomaknutiLimit = mozdaNoviBuyLimit > donjiLimit;
             if (trebaPomaknutiLimit) {
-                portfolio.
+                portfolio.ubiLimit('buy');
+                portfolio.postLimit()
                 // ubi buy limit
                 // postavi novi buy limit
             }
