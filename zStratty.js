@@ -55,7 +55,8 @@ function odnosTriBroja(gornja, srednja, donja) {
 stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau) {  // strategija za jahanje cijene 
     // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     let nemaNijedanLimit = (!portfolio.limiti.sell && !portfolio.limiti.buy);
-    let imaBaremJedanLimit = (portfolio.limiti.sell || portfolio.limiti.buy);
+    let imaDvaLimita = (portfolio.limiti.sell && portfolio.limiti.buy);
+    let imaJedanLimit = (portfolio.limiti.sell || portfolio.limiti.buy);
     /*-opcija 1--------------AKO NEMA NIJEDAN LIMIT-----------------------*/
     if (nemaNijedanLimit) {
         // postavimo sell limit
@@ -74,8 +75,29 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, i
         buyLimitData.iznos = iznos;
         buyLimitData.limitCijena = cijenaSad - odmakLambda;
         portfolio.postLimit(buyLimitData);
-    /*-opcija 2--------------AKO IMA BAREM JEDAN LIMIT-----------------------*/
-    } else if (imaBaremJedanLimit) {
+    
+    /*-opcija 3--------------AKO IMA BAREM JEDAN LIMIT-----------------------*/
+    } else if (imaDvaLimita) {
+        let gornjiLimit = portfolio.limiti.sell.limitCijena;
+        let donjiLimit = portfolio.limiti.buy.limitCijena;
+        let cijenaJeGore = odnosTriBroja(gornjiLimit, cijenaSad, donjiLimit) > 50;
+        let cijenaJeDole = odnosTriBroja(gornjiLimit, cijenaSad, donjiLimit) < 50;
+        if (cijenaJeGore) {
+            // korekcija buy limita
+            let mozdaNoviBuyLimit = cijenaSad - odmakLambda;
+            let trebaPomaknutiLimit = mozdaNoviBuyLimit > donjiLimit;
+            if (trebaPomaknutiLimit) {
+                portfolio.
+                // ubi buy limit
+                // postavi novi buy limit
+            }
+
+        } else if (cijenaJeDole) {
+
+        }
+    
+    /*-opcija 3--------------AKO IMA BAREM JEDAN LIMIT-----------------------*/
+    } else if (imaJedanLimit) {
         let limitCounterString = (portfolio.limitCounter.toString()).padStart(4, "0");
         let pozCounterString;
         // traženje pozicije koja još ima stop (stop se briše kad je triggeran)
@@ -86,7 +108,8 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, i
                 break;
             }
         } 
-        if (Object.keys(portfolio.pozicije).length === 0) {
+        let nemaNijednaPozicija = (Object.keys(portfolio.pozicije).length === 0);
+        if (nemaNijednaPozicija) {
             
         }
         // provjeriti da li postoji ijedna pozicija sa stopom
