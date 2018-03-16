@@ -30,15 +30,10 @@ let paketKendlova = agro(putanja);
 
 /*---------------------algoritam--------------------------*/
 
-function stratWrapper(kendl) {
-    let cijena = kendl.C;
-    pisalo.pisi();
-    pisalo.pisi();
-
-
-}
-
 for (let i = 0; i < paketKendlova.arr1min.length; i++) {
+
+
+    
     // izdvajamo pojedini kendl
     let jednoKendlo = paketKendlova.arr1min[i];
     pisalo.pisi(jednoKendlo);
