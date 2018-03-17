@@ -42,7 +42,11 @@ stratty.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena, portfo
         ukupnoEura += portfolio.limiti.sell.iznos * popisSvihCijena[portfolio.limiti.sell.baseTiker];
     }
     for (let pozicija in portfolio.pozicije) {
-        ukupnoEura += pozicija.
+        if (pozicija.tip === 'buy') {
+            ukupnoEura += pozicija.iznos * popisSvihCijena[pozicija.baseTiker];
+        } else if (pozicija.tip === 'sell') {
+            ukupnoEura += pozicija.umnozak * popisSvihCijena[pozicija.quoteTiker];
+        }
     }
     return ukupnoEura;
 }
