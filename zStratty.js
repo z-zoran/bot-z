@@ -27,26 +27,32 @@ ILI TAKO NEŠTO. NEMA SMISLA DA JE TU SA STRATEGIJAMA.
 */
 // REFORMIRATI U SKLADU S zPortfolio.js
 stratty.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena, portfolio) { 	
-  // popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
-  // U formatu { EUR:1.00, ETH:750.00, BTC:8500.00, XYZ:0.123 }
-  let ukupnoEura = 0;
-  for (let poz in portfolio.pozicije) {
-  	if (poz.otvorena) {
-  	  valutaOvePozicije = poz.ulazniBaseTiker;
-  	  cijenaOveValute = popisSvihCijena[valutaOvePozicije];
-  	  euriOvePozicije = poz.ulazniBaseIznos * cijenaOveValute;
-  	  ukupnoEura += euriOvePozicije;
-  	}
-  }
-  return ukupnoEura;
+    // popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
+    // U formatu { 'EUR':1.00, 'ETH':750.00, 'BTC':8500.00, 'LTC':123.45, 'BCH':1234.56 }
+    let ukupnoEura = 0;
+    // pretvaranje pasivnog kapitala portfolia u EUR
+    for (let valuta in popisSvihCijena) {
+        ukupnoEura += popisSvihCijena[valuta] * portfolio[valuta];
+    }
+    // pretvaranje postojećih limita u EUR
+    if (portfolio.limiti.buy) {
+        ukupnoEura += portfolio.limiti.buy.umnozak * popisSvihCijena[portfolio.limiti.buy.quoteTiker];
+    }
+    if (portfolio.limiti.sell) {
+        ukupnoEura += portfolio.limiti.sell.iznos * popisSvihCijena[portfolio.limiti.sell.baseTiker];
+    }
+    for (let pozicija in portfolio.pozicije) {
+        ukupnoEura += pozicija.
+    }
+    return ukupnoEura;
 }
 
 // funkcija vraća odnos 3 broja kao postotak (na koliko posto je srednji)
 function odnosTriBroja(gornja, srednja, donja) {
-  let cijeliKanal = gornja - donja;
-  let donjiKanal = srednja - donja;
-  let postotak = (100 * donjiKanal) / cijeliKanal;
-  return postotak;
+    let cijeliKanal = gornja - donja;
+    let donjiKanal = srednja - donja;
+    let postotak = (100 * donjiKanal) / cijeliKanal;
+    return postotak;
 }
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
@@ -54,8 +60,8 @@ function odnosTriBroja(gornja, srednja, donja) {
 // REFORMIRATI U SKLADU S zPortfolio.js
 stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau) {  // strategija za jahanje cijene 
     // KOREKCIJA POSTOJEĆIH TRAILERA
-    for (tr in portfolio.traileri) {
-        tr.korekcija(cijenaSad);
+    for (trailer in portfolio.traileri) {
+        trailer.korekcija(cijenaSad);
     }
     // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     let nemaNijedanLimit = (!portfolio.limiti.sell && !portfolio.limiti.buy);

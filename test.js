@@ -1,4 +1,14 @@
 
+
+let asd = { 'EUR':1.00, 'ETH':750.00, 'BTC':8500.00, 'LTC':123.45, 'BCH':1234.56 };
+console.log(asd);
+for (let bla in asd) {
+    console.log(bla);
+    console.log(asd[bla]);
+}
+
+
+/*
 let memorija = {};
 console.log(memorija);
 memorija.limiti = {};
@@ -16,7 +26,7 @@ let a = memorija.limiti[koja].iznos;
 console.log(!memorija.pozicije);
 console.log(!!memorija.limiti.buy);
 console.log(a);
-
+*/
 
 /*
 let fs = require('fs');
