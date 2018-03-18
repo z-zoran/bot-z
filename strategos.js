@@ -2,17 +2,13 @@
 
 // Library sa strategijama
 // Logika koja se vrti sa svakom novom informacijom s burze.
-// Za potrebe backtestiranja, kendlfider bi trebao na kapaljku davati trejdove.
-
-// U tijeku povezivanje s zEventty-jem
 
 /*-------------------REQUIRE------------------*/
 
 let memorija = require('./memorija.js');
 
 // lib sa indikatorima
-let indi = require('./indikator.js');
-let devijacija = indi.zDev;
+let indikator = require('./indikator.js');
 
 // definiramo module.exports objekt "stratty" u koji ćemo sve trpati 
 let stratty = {};
@@ -59,7 +55,6 @@ function odnosTriBroja(gornja, srednja, donja) {
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
-// REFORMIRATI U SKLADU S klasnaBorba.js
 stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau) {  // strategija za jahanje cijene 
     // KOREKCIJA POSTOJEĆIH TRAILERA
     for (trailer in portfolio.traileri) {

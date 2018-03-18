@@ -69,6 +69,4 @@ function zDevijacija(data, period) {  // inputi su lista kendlova (zadnji najnov
 
 }
 
-module.exports = {
-  zDev: zDevijacija
-}
+module.exports = zDevijacija;

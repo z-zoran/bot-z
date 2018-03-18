@@ -15,9 +15,9 @@ const fs = require('fs');
 
 /*---------------------kastom zoki.js moduli--------------------------*/
 
-const agro = require('./agregator.js');
-const stratty = require('./strategos.js');
-const pisalo = require('./pisalo.js');
+let agro = require('./agregator.js');
+let stratty = require('./strategos.js');
+let pisalo = require('./pisalo.js');
 let memorija = require('./memorija.js');
 let klas = require('./klasnaBorba.js');
 
@@ -40,7 +40,18 @@ let jahanje = stratty.stratJahanjeCijene;
 let devijacije = indi.zDev(kendlovi.k5min, 20);
 // šaljemo kendlove iz -agro u -indi da dobijemo devijacije za svaki kendl
 
+// definiramo subsete izvan for-a
+let ss1min = [];
+let ss5min = [];
+let ss15min = [];
 for (let i = 0; i < paketKendlova.arr1min.length; i++) {
+    ss1min.push(paketKendlova.arr1min[i]);
+    if (i % 5 === 0) {
+        ss5min.push(paketKendlova.arr5min // dovršiti pušanje kendlova u subsete. )
+    }
+    if (i % 15 === 0) {
+
+    }
     if (i < 100) {
         continue;
     }
