@@ -161,7 +161,7 @@ Pozicija.prototype.stopTriggeran = function(odmak) {
 		trailerData.odmak = odmak;
 	}
 	memorija[this.portfolio].traileri[this.id] = new Trailer(trailerData);
-	let poruka = 'Stop trigger ' + memorija[this.portfolio].pozicije[this.id] + 
+	let poruka = 'Stop trigger ' + memorija[this.portfolio].pozicije[this.id] + ' triggeran. Postavljen trailer.';
 	delete this.stop;
 }
 
