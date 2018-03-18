@@ -29,9 +29,6 @@ let stratty = {};
 /*-------------TRČUĆE VARIJABLE---------------*/
   // Array koji sadrži sve pozicije ikada. 
   // Dopunjavamo pri stvaranju nove pozicije (metoda .izlazak)
-let memorija.pozicije = stratty.memorija.pozicije = pozzy.memorija.pozicije; 
-
-let memorija.limiti = stratty.memorija.limiti = pozzy.memorija.limiti;	
 /*
 LIMIT TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
 memorija.limiti: {
@@ -41,7 +38,6 @@ memorija.limiti: {
         cijenaLimit: ...}
 }
 */
-let memorija.stopovi = stratty.memorija.stopovi = pozzy.memorija.stopovi;	
 /*
 STOP TRIGGERI DOLAZE U SLIJEDEĆEM FORMATU:
 memorija.stopovi: [
@@ -52,7 +48,6 @@ memorija.stopovi: [
   (...)
 ]
 */
-let memorija.traileri = stratty.memorija.traileri = pozzy.memorija.traileri;	
 /*
 TRAILING STOPOVI IMAJU SVOJU KLASU.
 Njih samo treba svaki krug izvrtiti svima metodu .korekcija, da se prilagode kretanju cijene.
