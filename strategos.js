@@ -8,12 +8,10 @@
 
 /*-------------------REQUIRE------------------*/
 
-let emitterko = require('./zEventty.js');
-let pozzy = require('./zPozzy.js');
-let memorija = require('./zMemy.js');
+let memorija = require('./memorija.js');
 
 // lib sa indikatorima
-let indi = require('./zoki-indi.js');
+let indi = require('./indikator.js');
 let devijacija = indi.zDev;
 
 // definiramo module.exports objekt "stratty" u koji ćemo sve trpati 
@@ -25,7 +23,7 @@ let stratty = {};
 OVO JE TIP FUNKCIJE KOJU TREBA SKLONITI U ZASEBAN MODUL. NEKAKAV zUtilly
 ILI TAKO NEŠTO. NEMA SMISLA DA JE TU SA STRATEGIJAMA.
 */
-// REFORMIRATI U SKLADU S zPortfolio.js
+// REFORMIRATI U SKLADU S klasnaBorba.js
 stratty.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena, portfolio) { 	
     // popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
     // U formatu { 'EUR':1.00, 'ETH':750.00, 'BTC':8500.00, 'LTC':123.45, 'BCH':1234.56 }
@@ -61,7 +59,7 @@ function odnosTriBroja(gornja, srednja, donja) {
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
-// REFORMIRATI U SKLADU S zPortfolio.js
+// REFORMIRATI U SKLADU S klasnaBorba.js
 stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau) {  // strategija za jahanje cijene 
     // KOREKCIJA POSTOJEĆIH TRAILERA
     for (trailer in portfolio.traileri) {

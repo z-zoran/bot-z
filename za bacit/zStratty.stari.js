@@ -20,7 +20,7 @@ let emitterko = require('./zEventty.js');
 let pozzy = require('./zPozzy.js');
 
 // lib sa indikatorima
-let indi = require('./zoki-indi.js');
+let indi = require('./indikator.js');
 let devijacija = indi.zDev;
 
 // definiramo module.exports objekt "stratty" u koji ćemo sve trpati 

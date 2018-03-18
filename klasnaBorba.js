@@ -4,8 +4,8 @@
 // portfolio je ustvari "glavna pozicija" u koju vraćamo sve slobodne pozicije. 
 // Vezana za strategiju. Svaka strategija imati će svoj portfolio.
 
-let memorija = require('./zMemy.js');
-let pisalo = require('./zLoggy.js');
+let memorija = require('./memorija.js');
+let pisalo = require('./pisalo.js');
 
 /*
 Neka osnovna logika je slijedeća:
@@ -29,8 +29,11 @@ TRAILER METODE:
 
 */
 
+// OBJEKT ZA EXPORT
+let klas = {};
+
 // KLASA ZA PORTFOLIO
-function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
+klas.Portfolio = function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
 	this.portfolio = portfolio;
 	this.EUR = eur;
 	this.ETH = eth;
@@ -46,7 +49,7 @@ function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
 
 
 // KLASA ZA LIMIT ORDERE
-function LimitOrder(id, limitData) {
+klas.LimitOrder = function LimitOrder(id, limitData) {
 	this.portfolio = limitData.portfolio;
 	this.id = id;	
 	this.tip = limitData.tip;
@@ -136,7 +139,7 @@ Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 }
 
 // KLASA ZA POZICIJE
-function Pozicija(id, pozData) {
+klas.Pozicija = function Pozicija(id, pozData) {
 	this.portfolio = pozData.portfolio;
 	this.id = id;	
 	this.tip = pozData.tip;	// buy || sell
@@ -177,7 +180,7 @@ Pozicija.prototype.likvidacija = function(cijenaSad) {
 }
 
 // KLASA ZA TRAILERE
-function Trailer(trailerData) {
+klas.Trailer = function Trailer(trailerData) {
 	this.portfolio = trailerData.portfolio;
 	this.id = trailerData.id;				// izvorna pozicija
 	this.cijena = trailerData.cijena;		// ulazna cijena pozicije
@@ -204,6 +207,8 @@ Trailer.prototype.korekcija = function korekcija(cijenaSad) {
 		memorija[this.portfolio].pozicije[this.id].likvidacija(cijenaSad);
 	}
 }
+
+module.exports = klas;
 
 // DOPUNITI OVAJ API S PRECIZNO DEFINIRANIM PROPERTYJIMA
 

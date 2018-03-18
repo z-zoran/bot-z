@@ -11,10 +11,10 @@
 
 let emitterko = require('./zEventty.js');
 let pozzy = require('./zPozzy.js');
-let memorija = require('./zMemy.js');
+let memorija = require('./memorija.js');
 
 // lib sa indikatorima
-let indi = require('./zoki-indi.js');
+let indi = require('./indikator.js');
 let devijacija = indi.zDev;
 
 // definiramo module.exports objekt "stratty" u koji ćemo sve trpati 
@@ -26,7 +26,7 @@ let stratty = {};
 OVO JE TIP FUNKCIJE KOJU TREBA SKLONITI U ZASEBAN MODUL. NEKAKAV zUtilly
 ILI TAKO NEŠTO. NEMA SMISLA DA JE TU SA STRATEGIJAMA.
 */
-// REFORMIRATI U SKLADU S zPortfolio.js
+// REFORMIRATI U SKLADU S klasnaBorba.js
 stratty.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena) { 	
   // popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
   // U formatu { EUR:1.00, ETH:750.00, BTC:8500.00, XYZ:0.123 }
@@ -53,7 +53,7 @@ function odnosTriBroja(gornja, srednja, donja) {
 // NIJE DOBRO. PROČITAJ NA DNU ISPOD STRATEGIJE.
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
-// REFORMIRATI U SKLADU S zPortfolio.js
+// REFORMIRATI U SKLADU S klasnaBorba.js
 stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, odmakPhi, odmakLambda) {  // strategija za jahanje cijene 
   // cijenaSad je trenutna cijena
   // odmakPhi je odmak stop triggera (željeni profit)

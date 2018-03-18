@@ -5,7 +5,7 @@
 // assignamo sve u objekt "pozzy" koji ćemo module.exportati na kraju
 let pozzy = {};
 
-let memorija = require('./zMemy.js');
+let memorija = require('./memorija.js');
 
 /*--------------POZICIJA: KONSTRUKTOR---------------------*/
 

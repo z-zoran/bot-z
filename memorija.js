@@ -16,6 +16,7 @@ let memorija = {};
 
 
 
+
 // memorija.001.pozicije.0001.tip
 // memorija.001.limitCounter
 // itd...

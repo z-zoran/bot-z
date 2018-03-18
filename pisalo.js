@@ -4,11 +4,11 @@
 
 const fs = require('fs');
 
-let loggy = fs.createWriteStream('./pisalo-test.txt');
+let pisalo = fs.createWriteStream('./pisalo-test.txt');
 
-loggy.pisi = function pisi(data) {
+pisalo.pisi = function pisi(data) {
     let zaPisanje = Date.now() + ' ' + JSON.stringify(data) + '\n';
     this.write(zaPisanje);
 }
 
-module.exports = loggy;
+module.exports = pisalo;
