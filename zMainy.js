@@ -28,18 +28,28 @@ let putanja = './exchdata/testdata.txt';
 // testni trejdovi i kendlovi
 let paketKendlova = agro(putanja);
 
+let portfolio = new portfolio.Portfolio('001', 1000, 3, 0, 0, 0);
+
+let jahanje = stratty.stratJahanjeCijene;
+
 /*---------------------algoritam--------------------------*/
 
+
+
+
+let devijacije = indi.zDev(kendlovi.k5min, 20);
+// šaljemo kendlove iz -agro u -indi da dobijemo devijacije za svaki kendl
+
 for (let i = 0; i < paketKendlova.arr1min.length; i++) {
-
-
-    
+    if (i < 100) {
+        continue;
+    }
     // izdvajamo pojedini kendl
     let jednoKendlo = paketKendlova.arr1min[i];
-    pisalo.pisi(jednoKendlo);
-    // šaljemo kendl u wrapper koji feeda strategiju s H i L
-    stratWrapper(jednoKendlo);
-
+    pisalo.pisi('Ovaj kendl: ' + jednoKendlo);
+    // fidamo kendl u strategiju
+    let cijenaSad = jednoKendlo.C;
+    jahanje(portfolio, cijenaSad, );
 }
 
 pisalo.end();
@@ -53,5 +63,3 @@ ako je u jednom kendlu trigeran gornji limit, provjeriti je li u istom kendlu tr
 ako su trigerana oba, onda javiti 
 */
 
-let devijacije = indi.zDev(kendlovi.k5min, 20);
-// šaljemo kendlove iz -agro u -indi da dobijemo devijacije za svaki kendl
