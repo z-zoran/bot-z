@@ -102,11 +102,11 @@ klas.Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
     // exchange komunikacija
 	let poruka = '';
 	if (koji === 'buy') {
-		this[quoteTiker] += this.limiti.buy.umnozak;
+		this[this.limiti.buy.quoteTiker] += this.limiti.buy.umnozak;
 		delete this.limiti.buy;
 		poruka = 'BUY LIMIT UBIJEN.';
 	} else if (koji === 'sell') {
-		this[baseTiker] += this.limiti.sell.iznos;
+		this[this.limiti.sell.baseTiker] += this.limiti.sell.iznos;
 		delete this.limiti.sell;
 		poruka = 'SELL LIMIT UBIJEN.'
 	}

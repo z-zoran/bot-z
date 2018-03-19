@@ -57,6 +57,9 @@ while (paketKendlova.arr1min.length > 0) {
     if (ss15min.length < 20) {
         continue;
     }
+    if (paketKendlova.arr1min.length < 301) {
+    break;
+    }
     let dev5 = devijacija(ss5min, 20);
     let dev15 = devijacija(ss15min, 20);
     let odmakPhi = dev5;
@@ -69,7 +72,7 @@ while (paketKendlova.arr1min.length > 0) {
     let poruka = 'Trenutna cijena: ' + vrijemeSad + ' || ' + kendlic.C
     pisalo.pisi(poruka);
     // debug:
-    console.log(poruka);
+    // console.log(dev5);
     jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
 }
 

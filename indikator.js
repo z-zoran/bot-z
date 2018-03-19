@@ -24,7 +24,7 @@ console.log(tulind.version);
 
 // druga stvar, ekipa na koraku 1 inače traži mean (average) cijene kroz neki period. međutim, kendlovi nisu samo jedna cijena
 // i mislim da je krivo uzet samo close kao da je više relevantan nego H ili L ili O.
-// umjesto toga ja bi napravio za svaki kendl nekakav kendl mean tipa {[(H*volumenBuy)+(L*volumenSell)]/(ukupni volumen)}
+// umjesto toga ja bi napravio za svaki kendl nekakav kendl mean tipa {[(H*volBuyeva)+(L*volSellova)]/(ukupni volumen)}
 // Čini mi se da takva formula bolje opisuje average jednog kendla. Onda za svaki kendl računamo tako nešto.
 
 function zDevijacija(data, period) {  // inputi su lista kendlova (zadnji najnoviji) i željeni period (recimo 20)
@@ -37,10 +37,10 @@ function zDevijacija(data, period) {  // inputi su lista kendlova (zadnji najnov
     subSet.kendl[i] = {};   // za razliku od data, subSetov prvi kendl element je najnoviji, pa prema starijima
     
     // debug:
-    // console.log(data[p]);
+    // console.log(data[p].volBuyeva);
 
     // prvo treba izračunati mean za svaki kendl
-    subSet.kendl[i].kendlMean = ((data[p].H * data[p].volumenBuy) + (data[p].L * Math.abs(data[p].volumenSell))) / (data[p].volumenBuy + Math.abs(data[p].volumenSell));
+    subSet.kendl[i].kendlMean = ((data[p].H * data[p].volBuyeva) + (data[p].L * Math.abs(data[p].volSellova))) / (data[p].volBuyeva + Math.abs(data[p].volSellova));
     // onda, jer će nam kasnije trebat, bilježimo u subSet za svaki kendl H i L
     subSet.kendl[i].H = data[p].H;
     subSet.kendl[i].L = data[p].L;
@@ -69,6 +69,10 @@ function zDevijacija(data, period) {  // inputi su lista kendlova (zadnji najnov
   let stDevijacija = Math.sqrt(prijeKorjena);
   // vraćamo vrijednost. To je st. devijacija samo za zadnji kendl. Za svaki kendl za koji želimo dobiti stdev,
   // treba kalkulirati kao da je taj kendl zadnji u periodu.
+  
+  // debug:
+  // console.log(subSet.kendl[3]);
+  
   return stDevijacija;
 
 }
