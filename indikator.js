@@ -33,8 +33,12 @@ function zDevijacija(data, period) {  // inputi su lista kendlova (zadnji najnov
   subSet.kendl = [];
   subSet.sumaMeanova = 0;
   for (let i = 0; i < period; i++) {
-    p = data.length - i;  // brojimo data unazad od najnovijeg kendla prema starijima
+    p = data.length - i - 1;  // brojimo data unazad od najnovijeg kendla prema starijima
     subSet.kendl[i] = {};   // za razliku od data, subSetov prvi kendl element je najnoviji, pa prema starijima
+    
+    // debug:
+    // console.log(data[p]);
+
     // prvo treba izračunati mean za svaki kendl
     subSet.kendl[i].kendlMean = ((data[p].H * data[p].volumenBuy) + (data[p].L * Math.abs(data[p].volumenSell))) / (data[p].volumenBuy + Math.abs(data[p].volumenSell));
     // onda, jer će nam kasnije trebat, bilježimo u subSet za svaki kendl H i L

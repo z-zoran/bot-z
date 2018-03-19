@@ -246,6 +246,6 @@ function paketKendlova(putanjaTrejdova) {
     }
 }
 
-let paket = paketKendlova();
+let paket = paketKendlova;
 
 module.exports = paket;

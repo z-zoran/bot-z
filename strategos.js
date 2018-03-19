@@ -10,8 +10,8 @@ let memorija = require('./memorija.js');
 // lib sa indikatorima
 let indikator = require('./indikator.js');
 
-// definiramo module.exports objekt "stratty" u koji ćemo sve trpati 
-let stratty = {};
+// definiramo module.exports objekt "strat" u koji ćemo sve trpati 
+let strat = {};
 
 /*--------------------------FUNKCIJE----------------------------*/
 
@@ -20,7 +20,7 @@ OVO JE TIP FUNKCIJE KOJU TREBA SKLONITI U ZASEBAN MODUL. NEKAKAV zUtilly
 ILI TAKO NEŠTO. NEMA SMISLA DA JE TU SA STRATEGIJAMA.
 */
 // REFORMIRATI U SKLADU S klasnaBorba.js
-stratty.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena, portfolio) { 	
+strat.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena, portfolio) { 	
     // popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
     // U formatu { 'EUR':1.00, 'ETH':750.00, 'BTC':8500.00, 'LTC':123.45, 'BCH':1234.56 }
     let ukupnoEura = 0;
@@ -55,7 +55,7 @@ function odnosTriBroja(gornja, srednja, donja) {
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
-stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau) {  // strategija za jahanje cijene 
+strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau) {  // strategija za jahanje cijene 
     // KOREKCIJA POSTOJEĆIH TRAILERA
     for (trailer in portfolio.traileri) {
         trailer.korekcija(cijenaSad);
@@ -236,4 +236,4 @@ stratty.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, i
     } // zatvaranje zadnje opcije
 } // zatvaranje cijele funkcije
 
-module.exports = stratty;
+module.exports = strat;

@@ -63,7 +63,7 @@ klas.LimitOrder = function LimitOrder(id, limitData) {
 
 
 // METODA ZA POSTAVLJANJE LIMITA
-Portfolio.prototype.postLimit = function postLimit(limitData) {
+klas.Portfolio.prototype.postLimit = function postLimit(limitData) {
 	this.limiti[limitData.tip] = {};	// iniciramo novi ili brišemo stari limit
 	this.limitCounter += 1; 	// povečavamo counter za limit id
 	let limitCounterString = (this.limitCounter.toString()).padStart(4, "0");
@@ -78,17 +78,17 @@ Portfolio.prototype.postLimit = function postLimit(limitData) {
 		} else {
 			// exchange komunikacija
 			this[quoteTiker] -= umnozak;
-			this.limiti.buy = new LimitOrder(limitCounterString, limitData);
+			this.limiti.buy = new klas.LimitOrder(limitCounterString, limitData);
 			poruka = 'BUY LIMIT POSTAVLJEN. LimitID: ' + limitCounterString + ', iznos: ' + limitData.iznos + ', limit cijena: ' + limitData.limitCijena;
 		}
 	} else if (limitData.tip === 'sell') {
 		// provjera imamo li dovoljno base u portfoliu za prodaju 
-		if (this[baseTiker] < iznos) {
+		if (this[baseTiker] < limitData.iznos) {
 			poruka = 'BANKROT! Nema dovoljno base-a za postavljanje sell limita. LimitID: ' + limitCounterString;
 		} else {
 			// exchange komunikacija
 			this[baseTiker] -= limitData.iznos;
-			this.limiti.sell = new LimitOrder(limitCounterString, limitData);
+			this.limiti.sell = new klas.LimitOrder(limitCounterString, limitData);
 			poruka = 'SELL LIMIT POSTAVLJEN. LimitID: ' + limitCounterString + ', iznos: ' + limitData.iznos + ', limit cijena: ' + limitData.limitCijena;
 		}
 	} else {
@@ -98,7 +98,7 @@ Portfolio.prototype.postLimit = function postLimit(limitData) {
 }
 
 // METODA ZA UBIJANJE LIMITA
-Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
+klas.Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
     // exchange komunikacija
 	let poruka = '';
 	if (koji === 'buy') {
@@ -114,7 +114,7 @@ Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
 }
 
 // METODA ZA REALIZACIJU LIMIT ORDERA, ODNOSNO ZA STVARANJE POZICIJE
-Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
+klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	let pozData = {};
 	// definiramo pozData za stvaranje nove pozicije.
 	pozData.portfolio = this.portfolio;
@@ -132,7 +132,7 @@ Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	}
 	this.pozCounter += 1; 	// povečavamo counter za id pozicije
 	let pozCounterString = (this.pozCounter.toString()).padStart(4, "0");
-	this.pozicije[pozCounterString] = new Pozicija(pozCounterString, pozData);
+	this.pozicije[pozCounterString] = new klas.Pozicija(pozCounterString, pozData);
 	let poruka = 'LimitOrder ' + this.limiti[koja].id + ' konzumiran. Stvorena ' + koja + ' pozicija id: ' + pozCounterString + ' | iznos: ' + pozData.base.toFixed(6) + ' | cijena: ' + pozData.cijena.toFixed(2) + ' | stop: ' + pozData.stop.toFixed(2);
 	pisalo.pisi(poruka);
 	delete this.limiti[koja];
@@ -153,7 +153,7 @@ klas.Pozicija = function Pozicija(id, pozData) {
 }
 
 // METODA ZA TRIGGERANJE STOPA
-Pozicija.prototype.stopTriggeran = function(odmak) {
+klas.Pozicija.prototype.stopTriggeran = function(odmak) {
 	let trailerData = {};
 	trailerData.portfolio = this.portfolio;
 	trailerData.id = this.id;
@@ -163,13 +163,14 @@ Pozicija.prototype.stopTriggeran = function(odmak) {
 	} else if (this.tip === 'sell') {
 		trailerData.odmak = odmak;
 	}
-	memorija[this.portfolio].traileri[this.id] = new Trailer(trailerData);
+	memorija[this.portfolio].traileri[this.id] = new klas.Trailer(trailerData);
 	let poruka = 'Stop trigger ' + memorija[this.portfolio].pozicije[this.id] + ' triggeran. Postavljen trailer.';
+	pisalo.pisi(poruka);
 	delete this.stop;
 }
 
 // METODA ZA LIKVIDACIJU POZICIJE
-Pozicija.prototype.likvidacija = function(cijenaSad) {
+klas.Pozicija.prototype.likvidacija = function(cijenaSad) {
 	if (this.tip === 'buy') {
 		let prihod = this.base * cijenaSad;
 		memorija[this.portfolio][this.quoteTiker] += prihod;
@@ -177,6 +178,8 @@ Pozicija.prototype.likvidacija = function(cijenaSad) {
 		let prihod = this.quote / cijenaSad;
 		memorija[this.portfolio][this.baseTiker] += prihod;
 	}
+	let poruka = 'Likvidirana pozicija ' + this.id;
+	pisalo.pisi(poruka);
 }
 
 // KLASA ZA TRAILERE
@@ -191,7 +194,7 @@ klas.Trailer = function Trailer(trailerData) {
 }
   
 // METODA ZA KOREKCIJU TRAILERA
-Trailer.prototype.korekcija = function korekcija(cijenaSad) {
+klas.Trailer.prototype.korekcija = function korekcija(cijenaSad) {
 	let trenutnaUdaljenost = cijenaSad - this.gdjeSam;
 	// logičke konstrukcije za čitkiji algoritam
 	let pratimOdozdo = (this.odmak < 0);
@@ -201,11 +204,15 @@ Trailer.prototype.korekcija = function korekcija(cijenaSad) {
 	let cijenaMeTriggerala = (pratimOdozdo && iznadCijeneSam) || (pratimOdozgo && ispodCijeneSam);
 	let cijenaMiJePobjegla = (Math.abs(trenutnaUdaljenost) > Math.abs(this.odmak));
 	// algoritam korekcije
+	let poruka = '';
 	if (cijenaMiJePobjegla) {
+		poruka = 'Korekcija trailera id ' + this.id;
 		this.gdjeSam = cijenaSad + this.odmak;
 	} else if (cijenaMeTriggerala) {
+		poruka = 'Triggeran trailer id ' + this.id;
 		memorija[this.portfolio].pozicije[this.id].likvidacija(cijenaSad);
 	}
+	pisalo.pisi(poruka);
 }
 
 module.exports = klas;
