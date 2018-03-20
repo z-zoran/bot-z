@@ -13,6 +13,8 @@ let indikator = require('./indikator.js');
 // definiramo module.exports objekt "strat" u koji ćemo sve trpati 
 let strat = {};
 
+let pisalo = require('./pisalo.js');
+
 /*--------------------------FUNKCIJE----------------------------*/
 
 /*
@@ -57,9 +59,21 @@ function odnosTriBroja(gornja, srednja, donja) {
 // THE strategija
 strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau) {  // strategija za jahanje cijene 
     // KOREKCIJA POSTOJEĆIH TRAILERA
-    for (trailer in portfolio.traileri) {
+    for (let trID in portfolio.traileri) {
+        let trailer = portfolio.traileri[trID];
         trailer.korekcija(cijenaSad);
     }
+    // IZLIST PORTFOLIO U EURIMA
+    let popisSvihCijena = {
+        'EUR': 1.00,
+        'ETH': cijenaSad,
+        'BTC': 0,
+        'LTC': 0,
+        'BCH': 0
+    }
+    // pisalo.pisi('Ukupno EUR: ' + strat.trenutnoEuroStanje(popisSvihCijena, portfolio));
+    pisalo.pisi('EUR u portfoliu: ' + portfolio.EUR);
+
     // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     let nemaNijedanLimit = (!portfolio.limiti.sell && !portfolio.limiti.buy);
     let imaObaLimita = (portfolio.limiti.sell && portfolio.limiti.buy);
@@ -87,8 +101,10 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     } else if (imaObaLimita) {
         let gornjaLimitCijena = portfolio.limiti.sell.limitCijena;
         let donjaLimitCijena = portfolio.limiti.buy.limitCijena;
-        let cijenaJeGore = odnosTriBroja(gornjaLimitCijena, cijenaSad, donjaLimitCijena) > 50;
-        let cijenaJeDole = odnosTriBroja(gornjaLimitCijena, cijenaSad, donjaLimitCijena) < 50;
+        let triggeranSellLimit = (gornjaLimitCijena < cijenaSad);
+        let triggeranBuyLimit = (donjaLimitCijena > cijenaSad);
+        let cijenaJeGore = (odnosTriBroja(gornjaLimitCijena, cijenaSad, donjaLimitCijena) > 50) && !triggeranSellLimit;
+        let cijenaJeDole = (odnosTriBroja(gornjaLimitCijena, cijenaSad, donjaLimitCijena) < 50) && !triggeranBuyLimit;
         // korekcija udaljenijeg limita
         if (cijenaJeGore) {
             let novaBuyLimitCijena = cijenaSad - odmakLambda;
@@ -108,6 +124,21 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
                 portfolio.ubiLimit('sell');
                 portfolio.postLimit(noviLimitData);
             }
+        } else if (triggeranBuyLimit) {
+            let noviLimitData = JSON.parse(JSON.stringify(portfolio.limiti.buy));
+            noviLimitData.iznos = iznos;
+            noviLimitData.limitCijena = cijenaSad - odmakLambda;
+            portfolio.postPoziciju('buy', odmakPhi);
+            portfolio.postLimit(noviLimitData);
+            portfolio.ubiLimit('sell'); // brišemo sell jer pozicija ima stop
+        } else if (triggeranSellLimit) {
+            let noviLimitData = JSON.parse(JSON.stringify(portfolio.limiti.sell));
+            noviLimitData.iznos = iznos;
+            noviLimitData.limitCijena = cijenaSad + odmakLambda;
+            portfolio.postPoziciju('sell', odmakPhi);
+            portfolio.postLimit(noviLimitData);
+            portfolio.ubiLimit('buy'); // brišemo buy jer pozicija ima stop
+
         }
     /*-opcija 3--------------AKO IMA SAMO BUY LIMIT-----------------------*/
     } else if (imaSamoBuyLimit) {
@@ -138,7 +169,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
             }
             // provjeri da li ima uopće stop triggera još
             let nemaNijedanStopTrigger = true;
-            for (poz in portfolio.pozicije) {
+            for (let poz in portfolio.pozicije) {
                 if (poz.stop) {
                     nemaNijedanStopTrigger = false;
                     break;
@@ -200,7 +231,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
             }
             // provjeri da li ima uopće stop triggera još
             let nemaNijedanStopTrigger = true;
-            for (poz in portfolio.pozicije) {
+            for (let poz in portfolio.pozicije) {
                 if (poz.stop) {
                     nemaNijedanStopTrigger = false;
                     break;

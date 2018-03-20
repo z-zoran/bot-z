@@ -153,7 +153,7 @@ klas.Pozicija = function Pozicija(id, pozData) {
 }
 
 // METODA ZA TRIGGERANJE STOPA
-klas.Pozicija.prototype.stopTriggeran = function(odmak) {
+klas.Pozicija.prototype.stopTriggeran = function stopTriggeran(odmak) {
 	let trailerData = {};
 	trailerData.portfolio = this.portfolio;
 	trailerData.id = this.id;
@@ -170,7 +170,7 @@ klas.Pozicija.prototype.stopTriggeran = function(odmak) {
 }
 
 // METODA ZA LIKVIDACIJU POZICIJE
-klas.Pozicija.prototype.likvidacija = function(cijenaSad) {
+klas.Pozicija.prototype.likvidacija = function likvidacija(cijenaSad) {
 	if (this.tip === 'buy') {
 		let prihod = this.base * cijenaSad;
 		memorija[this.portfolio][this.quoteTiker] += prihod;
@@ -179,6 +179,7 @@ klas.Pozicija.prototype.likvidacija = function(cijenaSad) {
 		memorija[this.portfolio][this.baseTiker] += prihod;
 	}
 	let poruka = 'Likvidirana pozicija ' + this.id;
+	delete memorija[this.portfolio].pozicije[this.id];
 	pisalo.pisi(poruka);
 }
 
@@ -211,6 +212,7 @@ klas.Trailer.prototype.korekcija = function korekcija(cijenaSad) {
 	} else if (cijenaMeTriggerala) {
 		poruka = 'Triggeran trailer id ' + this.id;
 		memorija[this.portfolio].pozicije[this.id].likvidacija(cijenaSad);
+		delete memorija[this.portfolio].traileri[this.id];
 	}
 	pisalo.pisi(poruka);
 }

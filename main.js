@@ -29,7 +29,8 @@ let putanja = './exchdata/testdata.csv';
 // testni trejdovi i kendlovi
 let paketKendlova = agro(putanja);
 
-let portfolio = new klas.Portfolio('001', 1000, 3, 0, 0, 0);
+let pfID = '001';
+let portfolio = memorija[pfID] = new klas.Portfolio(pfID, 1000, 3, 0, 0, 0);
 
 let jahanje = strat.stratJahanjeCijene;
 
@@ -43,6 +44,43 @@ let ss15min = [];
 let i1 = 0;
 let i5 = 0;
 let i15 = 0;
+// definiramo chartData paket
+let chartData = {};
+
+chartData.close = [];
+chartData.gornji = [];
+chartData.donji = [];
+chartData.trail = [];
+chartData.ukupnoEUR = [];
+
+// funkcija za pretvaranje niza objekata, svaki s propertyjem, u nizove propertyja
+function chartifikacija(subset) {
+    for (let svaki in subset) {
+        chartData.close.push(svaki.close);
+        chartData.gornji.push(svaki.gornji);
+        chartData.donji.push(svaki.donji);
+        chartData.trail.push(svaki.trail);
+        chartData.ukupnoEUR.push(svaki.ukupnoEUR)
+    }
+    return chartData;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 while (paketKendlova.arr1min.length > 0) {
     ss1min.push(paketKendlova.arr1min.shift());
     i1++;
@@ -71,8 +109,6 @@ while (paketKendlova.arr1min.length > 0) {
     let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
     let poruka = 'Trenutna cijena: ' + vrijemeSad + ' || ' + kendlic.C
     pisalo.pisi(poruka);
-    // debug:
-    // console.log(dev5);
     jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
 }
 
