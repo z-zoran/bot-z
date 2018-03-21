@@ -72,7 +72,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
         'BCH': 0
     }
     // pisalo.pisi('Ukupno EUR: ' + strat.trenutnoEuroStanje(popisSvihCijena, portfolio));
-    pisalo.pisi('EUR u portfoliu: ' + portfolio.EUR);
+    // pisalo.pisi('EUR u portfoliu: ' + portfolio.EUR);
 
     // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     let nemaNijedanLimit = (!portfolio.limiti.sell && !portfolio.limiti.buy);

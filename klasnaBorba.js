@@ -94,7 +94,7 @@ klas.Portfolio.prototype.postLimit = function postLimit(limitData) {
 	} else {
 		poruka = 'ERROR! limitData nije dobro formatiran. LimitID: ' + limitCounterString;
 	}
-	pisalo.pisi(poruka);
+	// pisalo.pisi(poruka);
 }
 
 // METODA ZA UBIJANJE LIMITA
@@ -110,7 +110,7 @@ klas.Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
 		delete this.limiti.sell;
 		poruka = 'SELL LIMIT UBIJEN.'
 	}
-	pisalo.pisi(poruka);
+	// pisalo.pisi(poruka);
 }
 
 // METODA ZA REALIZACIJU LIMIT ORDERA, ODNOSNO ZA STVARANJE POZICIJE
@@ -134,7 +134,7 @@ klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	let pozCounterString = (this.pozCounter.toString()).padStart(4, "0");
 	this.pozicije[pozCounterString] = new klas.Pozicija(pozCounterString, pozData);
 	let poruka = 'LimitOrder ' + this.limiti[koja].id + ' konzumiran. Stvorena ' + koja + ' pozicija id: ' + pozCounterString + ' | iznos: ' + pozData.base.toFixed(6) + ' | cijena: ' + pozData.cijena.toFixed(2) + ' | stop: ' + pozData.stop.toFixed(2);
-	pisalo.pisi(poruka);
+	// pisalo.pisi(poruka);
 	delete this.limiti[koja];
 }
 
@@ -165,7 +165,7 @@ klas.Pozicija.prototype.stopTriggeran = function stopTriggeran(odmak) {
 	}
 	memorija[this.portfolio].traileri[this.id] = new klas.Trailer(trailerData);
 	let poruka = 'Stop trigger ' + memorija[this.portfolio].pozicije[this.id] + ' triggeran. Postavljen trailer.';
-	pisalo.pisi(poruka);
+	// pisalo.pisi(poruka);
 	delete this.stop;
 }
 
@@ -180,7 +180,7 @@ klas.Pozicija.prototype.likvidacija = function likvidacija(cijenaSad) {
 	}
 	let poruka = 'Likvidirana pozicija ' + this.id;
 	delete memorija[this.portfolio].pozicije[this.id];
-	pisalo.pisi(poruka);
+	// pisalo.pisi(poruka);
 }
 
 // KLASA ZA TRAILERE
@@ -214,7 +214,7 @@ klas.Trailer.prototype.korekcija = function korekcija(cijenaSad) {
 		memorija[this.portfolio].pozicije[this.id].likvidacija(cijenaSad);
 		delete memorija[this.portfolio].traileri[this.id];
 	}
-	pisalo.pisi(poruka);
+	// pisalo.pisi(poruka);
 }
 
 module.exports = klas;

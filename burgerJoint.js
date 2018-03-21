@@ -16,12 +16,6 @@ const fs = require('fs');
 let gornjiPath = './HTMLburgerGornji.html';
 let donjiPath = './HTMLburgerDonji.html';
 
-function pravljenjeSendvica(gornjiPath, srednjiData, donjiPath) {
-    let gornjiData = fs.readFileSync(gornjiPath);
-    let donjiData = fs.readFileSync(donjiPath);
-    let srednjiData = '';
-    return gornjiData + srednjiData + donjiData;
-}
 
 function playPauza(koraka) {
     // cijeli ovaj fajl implementirati u main
