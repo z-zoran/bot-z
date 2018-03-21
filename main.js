@@ -44,45 +44,74 @@ let ss15min = [];
 let i1 = 0;
 let i5 = 0;
 let i15 = 0;
+// duljina charta (broj vremenskih jedinica)
+let duljinaCharta = 60;
+
 // definiramo chartData paket
 let chartData = {};
 
 chartData.close = [];
-chartData.gornji = [];
-chartData.donji = [];
-chartData.trail = [];
+chartData.gornjiLimit = [];
+chartData.donjiLimit = [];
+chartData.gornjiStop = [];
+chartData.donjiStop = [];
+// chartData.trail = []; // za sad izostavljamo trailere, kasnije dodati
 chartData.ukupnoEUR = [];
 
-// funkcija za pretvaranje niza objekata, svaki s propertyjem, u nizove propertyja
-function chartifikacija(subset) {
-    for (let svaki in subset) {
-        chartData.close.push(svaki.close);
-        chartData.gornji.push(svaki.gornji);
-        chartData.donji.push(svaki.donji);
-        chartData.trail.push(svaki.trail);
-        chartData.ukupnoEUR.push(svaki.ukupnoEUR)
+function nadjiStop(portfolio) {
+    let pozCounterString;
+    // traženje pozicije koja još ima stop 
+    for (let i = 0; i <= portfolio.pozCounter; i++) {
+        pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
+        if (portfolio.pozicije[pozCounterString].stop) {
+            break;
+        }
     }
-    return chartData;
+    return portfolio.pozicije[pozCounterString].stop;    
+}
+
+function chartifikacija(kendl) {
+    // input funkciji je jedan kendl
+    // čupamo njegov Close
+    chartData.close.push(kendl.C);
+    chartData.ukupnoEUR.push(portfolio.EUR);
+    if (!portfolio.limiti.buy && !portfolio.limiti.sell) {
+        chartData.gornjiLimit.push(null);
+        chartData.gornjiStop.push(null);
+        chartData.donjiLimit.push(null);
+        chartData.donjiStop.push(null);
+    } else {
+        // traženje gornjih točaka
+        if (portfolio.limiti.sell) {
+            chartData.gornjiLimit.push(portfolio.limiti.sell.limitCijena);
+            chartData.gornjiStop.push(null);
+        } else if (!portfolio.limiti.sell) {
+            chartData.gornjiLimit.push(null);
+            chartData.gornjiStop.push(nadjiStop(portfolio));
+        }
+        // traženje donjih točaka
+        if (portfolio.limiti.buy) {
+            chartData.donjiLimit.push(portfolio.limiti.buy.limitCijena);
+            chartData.donjiStop.push(null);
+        } else if (!portfolio.limiti.buy) {
+            chartData.donjiLimit.push(null);
+            chartData.donjiStop.push(nadjiStop(portfolio));
+        }
+    }
+    // podešavanje chartData da bude dug duljinaCharta
+    for (let lista in chartData) {
+        if (lista.length > duljinaCharta) {
+            lista.shift();
+        }
+    }
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-while (paketKendlova.arr1min.length > 0) {
+// inicijalni krug da se popune subseti
+while (ss15min.length < 20) {
     ss1min.push(paketKendlova.arr1min.shift());
+    chartifikacija(ss1min[i1]);
     i1++;
     if (i1 % 5 === 0) {
         ss5min.push(paketKendlova.arr5min.shift())
@@ -92,9 +121,10 @@ while (paketKendlova.arr1min.length > 0) {
         ss15min.push(paketKendlova.arr15min.shift())
         i15++;
     }
-    if (ss15min.length < 20) {
-        continue;
-    }
+}
+
+
+{
     if (paketKendlova.arr1min.length < 301) {
     break;
     }
