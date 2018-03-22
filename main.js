@@ -84,6 +84,20 @@ chartData.m15.low = []
 chartData.m15.pasivnoEUR = [];
 chartData.m15.pasETHuEUR = [];
 
+// formatirani chData1min
+let chData1min = {};
+
+// boje za chartove
+let crnaBoja = 'rgba(38, 12, 12, 0.95)';
+let crvenaBoja = 'rgba(188, 32, 32, 0.76)';
+let plavaBoja = 'rgba(48, 146, 166, 0.95)';
+let zelenaBoja = 'rgba(36, 126, 51, 0.95)';
+let zutaBoja = 'rgba(231, 227, 8, 0.95)';
+let rozaBoja = 'rgba(254, 57, 211, 0.78)';
+let purpleBoja = 'rgba(150, 6, 253, 0.78)';
+
+
+
 /*-----------------FUNKCIJE-------------------*/
 
 function nadjiStop(portfolio) {
@@ -128,10 +142,11 @@ function chartifikacija1m(kendl) {
             chartData.m1.donjiStop.push(nadjiStop(portfolio));
         }
     }
+
     // podešavanje chartData da bude dug duljinaCharta
     for (let lista in chartData.m1) {
-        if (lista.length > duljinaCharta) {
-            lista.shift();
+        if (chartData.m1[lista].length > duljinaCharta) {
+            chartData.m1[lista].shift();
         }
     }
 }
@@ -190,6 +205,7 @@ function filanjeSubsetova() {
 // inicijalni krug da se popune subseti dovoljno za chart
 while (ss15min.length < duljinaCharta) {
     filanjeSubsetova();
+    formatiranjeChData(chartData);
 }
 
 // funkcija koja se vrti sa svakim klikom
@@ -214,6 +230,7 @@ function playPauza(koraka) {
         let poruka = 'Trenutna cijena: ' + vrijemeSad + ' || ' + kendlic.C
         // pisalo.pisi(poruka);
         jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
+        formatiranjeChData(chartData);
     }
 }
 
@@ -221,52 +238,64 @@ function playPauza(koraka) {
 let chData5min = {};
 let chData15min = {};
 
-let chData1min = {};
-chData1min.type = 'bar';
-chData1min.data = {};
-chData1min.data.labels = chartData.m1.vrijeme;
-chData1min.data.datasets = [];
-chData1min.options = {};
-chData1min.options.
-for (let i = 0; i < 7; i++) {
-    chData1min.data.datasets[i] = {};
+
+
+function formatiranjeChData(chartData) {
+    chData1min.type = 'bar';
+    chData1min.data = {};
+    chData1min.data.labels = chartData.m1.vrijeme;
+    chData1min.data.datasets = [];
+    chData1min.options = {};
+    chData1min.options.responsive = false;
+    chData1min.options.animation = {};
+    chData1min.options.animation.duration = 0;
+    chData1min.options.scales = {};
+    //chData1min.options.scales.xAxes = {stacked: true};
+    //chData1min.options.scales.yAxes = {stacked: true};
+    for (let i = 0; i < 7; i++) {
+        chData1min.data.datasets[i] = {};
+        chData1min.data.datasets[i].fill = false;
+    }
+    
+    chData1min.data.datasets[0].type = 'line';
+    chData1min.data.datasets[0].label = 'Cijena';
+    chData1min.data.datasets[0].data = chartData.m1.close;
+    chData1min.data.datasets[0].borderColor = crnaBoja;
+    
+    chData1min.data.datasets[1].type = 'bar';
+    chData1min.data.datasets[1].label = 'EUR pasiva';
+    chData1min.data.datasets[1].data = chartData.m1.pasivnoEUR;
+    
+    chData1min.data.datasets[2].type = 'bar';
+    chData1min.data.datasets[2].label = 'ETH pasiva (u EUR)';
+    chData1min.data.datasets[2].data = chartData.m1.pasETHuEUR;
+    
+    chData1min.data.datasets[3].type = 'line';
+    chData1min.data.datasets[3].label = 'Sell limit';
+    chData1min.data.datasets[3].data = chartData.m1.gornjiLimit;
+    chData1min.data.datasets[3].options = {};
+    chData1min.data.datasets[3].options.showLine = false;
+    
+    chData1min.data.datasets[4].type = 'line';
+    chData1min.data.datasets[4].label = 'Buy limit';
+    chData1min.data.datasets[4].data = chartData.m1.donjiLimit;
+    chData1min.data.datasets[4].options = {};
+    chData1min.data.datasets[4].options.showLine = false;
+    
+    chData1min.data.datasets[5].type = 'line';
+    chData1min.data.datasets[5].label = 'Gornji stop';
+    chData1min.data.datasets[5].data = chartData.m1.gornjiStop;
+    chData1min.data.datasets[5].options = {};
+    chData1min.data.datasets[5].options.showLine = false;
+    
+    chData1min.data.datasets[6].type = 'line';
+    chData1min.data.datasets[6].label = 'Donji stop';
+    chData1min.data.datasets[6].data = chartData.m1.donjiStop;
+    chData1min.data.datasets[6].options = {};
+    chData1min.data.datasets[6].options.showLine = false;
+
+    return chData1min;
 }
-
-chData1min.data.datasets[0].type = 'line';
-chData1min.data.datasets[0].label = 'Cijena';
-chData1min.data.datasets[0].data = chartData.m1.close;
-
-chData1min.data.datasets[1].type = 'line';
-chData1min.data.datasets[1].label = 'EUR pasiva';
-chData1min.data.datasets[1].data = chartData.m1.pasivnoEUR;
-
-chData1min.data.datasets[2].type = 'line';
-chData1min.data.datasets[2].label = 'ETH pasiva (u EUR)';
-chData1min.data.datasets[2].data = chartData.m1.pasETHuEUR;
-
-chData1min.data.datasets[3].type = 'line';
-chData1min.data.datasets[3].label = 'Sell limit';
-chData1min.data.datasets[3].data = chartData.m1.gornjiLimit;
-chData1min.data.datasets[3].options = {};
-chData1min.data.datasets[3].options.showLine = false;
-
-chData1min.data.datasets[4].type = 'line';
-chData1min.data.datasets[4].label = 'Buy limit';
-chData1min.data.datasets[4].data = chartData.m1.donjiLimit;
-chData1min.data.datasets[4].options = {};
-chData1min.data.datasets[4].options.showLine = false;
-
-chData1min.data.datasets[5].type = 'line';
-chData1min.data.datasets[5].label = 'Gornji stop';
-chData1min.data.datasets[5].data = chartData.m1.gornjiStop;
-chData1min.data.datasets[5].options = {};
-chData1min.data.datasets[5].options.showLine = false;
-
-chData1min.data.datasets[6].type = 'line';
-chData1min.data.datasets[6].label = 'Donji stop';
-chData1min.data.datasets[6].data = chartData.m1.donjiStop;
-chData1min.data.datasets[6].options = {};
-chData1min.data.datasets[6].options.showLine = false;
 
 
 /*
@@ -303,12 +332,12 @@ chartData.m1.donjiStop = [];
 
 // djelovi sendviča koje server sklapa da bi dao cjeloviti html sa js skriptama unutra.
 let salata1 = "let ctx1min = document.getElementById('chart1min').getContext('2d');";
-let salata2 = "let ctx5min = document.getElementById('chart5min').getContext('2d');";
-let salata3 = "let ctx15min = document.getElementById('chart15min').getContext('2d');";
+//let salata2 = "let ctx5min = document.getElementById('chart5min').getContext('2d');";
+//let salata3 = "let ctx15min = document.getElementById('chart15min').getContext('2d');";
 
-let slanina = "let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");";
-let sir = "let chart5min = new Chart(ctx5min, " + JSON.stringify(chData5min) + ");";
-let mesina = "let chart15min = new Chart(ctx15min, " + JSON.stringify(chData15min) + ");";
+//let slanina = "let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");";
+//let sir = "let chart5min = new Chart(ctx5min, " + JSON.stringify(chData5min) + ");";
+//let mesina = "let chart15min = new Chart(ctx15min, " + JSON.stringify(chData15min) + ");";
 
 
 // jebeni server
@@ -326,12 +355,15 @@ http.createServer(function (req, response) {
     }
     // sastavljamo sendvič od HTML-a, JS-a i JSON-a
     response.write(salata1);
-    response.write(salata2);
-    response.write(salata3);
+    //response.write(salata2);
+    //response.write(salata3);
 
-    response.write(slanina);
-    response.write(sir);
-    response.write(mesina);
+
+    
+    response.write("let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");");
+    //response.write(slanina);
+    //response.write(sir);
+    //response.write(mesina);
     
     // donji dio HTML-a, od </script> nadalje
     response.write(fs.readFileSync(donjiHTMLPath));
