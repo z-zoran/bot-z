@@ -241,59 +241,77 @@ let chData15min = {};
 
 
 function formatiranjeChData(chartData) {
-    chData1min.type = 'bar';
-    chData1min.data = {};
-    chData1min.data.labels = chartData.m1.vrijeme;
-    chData1min.data.datasets = [];
-    chData1min.options = {};
-    chData1min.options.responsive = false;
-    chData1min.options.animation = {};
-    chData1min.options.animation.duration = 0;
-    chData1min.options.scales = {};
-    //chData1min.options.scales.xAxes = {stacked: true};
-    //chData1min.options.scales.yAxes = {stacked: true};
-    for (let i = 0; i < 7; i++) {
-        chData1min.data.datasets[i] = {};
-        chData1min.data.datasets[i].fill = false;
-    }
-    
-    chData1min.data.datasets[0].type = 'line';
-    chData1min.data.datasets[0].label = 'Cijena';
-    chData1min.data.datasets[0].data = chartData.m1.close;
-    chData1min.data.datasets[0].borderColor = crnaBoja;
-    
-    chData1min.data.datasets[1].type = 'bar';
-    chData1min.data.datasets[1].label = 'EUR pasiva';
-    chData1min.data.datasets[1].data = chartData.m1.pasivnoEUR;
-    
-    chData1min.data.datasets[2].type = 'bar';
-    chData1min.data.datasets[2].label = 'ETH pasiva (u EUR)';
-    chData1min.data.datasets[2].data = chartData.m1.pasETHuEUR;
-    
-    chData1min.data.datasets[3].type = 'line';
-    chData1min.data.datasets[3].label = 'Sell limit';
-    chData1min.data.datasets[3].data = chartData.m1.gornjiLimit;
-    chData1min.data.datasets[3].options = {};
-    chData1min.data.datasets[3].options.showLine = false;
-    
-    chData1min.data.datasets[4].type = 'line';
-    chData1min.data.datasets[4].label = 'Buy limit';
-    chData1min.data.datasets[4].data = chartData.m1.donjiLimit;
-    chData1min.data.datasets[4].options = {};
-    chData1min.data.datasets[4].options.showLine = false;
-    
-    chData1min.data.datasets[5].type = 'line';
-    chData1min.data.datasets[5].label = 'Gornji stop';
-    chData1min.data.datasets[5].data = chartData.m1.gornjiStop;
-    chData1min.data.datasets[5].options = {};
-    chData1min.data.datasets[5].options.showLine = false;
-    
-    chData1min.data.datasets[6].type = 'line';
-    chData1min.data.datasets[6].label = 'Donji stop';
-    chData1min.data.datasets[6].data = chartData.m1.donjiStop;
-    chData1min.data.datasets[6].options = {};
-    chData1min.data.datasets[6].options.showLine = false;
-
+    chData1min = {
+        type: 'bar',
+        options: {
+            responsive: false,
+            animation: {
+                duration: 0
+            },
+            scales: {
+                xAxes: {
+                    //stacked: true
+                },
+                yAxes: {
+                    //stacked:true
+                }
+            }
+        },
+        data: {
+            labels: chartData.m1.vrijeme,
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Cijena',
+                    data: chartData.m1.close,
+                    borderColor: crnaBoja,
+                    fill: false
+                }, {
+                    type: 'bar',
+                    label: 'EUR pasiva',
+                    data: chartData.m1.pasivnoEUR,
+                    fill: false
+                }, {
+                    type: 'bar',
+                    label: 'ETH pasiva (u EUR)',
+                    data: chartData.m1.pasETHuEUR,
+                    fill: false
+                }, {
+                    type: 'line',
+                    label: 'Sell limit',
+                    data: chartData.m1.gornjiLimit,
+                    options: {
+                        showLine: false
+                    },
+                    fill: false
+                }, {
+                    type: 'line',
+                    label: 'Buy limit',
+                    data: chartData.m1.donjiLimit,
+                    options: {
+                        showLine: false
+                    },
+                    fill: false            
+                }, {
+                    type: 'line',
+                    label: 'Gornji stop',
+                    data: chartData.m1.gornjiStop,
+                    options: {
+                        showLine: false
+                    },
+                    fill: false            
+                }, {
+                    type: 'line',
+                    label: 'Donji stop',
+                    data: chartData.m1.donjiStop,
+                    options: {
+                        showLine: false
+                    },
+                    fill: false            
+                }
+            ]
+        }
+    };
     return chData1min;
 }
 
