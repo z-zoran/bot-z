@@ -145,15 +145,8 @@ function chartifikacija1m(kendl) {
 
     // podešavanje chartData da bude dug duljinaCharta
     for (let lista in chartData.m1) {
-<<<<<<< HEAD
-        if (lista.length > duljinaCharta) {
-            console.log(lista.length);
-            //console.log(lista);
-            lista.shift();
-=======
         if (chartData.m1[lista].length > duljinaCharta) {
             chartData.m1[lista].shift();
->>>>>>> 29abb675ea37107903de3eda64c68696d9dca140
         }
     }
 }
@@ -245,31 +238,6 @@ function playPauza(koraka) {
 let chData5min = {};
 let chData15min = {};
 
-<<<<<<< HEAD
-let chData1min = {};
-chData1min.type = 'bar';
-chData1min.data = {};
-chData1min.data.labels = chartData.m1.vrijeme;
-chData1min.data.datasets = [];
-chData1min.options = {};
-//chData1min.options.
-for (let i = 0; i < 7; i++) {
-    chData1min.data.datasets[i] = {};
-}
-
-chData1min.data.datasets[0].type = 'line';
-chData1min.data.datasets[0].label = 'Cijena';
-chData1min.data.datasets[0].data = chartData.m1.close;
-
-chData1min.data.datasets[1].type = 'line';
-chData1min.data.datasets[1].label = 'EUR pasiva';
-chData1min.data.datasets[1].data = chartData.m1.pasivnoEUR;
-
-chData1min.data.datasets[2].type = 'line';
-chData1min.data.datasets[2].label = 'ETH pasiva (u EUR)';
-chData1min.data.datasets[2].data = chartData.m1.pasETHuEUR;
-=======
->>>>>>> 29abb675ea37107903de3eda64c68696d9dca140
 
 
 function formatiranjeChData(chartData) {
@@ -367,13 +335,10 @@ let salata1 = "let ctx1min = document.getElementById('chart1min').getContext('2d
 //let salata2 = "let ctx5min = document.getElementById('chart5min').getContext('2d');";
 //let salata3 = "let ctx15min = document.getElementById('chart15min').getContext('2d');";
 
-<<<<<<< HEAD
-=======
 //let slanina = "let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");";
 //let sir = "let chart5min = new Chart(ctx5min, " + JSON.stringify(chData5min) + ");";
 //let mesina = "let chart15min = new Chart(ctx15min, " + JSON.stringify(chData15min) + ");";
 
->>>>>>> 29abb675ea37107903de3eda64c68696d9dca140
 
 // jebeni server
 http.createServer(function (req, response) {
@@ -394,26 +359,11 @@ http.createServer(function (req, response) {
     //response.write(salata3);
 
 
-<<<<<<< HEAD
-    let slanina = "let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");";
-    let sir = "let chart5min = new Chart(ctx5min, " + JSON.stringify(chData5min) + ");";
-    let mesina = "let chart15min = new Chart(ctx15min, " + JSON.stringify(chData15min) + ");";
-    
-    
-
-
-    response.write(slanina);
-    response.write(sir);
-    response.write(mesina);
-
-    response.write(String(chartData.m1.close.length));
-=======
     
     response.write("let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");");
     //response.write(slanina);
     //response.write(sir);
     //response.write(mesina);
->>>>>>> 29abb675ea37107903de3eda64c68696d9dca140
     
     // donji dio HTML-a, od </script> nadalje
     response.write(fs.readFileSync(donjiHTMLPath));
