@@ -5,15 +5,12 @@
 /*-------------------trči u nove radne pobjede------------------------*/
 /*----------i testira strategije na povjesnim podacima----------------*/
 
-
-
 /*----------------------------REQUIRE---------------------------------*/
 
 /*-------------------standardni node.js moduli------------------------*/
 
 const fs = require('fs');
 const http = require('http');
-
 
 /*---------------------kastom zoki.js moduli--------------------------*/
 
@@ -26,7 +23,6 @@ let devijacija = require('./indikator.js');
 
 /*---------------------VARIJABLE--------------------------*/
 
-
 let putanja = './exchdata/testdata.csv';
 // testni trejdovi i kendlovi
 let paketKendlova = agro(putanja);
@@ -37,7 +33,7 @@ let portfolio = memorija[pfID] = new klas.Portfolio(pfID, 1000, 3, 0, 0, 0);
 let jahanje = strat.stratJahanjeCijene;
 
 // duljina charta (broj vremenskih jedinica)
-let duljinaCharta = 60;
+let duljinaCharta = 120;
 
 /* pathovi za gornje i donje pecivo sendviča */
 let gornjiHTMLPath = './HTMLburgerGornji.html';
@@ -90,11 +86,11 @@ let chData1min = {};
 // boje za chartove
 let crnaBoja = 'rgba(38, 12, 12, 0.95)';
 let crvenaBoja = 'rgba(188, 32, 32, 0.76)';
-let plavaBoja = 'rgba(48, 146, 166, 0.95)';
+let plavaBoja = 'rgba(48, 146, 166, 0.1)';
 let zelenaBoja = 'rgba(36, 126, 51, 0.95)';
 let zutaBoja = 'rgba(231, 227, 8, 0.95)';
 let rozaBoja = 'rgba(254, 57, 211, 0.78)';
-let purpleBoja = 'rgba(150, 6, 253, 0.78)';
+let purpleBoja = 'rgba(150, 6, 253, 0.1)';
 
 
 
@@ -102,14 +98,16 @@ let purpleBoja = 'rgba(150, 6, 253, 0.78)';
 
 function nadjiStop(portfolio) {
     let pozCounterString;
+    let pozicija;
     // traženje pozicije koja još ima stop 
     for (let i = 0; i <= portfolio.pozCounter; i++) {
         pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
-        if (portfolio.pozicije[pozCounterString].stop) {
+        pozicija = portfolio.pozicije[pozCounterString];
+        if (pozicija && pozicija.stop) {
             break;
         }
     }
-    return portfolio.pozicije[pozCounterString].stop;    
+    return (pozicija && pozicija.stop ? pozicija.stop : null);    
 }
 
 function chartifikacija1m(kendl) {
@@ -183,7 +181,6 @@ function chartifikacija15m(kendl) {
     }
 }
 
-
 function filanjeSubsetova() {
     ss1min.push(paketKendlova.arr1min.shift());
     chartifikacija1m(ss1min[i1]);
@@ -214,7 +211,8 @@ function playPauza(koraka) {
         /*
         if (paketKendlova.arr1min.length < 301) {
             break;
-        } NEKA VRSTA BREJKA AKO SMO NA KRAJU KENDL-PAKETA.
+        } 
+        NEKA VRSTA BREJKA AKO SMO NA KRAJU KENDL-PAKETA.
         ZASAD NE TREBA, KASNIJE ĆE BIT BITNO.
         */
         filanjeSubsetova();
@@ -224,7 +222,7 @@ function playPauza(koraka) {
         let odmakLambda = dev5;
         let odmakTau = dev5 / 3;
         let kendlic = ss1min[ss1min.length - 1];
-        let iznos = 0.01;
+        let iznos = 0.2;
         let cijenaSad = kendlic.C;
         let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
         let poruka = 'Trenutna cijena: ' + vrijemeSad + ' || ' + kendlic.C
@@ -238,8 +236,6 @@ function playPauza(koraka) {
 let chData5min = {};
 let chData15min = {};
 
-
-
 function formatiranjeChData(chartData) {
     chData1min = {
         type: 'bar',
@@ -249,12 +245,28 @@ function formatiranjeChData(chartData) {
                 duration: 0
             },
             scales: {
-                xAxes: {
-                    //stacked: true
-                },
-                yAxes: {
-                    //stacked:true
-                }
+                xAxes: [
+                    {
+                        id: 'portf-x-axis',
+                        stacked: true,
+                        display: false
+                    }, {
+                        id: 'cijena-x-axis',
+                        stacked: false
+                    }
+                ],
+                yAxes: [
+                    {
+                        stacked: true,
+                        id: 'left-y-axis',
+                        type: 'linear',
+                        position: 'left'
+                    }, {
+                        id: 'right-y-axis',
+                        type: 'linear',
+                        position: 'right'
+                    }
+                ]
             }
         },
         data: {
@@ -265,56 +277,75 @@ function formatiranjeChData(chartData) {
                     label: 'Cijena',
                     data: chartData.m1.close,
                     borderColor: crnaBoja,
-                    fill: false
+                    fill: false,
+                    yAxisID: 'right-y-axis',
+                    xAxisID: 'cijena-x-axis'
                 }, {
                     type: 'bar',
                     label: 'EUR pasiva',
                     data: chartData.m1.pasivnoEUR,
-                    fill: false
+                    backgroundColor: plavaBoja,
+                    fill: false,
+                    yAxisID: 'left-y-axis',
+                    xAxisID: 'portf-x-axis'
                 }, {
                     type: 'bar',
                     label: 'ETH pasiva (u EUR)',
                     data: chartData.m1.pasETHuEUR,
-                    fill: false
+                    backgroundColor: purpleBoja,
+                    fill: false,
+                    yAxisID: 'left-y-axis',
+                    xAxisID: 'portf-x-axis'
                 }, {
                     type: 'line',
                     label: 'Sell limit',
                     data: chartData.m1.gornjiLimit,
+                    borderColor: crvenaBoja,
                     options: {
                         showLine: false
                     },
-                    fill: false
+                    fill: false,
+                    yAxisID: 'right-y-axis',
+                    xAxisID: 'cijena-x-axis'
                 }, {
                     type: 'line',
                     label: 'Buy limit',
                     data: chartData.m1.donjiLimit,
+                    borderColor: zelenaBoja,
                     options: {
                         showLine: false
                     },
-                    fill: false            
+                    fill: false,          
+                    yAxisID: 'right-y-axis',
+                    xAxisID: 'cijena-x-axis'
                 }, {
                     type: 'line',
                     label: 'Gornji stop',
                     data: chartData.m1.gornjiStop,
+                    borderColor: rozaBoja,
                     options: {
                         showLine: false
                     },
-                    fill: false            
+                    fill: false,            
+                    yAxisID: 'right-y-axis',
+                    xAxisID: 'cijena-x-axis'
                 }, {
                     type: 'line',
                     label: 'Donji stop',
                     data: chartData.m1.donjiStop,
+                    borderColor: zutaBoja,
                     options: {
                         showLine: false
                     },
-                    fill: false            
+                    fill: false,            
+                    yAxisID: 'right-y-axis',
+                    xAxisID: 'cijena-x-axis'
                 }
             ]
         }
     };
     return chData1min;
 }
-
 
 /*
 chartData.m1.vrijeme = [];
@@ -347,16 +378,9 @@ chartData.m1.donjiStop = [];
 }
 */
 
-
-// djelovi sendviča koje server sklapa da bi dao cjeloviti html sa js skriptama unutra.
-let salata1 = "let ctx1min = document.getElementById('chart1min').getContext('2d');";
-//let salata2 = "let ctx5min = document.getElementById('chart5min').getContext('2d');";
-//let salata3 = "let ctx15min = document.getElementById('chart15min').getContext('2d');";
-
 //let slanina = "let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");";
 //let sir = "let chart5min = new Chart(ctx5min, " + JSON.stringify(chData5min) + ");";
 //let mesina = "let chart15min = new Chart(ctx15min, " + JSON.stringify(chData15min) + ");";
-
 
 // jebeni server
 http.createServer(function (req, response) {
@@ -370,13 +394,15 @@ http.createServer(function (req, response) {
         playPauza(15);
     } else if (req.url === '/?kolikoMinuta=60') {
         playPauza(60);
+    } else if (req.url === '/?kolikoMinuta=360') {
+        playPauza(360);
+    } else if (req.url === '/?kolikoMinuta=1440') {
+        playPauza(1440);
     }
     // sastavljamo sendvič od HTML-a, JS-a i JSON-a
-    response.write(salata1);
-    //response.write(salata2);
-    //response.write(salata3);
-
-
+    response.write("let ctx1min = document.getElementById('chart1min').getContext('2d');");
+    response.write("let ctx5min = document.getElementById('chart5min').getContext('2d');");
+    response.write("let ctx15min = document.getElementById('chart15min').getContext('2d');");
     
     response.write("let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");");
     //response.write(slanina);

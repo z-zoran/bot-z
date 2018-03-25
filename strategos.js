@@ -146,7 +146,8 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
         // traženje pozicije koja još ima stop (stop se briše kad je triggeran)
         for (let i = 0; i <= portfolio.pozCounter; i++) {
             pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
-            if (portfolio.pozicije[pozCounterString].stop) {
+            let pozicija = portfolio.pozicije[pozCounterString];
+            if (pozicija && pozicija.stop) {
                 break;
             }
         }
@@ -170,7 +171,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
             // provjeri da li ima uopće stop triggera još
             let nemaNijedanStopTrigger = true;
             for (let poz in portfolio.pozicije) {
-                if (poz.stop) {
+                if (portfolio.pozicije[poz].stop) {
                     nemaNijedanStopTrigger = false;
                     break;
                 }
@@ -208,7 +209,8 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
         // traženje pozicije koja još ima stop (stop se briše kad je triggeran)
         for (let i = 0; i <= portfolio.pozCounter; i++) {
             pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
-            if (portfolio.pozicije[pozCounterString].stop) {
+            let pozicija = portfolio.pozicije[pozCounterString];
+            if (pozicija && pozicija.stop) {
                 break;
             }
         }
@@ -232,7 +234,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
             // provjeri da li ima uopće stop triggera još
             let nemaNijedanStopTrigger = true;
             for (let poz in portfolio.pozicije) {
-                if (poz.stop) {
+                if (portfolio.pozicije[poz].stop) {
                     nemaNijedanStopTrigger = false;
                     break;
                 }
