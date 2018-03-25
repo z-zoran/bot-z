@@ -218,16 +218,18 @@ function playPauza(koraka) {
         filanjeSubsetova();
         let dev5 = devijacija(ss5min, 20);
         let dev15 = devijacija(ss15min, 20);
-        let odmakPhi = dev5;
+        let odmakPhi = 1.5 * dev5;
         let odmakLambda = dev5;
-        let odmakTau = dev5 / 3;
+        let odmakTau = 2;
         let kendlic = ss1min[ss1min.length - 1];
         let iznos = 0.2;
         let cijenaSad = kendlic.C;
         let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
         let poruka = 'Trenutna cijena: ' + vrijemeSad + ' || ' + kendlic.C
         // pisalo.pisi(poruka);
-        jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
+        for (let i = 0; i < 3; i++) {
+            jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
+        }
         formatiranjeChData(chartData);
     }
 }
@@ -240,6 +242,7 @@ function formatiranjeChData(chartData) {
     chData1min = {
         type: 'bar',
         options: {
+            //showLines: false,
             responsive: false,
             animation: {
                 duration: 0
@@ -277,9 +280,13 @@ function formatiranjeChData(chartData) {
                     label: 'Cijena',
                     data: chartData.m1.close,
                     borderColor: crnaBoja,
+                    borderWidth: 3,
+                    lineTension: 0,
+                    pointBorderWidth: 1,
+                    pointRadius: 2,
                     fill: false,
                     yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis'
+                    xAxisID: 'cijena-x-axis',
                 }, {
                     type: 'bar',
                     label: 'EUR pasiva',
@@ -301,45 +308,55 @@ function formatiranjeChData(chartData) {
                     label: 'Sell limit',
                     data: chartData.m1.gornjiLimit,
                     borderColor: crvenaBoja,
-                    options: {
-                        showLine: false
-                    },
+                    steppedLine: true,
+                    borderWidth: 0.1,
+                    pointBorderWidth: 2,
+                    lineTension: 0,
                     fill: false,
                     yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis'
+                    xAxisID: 'cijena-x-axis',
+                    pointBackgroundColor: crvenaBoja,
+                    backgroundColor: crvenaBoja
                 }, {
                     type: 'line',
                     label: 'Buy limit',
                     data: chartData.m1.donjiLimit,
                     borderColor: zelenaBoja,
-                    options: {
-                        showLine: false
-                    },
+                    steppedLine: 'before',
+                    borderWidth: 0.1,
+                    pointBorderWidth: 2,
+                    lineTension: 0,
                     fill: false,          
                     yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis'
+                    xAxisID: 'cijena-x-axis',
+                    pointBackgroundColor: zelenaBoja,
+                    backgroundColor: zelenaBoja
                 }, {
                     type: 'line',
                     label: 'Gornji stop',
                     data: chartData.m1.gornjiStop,
                     borderColor: rozaBoja,
-                    options: {
-                        showLine: false
-                    },
+                    borderWidth: 0.1,
+                    pointBorderWidth: 2,
+                    lineTension: 0,
                     fill: false,            
                     yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis'
+                    xAxisID: 'cijena-x-axis',
+                    pointBackgroundColor: rozaBoja,
+                    backgroundColor: rozaBoja
                 }, {
                     type: 'line',
                     label: 'Donji stop',
                     data: chartData.m1.donjiStop,
                     borderColor: zutaBoja,
-                    options: {
-                        showLine: false
-                    },
+                    borderWidth: 0.1,
+                    pointBorderWidth: 2,
+                    lineTension: 0,
                     fill: false,            
                     yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis'
+                    xAxisID: 'cijena-x-axis',
+                    pointBackgroundColor: zutaBoja,
+                    backgroundColor: zutaBoja
                 }
             ]
         }
@@ -417,7 +434,7 @@ http.createServer(function (req, response) {
 console.log('HTMLburger ti je na adresi http://127.0.0.1:1337/ i pljunuo sam u njega.');
 
 
-
+// treba provjeriti trailere. nešto nije u redu sa chartovima.
 
 
 // pisalo.end();

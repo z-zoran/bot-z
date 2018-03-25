@@ -4,6 +4,9 @@
         <title>
         Testiranje Chart.js
         </title>
+        <style>
+                * {text-align:center;}
+        </style>
     </head>
     <body>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
@@ -15,11 +18,11 @@
         <br/>
         
         <form>
-            <button name="kolikoMinuta" type="submit" value="5"> 5 minuta </button>
-            <button name="kolikoMinuta" type="submit" value="15"> 15 minuta </button>
-            <button name="kolikoMinuta" type="submit" value="60"> 60 minuta </button>
-            <button name="kolikoMinuta" type="submit" value="360"> 6 sati </button>
-            <button name="kolikoMinuta" type="submit" value="1440"> 24 sata </button>
+            <button name="kolikoMinuta" type="submit" value="5" style="height:60px;width:200px"> 5 minuta </button>
+            <button name="kolikoMinuta" type="submit" value="15" style="height:60px;width:200px"> 15 minuta </button>
+            <button name="kolikoMinuta" type="submit" value="60" style="height:60px;width:200px"> 60 minuta </button>
+            <button name="kolikoMinuta" type="submit" value="360" style="height:60px;width:200px"> 6 sati </button>
+            <button name="kolikoMinuta" type="submit" value="1440" style="height:60px;width:200px"> 24 sata </button>
         </form>
 
         <br/>
@@ -27,7 +30,7 @@
         <h2>Dijagram 1-min:</h2>
 
         <div style="width:100%">
-            <canvas id="chart1min" width="1600" height="400"></canvas>
+            <canvas id="chart1min" width="1600" height="600"></canvas>
 
         </div>
 
