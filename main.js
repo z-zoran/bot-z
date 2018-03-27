@@ -60,11 +60,19 @@ chartData.m1.close = [];
 chartData.m1.pasivnoEUR = [];
 chartData.m1.pasETHuEUR = [];
 
+// ovo obrisati
 chartData.m1.gornjiLimit = [];
 chartData.m1.donjiLimit = [];
 chartData.m1.gornjiStop = [];
 chartData.m1.donjiStop = [];
 // chartData.m1.trail = []; // za sad izostavljamo trailere, kasnije dodati
+
+// ovo ostaviti
+chartData.m1.pozStopovi = {};
+chartData.m1.buyLimiti = {};
+chartData.m1.sellLimiti = {};
+chartData.m1.traileri = {};
+
 
 chartData.m5 = {};
 chartData.m5.vrijeme = [];
@@ -92,15 +100,72 @@ let zutaBoja = 'rgba(231, 227, 8, 0.95)';
 let rozaBoja = 'rgba(254, 57, 211, 0.78)';
 let purpleBoja = 'rgba(150, 6, 253, 0.1)';
 
+/*-----------------FUNKCIJE-------------------*/
 
-function datasetTemplate(label, data, boja) {
+
+function buyLimitTemplate(label, data) {
+    let template = {
+        type: 'line',
+        label: label, // popuni
+        data: data, // popuni
+        borderColor: zelenaBoja, 
+        borderWidth: 0.01,
+        pointBorderWidth: 2,
+        lineTension: 0,
+        fill: false,
+        yAxisID: 'right-y-axis',
+        xAxisID: 'cijena-x-axis',
+        pointBackgroundColor: zelenaBoja,  
+        backgroundColor: zelenaBoja 
+    }
+    return template;
+}   
+
+function sellLimitTemplate(label, data) {
+    let template = {
+        type: 'line',
+        label: label, // popuni
+        data: data, // popuni
+        borderColor: crvenaBoja,
+        borderWidth: 0.01,
+        pointBorderWidth: 2,
+        lineTension: 0,
+        fill: false,
+        yAxisID: 'right-y-axis',
+        xAxisID: 'cijena-x-axis',
+        pointBackgroundColor: crvenaBoja,
+        backgroundColor: crvenaBoja
+    }
+    return template;
+}
+
+function stopTemplate(label, data, boja) {
     let template = {
         type: 'line',
         label: label, // popuni
         data: data, // popuni
         borderColor: boja, // popuni
         borderWidth: 0.01,
-        pointBorderWidth: 2,
+        pointBorderWidth: 1,
+        lineTension: 0,
+        fill: false,
+        yAxisID: 'right-y-axis',
+        xAxisID: 'cijena-x-axis',
+        pointBackgroundColor: boja,  // popuni
+        backgroundColor: boja // popuni
+    }
+    return template;
+}
+
+function trailerTemplate(label, data, boja) {
+    let template = {
+        type: 'line',
+        label: label, // popuni
+        data: data, // popuni
+        borderColor: boja, // popuni
+        borderWidth: 0.01,
+        pointBorderWidth: 1,
+        pointStyle: 'rect',
         lineTension: 0,
         fill: false,
         yAxisID: 'right-y-axis',
@@ -112,14 +177,63 @@ function datasetTemplate(label, data, boja) {
 }
 
 
-function novaChartifikacija2() {
-    // za svaku poziciju koja postoji
-    // ubaci njen stop ako ga ima
 
-    // za limite, provjeri je li id isti
-    // ako nije, digni novi dataset
-    // ako je, samo nadodaj u postojeći
 
+function megaChartifikacija(kendl) { // dodati cijenu sad u 1min i portfolio EUR i ETH u 15min
+    // tu smo stali
+    
+    /**** GURANJE CIJENE I VREMENA ****/
+    chartData.m1.close.push(kendl.C);
+    chartData.m1.vrijeme.push(kendl.datum + ' ' + kendl.sat + ':' + kendl.minuta);
+    while (!(chartData.m1.close.length === duljinaCharta)) {
+        if (chartData.m1.pozStopovi[c].length < duljinaCharta) {
+            chartData.m1.pozStopovi[c].unshift(null);
+        } else if (chartData.m1.pozStopovi[c].length > duljinaCharta) {
+            chartData.m1.pozStopovi[c].shift();
+        }
+    }
+
+    chartData.m1.pasivnoEUR.push(portfolio.EUR);
+    chartData.m1.pasETHuEUR.push(portfolio.ETH * kendl.C);
+    
+    /**** GURANJE STOPOVA ****/
+    // ako pozicija ima stop, guraj u chartData
+    for (let p in portfolio.pozicije) {
+        if (portfolio.pozicije[p].stop) {
+            let stopRegistriran = false;
+            for (let c in chartData.m1.pozStopovi) {
+                if (p === c) {
+                    chartData.m1.pozStopovi[p].push(portfolio.pozicije[p].stop);
+                    stopRegistriran = true;
+                    break
+                }
+            }
+            if (!stopRegistriran) {
+                chartData.m1.pozStopovi[p] = [];
+                chartData.m1.pozStopovi[p].push(portfolio.pozicije[p].stop);
+                stopRegistriran = true;
+            }
+        }
+    }
+    // još jednom proći sve pozStop arrayeve i gurnuti null ako neki nije taknut u prošlom for-u
+    for (let c in chartData.m1.pozStopovi) {
+        if (chartData.m1.pozStopovi[c].length === duljinaCharta) {
+            chartData.m1.pozStopovi[c].push(null);
+        }
+    }
+    // onda skraćujemo / produžujemo sve arrayeve po potrebi
+    for (let c in chartData.m1.pozStopovi) {
+        while (!(chartData.m1.pozStopovi[c].length === duljinaCharta)) {
+            if (chartData.m1.pozStopovi[c].length < duljinaCharta) {
+                chartData.m1.pozStopovi[c].unshift(null);
+            } else if (chartData.m1.pozStopovi[c].length > duljinaCharta) {
+                chartData.m1.pozStopovi[c].shift();
+            }
+        }
+    }
+
+    /**** GURANJE TRAILERA ****/
+    // isti postupak za trailere
     // preletimo sve trailere pa ih tutnemo u chartdata
     for (let p in portfolio.traileri) {
         let trailerRegistriran = false;
@@ -136,7 +250,13 @@ function novaChartifikacija2() {
             trailerRegistriran = true;
         }
     }
-    // skraćivanje odnosno produživanje datasetova
+    // još jednom proći sve trailer arrayeve i gurnuti null ako neki nije taknut u prošlom for-u
+    for (let c in chartData.m1.traileri) {
+        if (chartData.m1.traileri[c].length === duljinaCharta) {
+            chartData.m1.traileri[c].push(null);
+        }
+    }
+    // skraćivanje odnosno produživanje arrayeva
     for (let c in chartData.m1.traileri) {
         while (!(chartData.m1.traileri[c].length === duljinaCharta)) {
             if (chartData.m1.traileri[c].length < duljinaCharta) {
@@ -146,25 +266,76 @@ function novaChartifikacija2() {
             }
         }
     }
+
+    /**** GURANJE BUY LIMITA ****/
+    // ovaj put za buy limite
+    let buyLimitRegistriran = false;
+    let pfBuyLimit = portfolio.limiti['buy'];
+    for (let c in chartData.m1.buyLimiti) {
+        // produži postojeći limit array
+        if (c === pfBuyLimit.id) {
+            chartData.m1.buyLimiti[c].push(pfBuyLimit.limitCijena);
+            buyLimitRegistriran = true;
+            break;
+        }
+    }
+    // stvori novi limit array
+    if (!buyLimitRegistriran) {
+        chartData.m1.buyLimiti[pfBuyLimit.id] = [pfBuyLimit.limitCijena];
+        buyLimitRegistriran = true;
+    }
+    // dodaj null svima koji nisu taknuti dosad
+    for (let c in chartData.m1.buyLimiti) {
+        if (chartData.m1.buyLimiti[c].length === duljinaCharta) {
+            chartData.m1.buyLimiti[c].push(null);
+        }
+    }
+    // skraćivanje / produživanje na željenu duljinu charta
+    for (let c in chartData.m1.buyLimiti) {
+        while (!(chartData.m1.buyLimiti[c].length === duljinaCharta)) {
+            if (chartData.m1.buyLimiti[c].length < duljinaCharta) {
+                chartData.m1.buyLimiti[c].unshift(null);
+            } else if (chartData.m1.buyLimiti[c].length > duljinaCharta) {
+                chartData.m1.buyLimiti[c].shift();
+            }
+        }
+    }
+
+    /**** GURANJE SELL LIMITA ****/
+    // i konačno za sell limite
+    let sellLimitRegistriran = false;
+    let pfSellLimit = portfolio.limiti['sell'];
+    for (let c in chartData.m1.sellLimiti) {
+        // produži postojeći limit array
+        if (c === pfSellLimit.id) {
+            chartData.m1.sellLimiti[c].push(pfSellLimit.limitCijena);
+            sellLimitRegistriran = true;
+            break;
+        }
+    }
+    // stvori novi limit array
+    if (!sellLimitRegistriran) {
+        chartData.m1.sellLimiti[pfSellLimit.id] = [pfSellLimit.limitCijena];
+        sellLimitRegistriran = true;
+    }
+    // dodaj null svima koji nisu taknuti dosad
+    for (let c in chartData.m1.sellLimiti) {
+        if (chartData.m1.sellLimiti[c].length === duljinaCharta) {
+            chartData.m1.sellLimiti[c].push(null);
+        }
+    }
+    // skraćivanje / produživanje na željenu duljinu charta
+    for (let c in chartData.m1.sellLimiti) {
+        while (!(chartData.m1.sellLimiti[c].length === duljinaCharta)) {
+            if (chartData.m1.sellLimiti[c].length < duljinaCharta) {
+                chartData.m1.sellLimiti[c].unshift(null);
+            } else if (chartData.m1.sellLimiti[c].length > duljinaCharta) {
+                chartData.m1.sellLimiti[c].shift();
+            }
+        }
+    }
 }
 
-/*-----------------FUNKCIJE-------------------*/
-
-// dataset predložak za stopove
-let jedanDataset = {
-    type: 'line',
-    label: '',
-    data: chartData.m1.gornjiStop,
-    borderColor: '',
-    borderWidth: 0.1,
-    pointBorderWidth: 2,
-    lineTension: 0,
-    fill: false,            
-    yAxisID: 'right-y-axis',
-    xAxisID: 'cijena-x-axis',
-    pointBackgroundColor: rozaBoja,
-    backgroundColor: rozaBoja
-}
 
 function izmisliBoju() {
     let r = (Math.floor(Math.random() * 255));
@@ -175,32 +346,6 @@ function izmisliBoju() {
     return boja;
   }
 
-// novi chartifikator
-function novaChartifikacija(kendl) {
-    chartData.m1.pozStopovi;
-    chartData.m1.buyLimiti = {};
-    chartData.m1.sellLimiti = {};
-    chartData.m1.traileri;
-    // pushanje buy limita u chartData
-    let gurnutBuyLimit = false;
-    let buyLimit = portfolio.limiti['buy'];
-    let brojBuyChart = Object.keys(chartData.m1.buyLimiti).length;
-    if (brojBuyChart > 0) {
-        for (let id in chartData.m1.buyLimiti) {
-            if (id === buyLimit.id) {
-                chartData.m1.buyLimiti[id].push(buyLimit.limitCijena);
-                gurnutBuyLimit = true;
-                break;
-            }    
-        }
-    } else {
-        chartData.m1.buyLimiti[buyLimit.id] = [buyLimit.limitCijena];
-    }
-    if (!gurnutBuyLimit) {
-        
-    }
-// tu skratiti dužinu chartData datasetova ili produžiti ako su kratki
-}
 
 { //
 let stopDataset = new jedanDataset;
