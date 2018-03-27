@@ -93,6 +93,60 @@ let rozaBoja = 'rgba(254, 57, 211, 0.78)';
 let purpleBoja = 'rgba(150, 6, 253, 0.1)';
 
 
+function datasetTemplate(label, data, boja) {
+    let template = {
+        type: 'line',
+        label: label, // popuni
+        data: data, // popuni
+        borderColor: boja, // popuni
+        borderWidth: 0.01,
+        pointBorderWidth: 2,
+        lineTension: 0,
+        fill: false,
+        yAxisID: 'right-y-axis',
+        xAxisID: 'cijena-x-axis',
+        pointBackgroundColor: boja,  // popuni
+        backgroundColor: boja // popuni
+    }
+    return template;
+}
+
+
+function novaChartifikacija2() {
+    // za svaku poziciju koja postoji
+    // ubaci njen stop ako ga ima
+
+    // za limite, provjeri je li id isti
+    // ako nije, digni novi dataset
+    // ako je, samo nadodaj u postojeći
+
+    // preletimo sve trailere pa ih tutnemo u chartdata
+    for (let p in portfolio.traileri) {
+        let trailerRegistriran = false;
+        for (let c in chartData.m1.traileri) {
+            if (p === c) {
+                chartData.m1.traileri[p].push(portfolio.traileri[p].gdjeSam);
+                trailerRegistriran = true;
+                break;
+            }
+        }
+        if (!trailerRegistriran) {
+            chartData.m1.traileri[p] = [];
+            chartData.m1.traileri[p].push(portfolio.traileri[p].gdjeSam);
+            trailerRegistriran = true;
+        }
+    }
+    // skraćivanje odnosno produživanje datasetova
+    for (let c in chartData.m1.traileri) {
+        while (!(chartData.m1.traileri[c].length === duljinaCharta)) {
+            if (chartData.m1.traileri[c].length < duljinaCharta) {
+                chartData.m1.traileri[c].unshift(null);
+            } else if (chartData.m1.traileri[c].length > duljinaCharta) {
+                chartData.m1.traileri[c].shift();
+            }
+        }
+    }
+}
 
 /*-----------------FUNKCIJE-------------------*/
 
