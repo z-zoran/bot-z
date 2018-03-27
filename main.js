@@ -42,6 +42,7 @@ let donjiHTMLPath = './HTMLburgerDonji.html';
 
 // definiramo subsete kendlova izvan while-a
 let ss1min = [];
+let ss5min = [];
 let ss15min = [];
 
 // definiramo countere za subsetove
@@ -73,7 +74,6 @@ let crvenaBoja = 'rgba(188, 32, 32, 0.76)';
 let zelenaBoja = 'rgba(36, 126, 51, 0.95)';
 
 /*-----------------FUNKCIJE-------------------*/
-
 
 function buyLimitTemplate(label, data) {
     let template = {
@@ -262,68 +262,72 @@ function predChartifikacija(kendl1, kendl15) {
     // ovaj put za buy limite
     let buyLimitRegistriran = false;
     let pfBuyLimit = portfolio.limiti['buy'];
-    for (let c in chartData.m1.buyLimiti) {
-        // produži postojeći limit array
-        if (c === pfBuyLimit.id) {
-            chartData.m1.buyLimiti[c].push(pfBuyLimit.limitCijena);
+    if (pfBuyLimit) {
+        for (let c in chartData.m1.buyLimiti) {
+            // produži postojeći limit array
+            if (c === pfBuyLimit.id) {
+                chartData.m1.buyLimiti[c].push(pfBuyLimit.limitCijena);
+                buyLimitRegistriran = true;
+                break;
+            }
+        }
+        // stvori novi limit array
+        if (!buyLimitRegistriran) {
+            chartData.m1.buyLimiti[pfBuyLimit.id] = [pfBuyLimit.limitCijena];
             buyLimitRegistriran = true;
-            break;
         }
-    }
-    // stvori novi limit array
-    if (!buyLimitRegistriran) {
-        chartData.m1.buyLimiti[pfBuyLimit.id] = [pfBuyLimit.limitCijena];
-        buyLimitRegistriran = true;
-    }
-    // dodaj null svima koji nisu taknuti dosad
-    for (let c in chartData.m1.buyLimiti) {
-        if (chartData.m1.buyLimiti[c].length === duljinaCharta) {
-            chartData.m1.buyLimiti[c].push(null);
+        // dodaj null svima koji nisu taknuti dosad
+        for (let c in chartData.m1.buyLimiti) {
+            if (chartData.m1.buyLimiti[c].length === duljinaCharta) {
+                chartData.m1.buyLimiti[c].push(null);
+            }
         }
-    }
-    // skraćivanje / produživanje na željenu duljinu charta
-    for (let c in chartData.m1.buyLimiti) {
-        while (!(chartData.m1.buyLimiti[c].length === duljinaCharta)) {
-            if (chartData.m1.buyLimiti[c].length < duljinaCharta) {
-                chartData.m1.buyLimiti[c].unshift(null);
-            } else if (chartData.m1.buyLimiti[c].length > duljinaCharta) {
-                chartData.m1.buyLimiti[c].shift();
+        // skraćivanje / produživanje na željenu duljinu charta
+        for (let c in chartData.m1.buyLimiti) {
+            while (!(chartData.m1.buyLimiti[c].length === duljinaCharta)) {
+                if (chartData.m1.buyLimiti[c].length < duljinaCharta) {
+                    chartData.m1.buyLimiti[c].unshift(null);
+                } else if (chartData.m1.buyLimiti[c].length > duljinaCharta) {
+                    chartData.m1.buyLimiti[c].shift();
+                }
             }
         }
     }
-
+    
     /**** GURANJE SELL LIMITA ****/
     // i konačno za sell limite
     let sellLimitRegistriran = false;
     let pfSellLimit = portfolio.limiti['sell'];
-    for (let c in chartData.m1.sellLimiti) {
-        // produži postojeći limit array
-        if (c === pfSellLimit.id) {
-            chartData.m1.sellLimiti[c].push(pfSellLimit.limitCijena);
-            sellLimitRegistriran = true;
-            break;
-        }
-    }
-    // stvori novi limit array
-    if (!sellLimitRegistriran) {
-        chartData.m1.sellLimiti[pfSellLimit.id] = [pfSellLimit.limitCijena];
-        sellLimitRegistriran = true;
-    }
-    // dodaj null svima koji nisu taknuti dosad
-    for (let c in chartData.m1.sellLimiti) {
-        if (chartData.m1.sellLimiti[c].length === duljinaCharta) {
-            chartData.m1.sellLimiti[c].push(null);
-        }
-    }
-    // skraćivanje / produživanje na željenu duljinu charta
-    for (let c in chartData.m1.sellLimiti) {
-        while (!(chartData.m1.sellLimiti[c].length === duljinaCharta)) {
-            if (chartData.m1.sellLimiti[c].length < duljinaCharta) {
-                chartData.m1.sellLimiti[c].unshift(null);
-            } else if (chartData.m1.sellLimiti[c].length > duljinaCharta) {
-                chartData.m1.sellLimiti[c].shift();
+    if (pfSellLimit) {
+        for (let c in chartData.m1.sellLimiti) {
+            // produži postojeći limit array
+            if (c === pfSellLimit.id) {
+                chartData.m1.sellLimiti[c].push(pfSellLimit.limitCijena);
+                sellLimitRegistriran = true;
+                break;
             }
         }
+        // stvori novi limit array
+        if (!sellLimitRegistriran) {
+            chartData.m1.sellLimiti[pfSellLimit.id] = [pfSellLimit.limitCijena];
+            sellLimitRegistriran = true;
+        }
+        // dodaj null svima koji nisu taknuti dosad
+        for (let c in chartData.m1.sellLimiti) {
+            if (chartData.m1.sellLimiti[c].length === duljinaCharta) {
+                chartData.m1.sellLimiti[c].push(null);
+            }
+        }
+        // skraćivanje / produživanje na željenu duljinu charta
+        for (let c in chartData.m1.sellLimiti) {
+            while (!(chartData.m1.sellLimiti[c].length === duljinaCharta)) {
+                if (chartData.m1.sellLimiti[c].length < duljinaCharta) {
+                    chartData.m1.sellLimiti[c].unshift(null);
+                } else if (chartData.m1.sellLimiti[c].length > duljinaCharta) {
+                    chartData.m1.sellLimiti[c].shift();
+                }
+            }
+        }    
     }
 
     /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
@@ -428,18 +432,36 @@ function sanitizacijaCharta() {
 }
 
 // FORMATIRANJE ZA CHART JS
+let chartFormatiran = {};
 function stvaranjeCharta() {
+    chartFormatiran = {};
     let m1Dataset = [];
-    // tu popuniti m1dataset sa svim potrebnim templateima
+    // guramo cijenu
+    m1Dataset.push(cijenaTemplate(chartData.m1.close));
+    // buy limite
+    for (let i in chartData.m1.buyLimiti) {
+        m1Dataset.push(buyLimitTemplate('Buy limit ' + i, chartData.m1.buyLimiti[i]));
+    }
+    // sell limite
+    for (let i in chartData.m1.sellLimiti) {
+        m1Dataset.push(sellLimitTemplate('Sell limit ' + i, chartData.m1.sellLimiti[i]));
+    }
+    // stopove
+    for (let i in chartData.m1.pozStopovi) {
+        m1Dataset.push(stopTemplate('Stop ' + i, chartData.m1.pozStopovi[i], izmisliBoju()));
+    }
+    // traileri
+    for (let i in chartData.m1.traileri) {
+        m1Dataset.push(trailerTemplate('Trailer ' + i, chartData.m1.traileri[i], izmisliBoju()));
+    }
     
-    let chartFormatiran = {};
     chartFormatiran.m1 = {
-        type: 'bar',
+        type: 'line',
         options: {
             responsive: false,
             animation: {
                 duration: 0
-            },
+            },    // MOŽDA OBRISATI
             scales: {
                 xAxes: [
                     {
@@ -461,13 +483,17 @@ function stvaranjeCharta() {
     };
 
     let m15Dataset = [];
+    m15Dataset.push(cijenaTemplate(chartData.m15.high));
+    m15Dataset.push(cijenaTemplate(chartData.m15.low));
+    m15Dataset.push(cijenaTemplate(chartData.m15.pasivnoEUR));
+    m15Dataset.push(cijenaTemplate(chartData.m15.pasETHuEUR));
     chartFormatiran.m15 = {
-        type: 'bar',
+        type: 'line',
         options: {
             responsive: false,
             animation: {
                 duration: 0
-            },
+            },    // obrisati?
             scales: {
                 xAxes: [
                     {
@@ -495,92 +521,8 @@ function stvaranjeCharta() {
             }
         },
         data: {
-            labels: chartData.m1.vrijeme,
-            datasets: [
-                {
-                    type: 'line',
-                    label: 'Cijena',
-                    data: chartData.m1.close,
-                    borderColor: crnaBoja,
-                    borderWidth: 3,
-                    lineTension: 0,
-                    pointBorderWidth: 1,
-                    pointRadius: 2,
-                    fill: false,
-                    yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis',
-                }, {
-                    type: 'bar',
-                    label: 'EUR pasiva',
-                    data: chartData.m1.pasivnoEUR,
-                    backgroundColor: plavaBoja,
-                    fill: false,
-                    yAxisID: 'left-y-axis',
-                    xAxisID: 'portf-x-axis'
-                }, {
-                    type: 'bar',
-                    label: 'ETH pasiva (u EUR)',
-                    data: chartData.m1.pasETHuEUR,
-                    backgroundColor: purpleBoja,
-                    fill: false,
-                    yAxisID: 'left-y-axis',
-                    xAxisID: 'portf-x-axis'
-                }, {
-                    type: 'line',
-                    label: 'Sell limit',
-                    data: chartData.m1.gornjiLimit,
-                    borderColor: crvenaBoja,
-                    steppedLine: true,
-                    borderWidth: 0.1,
-                    pointBorderWidth: 2,
-                    lineTension: 0,
-                    fill: false,
-                    yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis',
-                    pointBackgroundColor: crvenaBoja,
-                    backgroundColor: crvenaBoja
-                }, {
-                    type: 'line',
-                    label: 'Buy limit',
-                    data: chartData.m1.donjiLimit,
-                    borderColor: zelenaBoja,
-                    steppedLine: 'before',
-                    borderWidth: 0.1,
-                    pointBorderWidth: 2,
-                    lineTension: 0,
-                    fill: false,          
-                    yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis',
-                    pointBackgroundColor: zelenaBoja,
-                    backgroundColor: zelenaBoja
-                }/*, { ovo izbrisati i zamjeniti arrayem koji dinamički popunjava chdata
-                    type: 'line',
-                    label: 'Gornji stop',
-                    data: chartData.m1.gornjiStop,
-                    borderColor: rozaBoja,
-                    borderWidth: 0.1,
-                    pointBorderWidth: 2,
-                    lineTension: 0,
-                    fill: false,            
-                    yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis',
-                    pointBackgroundColor: rozaBoja,
-                    backgroundColor: rozaBoja
-                }, {
-                    type: 'line',
-                    label: 'Donji stop',
-                    data: chartData.m1.donjiStop,
-                    borderColor: zutaBoja,
-                    borderWidth: 0.1,
-                    pointBorderWidth: 2,
-                    lineTension: 0,
-                    fill: false,            
-                    yAxisID: 'right-y-axis',
-                    xAxisID: 'cijena-x-axis',
-                    pointBackgroundColor: zutaBoja,
-                    backgroundColor: zutaBoja
-                }*/
-            ]
+            labels: chartData.m15.vrijeme,
+            datasets: m15Dataset 
         }
     };
     return chartFormatiran;
@@ -595,91 +537,17 @@ function izmisliBoju() {
     return boja;
 }
 
-
-/*  // OBRISATI
-function chartifikacija1m(kendl) {
-    // input funkciji je jedan kendl
-    // čupamo njegov Close
-    chartData.m1.close.push(kendl.C);
-    chartData.m1.vrijeme.push(kendl.datum + ' ' + kendl.sat + ':' + kendl.minuta);
-    chartData.m1.pasivnoEUR.push(portfolio.EUR);
-    chartData.m1.pasETHuEUR.push(portfolio.ETH * kendl.C);
-    if (!portfolio.limiti.buy && !portfolio.limiti.sell) {
-        chartData.m1.gornjiLimit.push(null);
-        chartData.m1.gornjiStop.push(null);
-        chartData.m1.donjiLimit.push(null);
-        chartData.m1.donjiStop.push(null);
-    } else {
-        // traženje gornjih točaka
-        if (portfolio.limiti.sell) {
-            chartData.m1.gornjiLimit.push(portfolio.limiti.sell.limitCijena);
-            chartData.m1.gornjiStop.push(null);
-        } else if (!portfolio.limiti.sell) {
-            chartData.m1.gornjiLimit.push(null);
-            chartData.m1.gornjiStop.push(nadjiStop(portfolio));
-        }
-        // traženje donjih točaka
-        if (portfolio.limiti.buy) {
-            chartData.m1.donjiLimit.push(portfolio.limiti.buy.limitCijena);
-            chartData.m1.donjiStop.push(null);
-        } else if (!portfolio.limiti.buy) {
-            chartData.m1.donjiLimit.push(null);
-            chartData.m1.donjiStop.push(nadjiStop(portfolio));
-        }
-    }
-
-    // podešavanje chartData da bude dug duljinaCharta
-    for (let lista in chartData.m1) {
-        if (chartData.m1[lista].length > duljinaCharta) {
-            chartData.m1[lista].shift();
-        }
-    }
-}
-
-function chartifikacija5m(kendl) {
-    // input funkciji je jedan kendl
-    // čupamo njegove High i Low
-    chartData.m5.high.push(kendl.H);
-    chartData.m5.low.push(kendl.L);
-    chartData.m5.vrijeme.push(kendl.datum + ' ' + kendl.sat + ':' + kendl.minuta);
-    chartData.m5.pasivnoEUR.push(portfolio.EUR);
-    chartData.m5.pasETHuEUR.push(portfolio.ETH * kendl.C);
-    // podešavanje chartData da bude dug duljinaCharta
-    for (let lista in chartData.m5) {
-        if (lista.length > duljinaCharta) {
-            lista.shift();
-        }
-    }
-}
-
-function chartifikacija15m(kendl) {
-    // input funkciji je jedan kendl
-    // čupamo njegove High i Low
-    chartData.m15.high.push(kendl.H);
-    chartData.m15.low.push(kendl.L);
-    chartData.m15.vrijeme.push(kendl.datum + ' ' + kendl.sat + ':' + kendl.minuta);
-    chartData.m15.pasivnoEUR.push(portfolio.EUR);
-    chartData.m15.pasETHuEUR.push(portfolio.ETH * kendl.C);
-    // podešavanje chartData da bude dug duljinaCharta
-    for (let lista in chartData.m15) {
-        if (lista.length > duljinaCharta) {
-            lista.shift();
-        }
-    }
-} */
-
-function filanjeSubsetova() {   // reformirati u skladu s predChartifikacija() i stvaranjeCharta()
+function inicijalnoFilanjeSubsetova() {
     ss1min.push(paketKendlova.arr1min.shift());
-    chartifikacija1m(ss1min[i1]);
-    i1++;
     if (i1 % 5 === 0) {
         ss5min.push(paketKendlova.arr5min.shift())
-        chartifikacija5m(ss5min[i5]);
-        i5++;
     }
     if (i1 % 15 === 0) {
         ss15min.push(paketKendlova.arr15min.shift())
-        chartifikacija15m(ss15min[i15]);
+    }
+    predChartifikacija(ss1min[i1], ss15min[i15]);
+    i1++;
+    if (i1 % 15 === 0) {
         i15++;
     }
 }
@@ -688,8 +556,7 @@ function filanjeSubsetova() {   // reformirati u skladu s predChartifikacija() i
 
 // inicijalni krug da se popune subseti dovoljno za chart
 while (ss15min.length < duljinaCharta) {
-    filanjeSubsetova();
-    formatiranjeChData(chartData);
+    inicijalnoFilanjeSubsetova();
 }
 
 // funkcija koja se vrti sa svakim klikom
@@ -702,24 +569,36 @@ function playPauza(koraka) {
         NEKA VRSTA BREJKA AKO SMO NA KRAJU KENDL-PAKETA.
         ZASAD NE TREBA, KASNIJE ĆE BIT BITNO.
         */
-        filanjeSubsetova();
         let dev5 = devijacija(ss5min, 20);
         let dev15 = devijacija(ss15min, 20);
         let odmakPhi = 1.5 * dev5;
         let odmakLambda = dev5;
         let odmakTau = 2;
-        let kendlic = ss1min[ss1min.length - 1];
+        let kendlic = ss1min[i1-1];
         let iznos = 0.2;
         let cijenaSad = kendlic.C;
         let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
+
+        ss1min.push(paketKendlova.arr1min.shift());
+        if (i1 % 5 === 0) {
+            ss5min.push(paketKendlova.arr5min.shift())
+        }
+        if (i1 % 15 === 0) {
+            ss15min.push(paketKendlova.arr15min.shift())
+        }
         for (let i = 0; i < 3; i++) {
             jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
         }
-        formatiranjeChData(chartData);
+
+        predChartifikacija(ss1min[i1], ss15min[i15]);
+        sanitizacijaCharta();
+
+        i1++;
+        if (i1 % 15 === 0) {
+            i15++;
+        }
     }
 }
-
-
 
 // madrfakin server
 http.createServer(function (req, response) {
@@ -742,8 +621,8 @@ http.createServer(function (req, response) {
     response.write("let ctx1min = document.getElementById('chart1min').getContext('2d');");
     response.write("let ctx15min = document.getElementById('chart15min').getContext('2d');");
     
-    response.write("let chart1min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");");
-    response.write("let chart15min = new Chart(ctx1min, " + JSON.stringify(chData1min) + ");");
+    response.write("let chart1min = new Chart(ctx1min, " + JSON.stringify(stvaranjeCharta().m1) + ");");
+    response.write("let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta().m15) + ");");
     
     // donji dio HTML-a, od </script> nadalje
     response.write(fs.readFileSync(donjiHTMLPath));
