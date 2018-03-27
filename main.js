@@ -96,6 +96,65 @@ let purpleBoja = 'rgba(150, 6, 253, 0.1)';
 
 /*-----------------FUNKCIJE-------------------*/
 
+// dataset predložak za stopove
+let jedanDataset = {
+    type: 'line',
+    label: '',
+    data: chartData.m1.gornjiStop,
+    borderColor: '',
+    borderWidth: 0.1,
+    pointBorderWidth: 2,
+    lineTension: 0,
+    fill: false,            
+    yAxisID: 'right-y-axis',
+    xAxisID: 'cijena-x-axis',
+    pointBackgroundColor: rozaBoja,
+    backgroundColor: rozaBoja
+}
+
+function izmisliBoju() {
+    let r = (Math.floor(Math.random() * 255));
+    let g = (Math.floor(Math.random() * 255));
+    let b = (Math.floor(Math.random() * 255));
+    let a = (Math.random() * 0.5);
+    let boja = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+    return boja;
+  }
+
+// novi chartifikator
+function novaChartifikacija(kendl) {
+    chartData.m1.pozStopovi;
+    chartData.m1.buyLimiti = {};
+    chartData.m1.sellLimiti = {};
+    chartData.m1.traileri;
+    // pushanje buy limita u chartData
+    let gurnutBuyLimit = false;
+    let buyLimit = portfolio.limiti['buy'];
+    let brojBuyChart = Object.keys(chartData.m1.buyLimiti).length;
+    if (brojBuyChart > 0) {
+        for (let id in chartData.m1.buyLimiti) {
+            if (id === buyLimit.id) {
+                chartData.m1.buyLimiti[id].push(buyLimit.limitCijena);
+                gurnutBuyLimit = true;
+                break;
+            }    
+        }
+    } else {
+        chartData.m1.buyLimiti[buyLimit.id] = [buyLimit.limitCijena];
+    }
+    if (!gurnutBuyLimit) {
+        
+    }
+// tu skratiti dužinu chartData datasetova ili produžiti ako su kratki
+}
+
+{ //
+let stopDataset = new jedanDataset;
+stopDataset.label = 'Stop od pozicije ' + pozicija.id;
+stopDataset.borderColor = izmisliBoju();
+stopDataset.data;
+}
+
 function nadjiStop(portfolio) {
     let pozCounterString;
     let pozicija;
@@ -331,7 +390,7 @@ function formatiranjeChData(chartData) {
                     xAxisID: 'cijena-x-axis',
                     pointBackgroundColor: zelenaBoja,
                     backgroundColor: zelenaBoja
-                }, {
+                }/*, { ovo izbrisati i zamjeniti arrayem koji dinamički popunjava chdata
                     type: 'line',
                     label: 'Gornji stop',
                     data: chartData.m1.gornjiStop,
@@ -357,7 +416,7 @@ function formatiranjeChData(chartData) {
                     xAxisID: 'cijena-x-axis',
                     pointBackgroundColor: zutaBoja,
                     backgroundColor: zutaBoja
-                }
+                }*/
             ]
         }
     };
