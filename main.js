@@ -82,6 +82,8 @@ let chartData = {
 let crnaBoja = 'rgba(38, 12, 12, 0.95)';
 let crvenaBoja = 'rgba(188, 32, 32, 0.76)';
 let zelenaBoja = 'rgba(36, 126, 51, 0.95)';
+let plavaBoja = 'rgba(63, 127, 191, 0.54)';
+let rozaBoja = 'rgba(191, 63, 127, 0.54)';
 
 
 /*-----------------FUNKCIJE-------------------*/
@@ -176,6 +178,29 @@ function cijenaTemplate(data) {
     return template;
 }
 
+function pfTemplate(label, data, boja) {
+    let template = {
+        type: 'bar',
+        label: label,
+        data: data,
+        borderColor: boja,
+        backgroundColor: boja,
+        borderWidth: 3,
+        yAxisID: 'left-y-axis',
+        xAxisID: 'portf-x-axis'    
+    }
+    return template;
+}
+
+function izmisliBoju() {
+    let r = (Math.floor(Math.random() * 255));
+    let g = (Math.floor(Math.random() * 255));
+    let b = (Math.floor(Math.random() * 255));
+    let a = (0.2 + (Math.random() * 0.3));
+    let boja = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+    return boja;
+}
+
 // FUNKCIJA KOJA ČUPA DATA IZ portfolio I KENDLOVA
 function predChartifikacija(kendl1, kendl15) { 
     
@@ -188,7 +213,7 @@ function predChartifikacija(kendl1, kendl15) {
             chartData.m1.close.shift();
         }
     }
-    chartData.m1.vrijeme.push(kendl1.datum + ' ' + kendl1.sat + ':' + kendl1.minuta);
+    chartData.m1.vrijeme.push(kendl1.datum + ' ' + kendl1.sat + ':' + kendl1.minuta.toFixed(2));
     while (chartData.m1.vrijeme.length !== duljinaCharta) {
         if (chartData.m1.vrijeme.length < duljinaCharta) {
             chartData.m1.vrijeme.unshift(null);
@@ -333,48 +358,24 @@ function predChartifikacija(kendl1, kendl15) {
     }
 
     /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
-    if (i1 % 5 === 0) {
+    if (i1 % 15 === 0) {
         chartData.m15.high.push(kendl15.H);
-        while (!(chartData.m15.high.length === duljinaCharta)) {
-            if (chartData.m15.high.length < duljinaCharta) {
-                chartData.m15.high.unshift(null);
-            } else if (chartData.m15.high.length > duljinaCharta) {
-                chartData.m15.high.shift();
-            }
-        }
         chartData.m15.low.push(kendl15.L);
-        while (!(chartData.m15.low.length === duljinaCharta)) {
-            if (chartData.m15.low.length < duljinaCharta) {
-                chartData.m15.low.unshift(null);
-            } else if (chartData.m15.low.length > duljinaCharta) {
-                chartData.m15.low.shift();
-            }
-        }
-        chartData.m15.vrijeme.push(kendl15.datum + ' ' + kendl15.sat + ':' + kendl15.minuta);
-        while (!(chartData.m15.vrijeme.length === duljinaCharta)) {
-            if (chartData.m15.vrijeme.length < duljinaCharta) {
-                chartData.m15.vrijeme.unshift(null);
-            } else if (chartData.m15.vrijeme.length > duljinaCharta) {
-                chartData.m15.vrijeme.shift();
-            }
-        }
+        chartData.m15.vrijeme.push(kendl15.datum + ' ' + kendl15.sat + ':' + kendl15.minuta.toFixed(2));
         chartData.m15.pasivnoEUR.push(portfolio.EUR);
-        while (!(chartData.m15.pasivnoEUR.length === duljinaCharta)) {
-            if (chartData.m15.pasivnoEUR.length < duljinaCharta) {
-                chartData.m15.pasivnoEUR.unshift(null);
-            } else if (chartData.m15.pasivnoEUR.length > duljinaCharta) {
-                chartData.m15.pasivnoEUR.shift();
+        chartData.m15.pasETHuEUR.push(portfolio.ETH * kendl15.C);
+    }
+    for (let c in chartData.m15) {
+        while (chartData.m15[c].length !== duljinaCharta) {
+            if (chartData.m15[c].length < duljinaCharta) {
+                chartData.m15[c].unshift(null);
+            } else if (chartData.m15[c].length > duljinaCharta) {
+                chartData.m15[c].shift();
             }
         }
-        chartData.m15.pasETHuEUR.push(portfolio.ETH * kendl15.C);
-        while (!(chartData.m15.pasETHuEUR.length === duljinaCharta)) {
-            if (chartData.m15.pasETHuEUR.length < duljinaCharta) {
-                chartData.m15.pasETHuEUR.unshift(null);
-            } else if (chartData.m15.pasETHuEUR.length > duljinaCharta) {
-                chartData.m15.pasETHuEUR.shift();
-            }
-        }        
     }
+
+    
 }
 
 // FORMATIRANJE ZA CHART JS
@@ -389,12 +390,12 @@ function stvaranjeCharta() {
     m1Dataset.push(sellLimitTemplate(chartData.m1.sellLimiti));
     // stopove
     for (let i in chartData.m1.pozStopovi) {
-        let lejbl = 'Stop ' + i + ' || ulazna cijena: ' + chartData.ulazneCijene[i];
+        let lejbl = 'Stop ' + i + ' || ulazna cijena: ' + chartData.ulazneCijene[i].toFixed(2);
         m1Dataset.push(stopTemplate(lejbl, chartData.m1.pozStopovi[i], chartData.boje[i]));
     }
     // trailere
     for (let i in chartData.m1.traileri) {
-        let lejbl = 'Trailer ' + i + ' || ulazna cijena: ' + chartData.ulazneCijene[i];
+        let lejbl = 'Trailer ' + i + ' || ulazna cijena: ' + chartData.ulazneCijene[i].toFixed(2);
         m1Dataset.push(trailerTemplate(lejbl, chartData.m1.traileri[i], chartData.boje[i]));
     }
     
@@ -428,15 +429,15 @@ function stvaranjeCharta() {
     let m15Dataset = [];
     m15Dataset.push(cijenaTemplate(chartData.m15.high));
     m15Dataset.push(cijenaTemplate(chartData.m15.low));
-    m15Dataset.push(cijenaTemplate(chartData.m15.pasivnoEUR));
-    m15Dataset.push(cijenaTemplate(chartData.m15.pasETHuEUR));
+    m15Dataset.push(pfTemplate('Portfolio EUR', chartData.m15.pasivnoEUR, plavaBoja));
+    m15Dataset.push(pfTemplate('Portfolio ETH u EUR', chartData.m15.pasETHuEUR, rozaBoja));
     chartFormatiran.m15 = {
-        type: 'line',
+        type: 'bar',
         options: {
             responsive: false,
             animation: {
                 duration: 0
-            },    // obrisati?
+            },
             scales: {
                 xAxes: [
                     {
@@ -471,35 +472,21 @@ function stvaranjeCharta() {
     return chartFormatiran;
 }
 
-function izmisliBoju() {
-    let r = (Math.floor(Math.random() * 255));
-    let g = (Math.floor(Math.random() * 255));
-    let b = (Math.floor(Math.random() * 255));
-    let a = (0.2 + (Math.random() * 0.3));
-    let boja = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
-    return boja;
-}
-
 function inicijalnoFilanjeSubsetova() {
-    ss1min.push(paketKendlova.arr1min.shift());
-    if (i1 % 5 === 0) {
-        ss5min.push(paketKendlova.arr5min.shift())
+    for (let i = 0; i < 15*duljinaCharta; i++) {
+        ss1min.push(paketKendlova.arr1min.shift());
+        if (i1 % 5 === 0) {
+            ss5min.push(paketKendlova.arr5min.shift())
+        }
+        if (i1 % 15 === 0) {
+            ss15min.push(paketKendlova.arr15min.shift())
+        }
+        predChartifikacija(ss1min[i1], ss15min[i15]);
+        i1++;
+        if (i1 % 15 === 0) {
+            i15++;
+        }    
     }
-    if (i1 % 15 === 0) {
-        ss15min.push(paketKendlova.arr15min.shift())
-    }
-    predChartifikacija(ss1min[i1], ss15min[i15]);
-    i1++;
-    if (i1 % 15 === 0) {
-        i15++;
-    }
-}
-
-/*-----------------ALGORITAM-------------------*/
-
-// inicijalni krug da se popune subseti dovoljno za chart
-while (ss15min.length < duljinaCharta) {
-    inicijalnoFilanjeSubsetova();
 }
 
 // funkcija koja se vrti sa svakim klikom
@@ -514,13 +501,20 @@ function playPauza(koraka) {
         */
         let dev5 = devijacija(ss5min, 20);
         let dev15 = devijacija(ss15min, 20);
-        let odmakPhi = 1.5 * dev5;
-        let odmakLambda = dev5;
-        let odmakTau = 2;
+        let odmakPhi = dev5;
+        let odmakLambda = 0.6 * dev5;
+        let odmakTau = 0.3 * dev5;
         let kendlic = ss1min[i1-1];
         let iznos = 0.2;
         let cijenaSad = kendlic.C;
         let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
+
+        for (let i = 0; i < 3; i++) {
+            jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
+        }
+
+        predChartifikacija(ss1min[i1], ss15min[i15]);
+
 
         ss1min.push(paketKendlova.arr1min.shift());
         if (i1 % 5 === 0) {
@@ -529,11 +523,6 @@ function playPauza(koraka) {
         if (i1 % 15 === 0) {
             ss15min.push(paketKendlova.arr15min.shift())
         }
-        for (let i = 0; i < 3; i++) {
-            jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
-        }
-
-        predChartifikacija(ss1min[i1], ss15min[i15]);
 
         i1++;
         if (i1 % 15 === 0) {
@@ -541,6 +530,11 @@ function playPauza(koraka) {
         }
     }
 }
+
+/*-----------------ALGORITAM-------------------*/
+
+// inicijalni krug da se popune subseti dovoljno za chart
+inicijalnoFilanjeSubsetova();
 
 // madrfakin server
 http.createServer(function (req, response) {
