@@ -143,6 +143,15 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     /*-opcija 3--------------AKO IMA SAMO BUY LIMIT-----------------------*/
     } else if (imaSamoBuyLimit) {
         let pozCounterString;
+        let najniziStop = 10000000;
+        // traženje pozicije s najnižim stopom
+        for (let i in portfolio.pozicije) {
+            if (portfolio.pozicije[i].stop && (portfolio.pozicije[i].stop < najniziStop)) {
+                najniziStop = portfolio.pozicije[i].stop;
+                pozCounterString = i;
+            }
+        }
+        /*
         // traženje pozicije koja još ima stop (stop se briše kad je triggeran)
         for (let i = 0; i <= portfolio.pozCounter; i++) {
             pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
@@ -151,6 +160,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
                 break;
             }
         }
+        */
         let buyLimit = portfolio.limiti.buy;
         let zadnjaPozicijaSaStopom = portfolio.pozicije[pozCounterString];
         let stopTriggerIznadJeTriggeran = (zadnjaPozicijaSaStopom.tip === 'buy') && (cijenaSad > zadnjaPozicijaSaStopom.stop);  // prvi uvjet redundantan, ali neka ga
@@ -206,6 +216,15 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     /*-opcija 4--------------AKO IMA SAMO SELL LIMIT-----------------------*/
     } else if (imaSamoSellLimit) {
         let pozCounterString;
+        let najvisiStop = 0;
+        // traženje pozicije s najnižim stopom
+        for (let i in portfolio.pozicije) {
+            if (portfolio.pozicije[i].stop && (portfolio.pozicije[i].stop > najvisiStop)) {
+                najvisiStop = portfolio.pozicije[i].stop;
+                pozCounterString = i;
+            }
+        }
+        /*
         // traženje pozicije koja još ima stop (stop se briše kad je triggeran)
         for (let i = 0; i <= portfolio.pozCounter; i++) {
             pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
@@ -214,6 +233,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
                 break;
             }
         }
+        */
         let sellLimit = portfolio.limiti.sell;
         let zadnjaPozicijaSaStopom = portfolio.pozicije[pozCounterString];
         let stopTriggerIspodJeTriggeran = (zadnjaPozicijaSaStopom.tip === 'sell') && (cijenaSad < zadnjaPozicijaSaStopom.stop);  // prvi uvjet redundantan, ali neka ga

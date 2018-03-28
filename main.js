@@ -22,7 +22,7 @@ let devijacija = require('./indikator.js');
 
 /*---------------------VARIJABLE--------------------------*/
 
-let putanja = './exchdata/testdata.csv';
+let putanja = './exchdata/testdata2.csv';
 // testni trejdovi i kendlovi
 let paketKendlova = agro(putanja);
 
@@ -32,7 +32,7 @@ let portfolio = memorija[pfID] = new klas.Portfolio(pfID, 1000, 3, 0, 0, 0);
 let jahanje = strat.stratJahanjeCijene;
 
 // duljina charta (broj vremenskih jedinica)
-let duljinaCharta = 120;
+let duljinaCharta = 60;
 
 /* pathovi za gornje i donje pecivo sendviča */
 let gornjiHTMLPath = './HTMLburgerGornji.html';
@@ -132,6 +132,7 @@ function stopTemplate(label, data, boja) {
         borderColor: boja, // popuni
         borderWidth: 0.01,
         pointBorderWidth: 1,
+        pointStyle: 'rect',
         lineTension: 0,
         fill: false,
         yAxisID: 'right-y-axis',
@@ -150,7 +151,7 @@ function trailerTemplate(label, data, boja) {
         borderColor: boja, // popuni
         borderWidth: 0.01,
         pointBorderWidth: 1,
-        pointStyle: 'rect',
+        pointStyle: 'cross',
         lineTension: 0,
         fill: false,
         yAxisID: 'right-y-axis',
@@ -505,15 +506,15 @@ function playPauza(koraka) {
         let odmakLambda = 0.6 * dev5;
         let odmakTau = 0.3 * dev5;
         let kendlic = ss1min[i1-1];
-        let iznos = 0.2;
+        let iznos = 0.01;
         let cijenaSad = kendlic.C;
         let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 50; i++) {
             jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau);
         }
 
-        predChartifikacija(ss1min[i1], ss15min[i15]);
+        predChartifikacija(ss1min[i1-1], ss15min[i15-1]);
 
 
         ss1min.push(paketKendlova.arr1min.shift());
