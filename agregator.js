@@ -1,7 +1,7 @@
 "use strict";
 // (zasad) BACKTEST ALAT:
 // AGREGATOR TREJDOVA. PARSA CSV SVIH TREJDOVA I PRETVARA IH U ARRAY OBJEKATA.
-// VRAĆA NAM ARRAYEVE S 1min, 5min, 15min, 1h, 6h kendlovima
+// VRAĆA NAM ARRAYEVE S 1min, 5min, 15min, 1h kendlovima
 // 
 // Nije DRY ali funkcionira. Funkcionalnost prije optimizacije!
 // (tri funkcije za agregaciju bi se dale pretvorit u jednu koja prima veličine kendlova kao argumente... al nije bitno.)

@@ -22,7 +22,7 @@ let devijacija = require('./indikator.js');
 
 /*---------------------VARIJABLE--------------------------*/
 
-let putanja = './exchdata/testdata2.csv';
+let putanja = './exchdata/testdata.csv';
 // testni trejdovi i kendlovi
 let paketKendlova = agro(putanja);
 

@@ -206,13 +206,13 @@ klas.Trailer.prototype.korekcija = function korekcija(cijenaSad) {
 	let cijenaMiJePobjegla = (Math.abs(trenutnaUdaljenost) > Math.abs(this.odmak));
 	// algoritam korekcije
 	let poruka = '';
-	if (cijenaMiJePobjegla) {
-		poruka = 'Korekcija trailera id ' + this.id;
-		this.gdjeSam = cijenaSad + this.odmak;
-	} else if (cijenaMeTriggerala) {
+	if (cijenaMeTriggerala) {
 		poruka = 'Triggeran trailer id ' + this.id;
 		memorija[this.portfolio].pozicije[this.id].likvidacija(cijenaSad);
 		delete memorija[this.portfolio].traileri[this.id];
+	} else if (cijenaMiJePobjegla) {
+		poruka = 'Korekcija trailera id ' + this.id;
+		this.gdjeSam = cijenaSad + this.odmak;
 	}
 	// pisalo.pisi(poruka);
 }
