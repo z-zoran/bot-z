@@ -81,7 +81,13 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
         let trenutnaUdaljenostStopa = Math.abs(poz.stop - cijenaSad);
         if (trenutnaUdaljenostStopa > (inicijalnaUdaljenostStopa * 2.5)) {
             poz.likvidacija(cijenaSad);
+            
+            
+            // TU JE ERROR!!!
             // u ovom trenutku ako više nema stopova, napraviti buy ili sell - ovisno koji nedostaje
+
+
+
         }
     }
 
