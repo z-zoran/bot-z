@@ -10,6 +10,7 @@ let paketKendlova = agro(putanja);
 let kolikiSet = 10;
 let inputSet = 9;
 let outputSet = 1;
+let prosirenjeSeta = 10;
 
 // PROVJERA JEL CONFIG DOBAR
 if (kolikiSet !== (inputSet + outputSet)) {
@@ -19,6 +20,20 @@ if (kolikiSet !== (inputSet + outputSet)) {
 // INICIJALIZACIJA VARIJABLI
 let setArray = [];
 let idSet = 0;
+let ioArray = [];
+
+// FUNKCIJE
+
+// funkcija vraća odnos 3 broja kao faktor (od 0 do 1)
+function odnosTriBroja(gornja, srednja, donja) {
+    let cijeliRaspon = gornja - donja;
+    let donjiRaspon = srednja - donja;
+    let faktor = donjiRaspon / cijeliRaspon;
+    return faktor;
+}
+
+
+
 
 // ALGORITAM //
 
@@ -37,38 +52,59 @@ for (let i = 0; i < setArray.length; i++) {
     // sad smo u jednom setu i treba ga normalizirati na vrijednosti od 0 do 1
     // radimo to na dva načina, ovisno o tome je li normaliziramo cijenu ili volumen
     // cijenu normaliziramo ovako:
-        // nađemo najveću razliku L i H za cijeli set (uključujući output)
-        // onda sve ostale cijene prikazujemo kao postotak unutar te razlike
+        // nađemo najniži L i najviši H cijelog input seta, povisimo H i snizimo L za prosirenjeSeta (config vrijednost)
+        // onda sve cijene (uključujući output) prikazujemo kao postotak unutar te razlike
     // volumen normaliziramo ovako:
         // zbrojimo sve volumene (zasebno buy i sell) za cijeli set (bez outputa)
         // onda taj zbroj gledamo kao 100% i prikazujemo pojedine volumene kao postotke
     // u konačnici treba rezultat formatirati tako da svaki set izgleda ovako: 
     // {input: [mean0, buyVol0, sellVol0, mean1, buyVol1, sellVol1, ..., mean8, buyVol8, sellVol8], output: [mean9]}
+    ioArray[i] = {
+        input: [],
+        output: []
+    }
     let zbrojBuyVol = 0;
     let zbrojSellVol = 0;
-    let hSeta = 0;
-    let lSeta = 10000000;
-    for (let j = 0; j < setArray[i].length) {
+    let highSeta = 0;
+    let lowSeta = 10000000;
+    for (let j = 0; j < setArray[i].length; j++) {
         let kendl = setArray[i][j];
         zbrojBuyVol += kendl.volBuyeva;
         zbrojSellVol += kendl.volSellova;
-        if (kendl.H > hSeta) {
-            hSeta = kendl.H;
+        if (kendl.H > highSeta) {
+            highSeta = kendl.H;
         }
-        if (kendl.L < lSeta) {
-            lSeta = kendl.L;
+        if (kendl.L < lowSeta) {
+            lowSeta = kendl.L;
         }
     }
-    let 
 
-    let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+    highSeta += prosirenjeSeta;
+    lowSeta -= prosirenjeSeta; 
 
+    let br = 0;
+    for (let j = 0; j < inputSet; j++) {
+        let kendl = setArray[i][j];
+        let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+        ioArray[i].input.push(odnosTriBroja(highSeta, kendlMean, lowSeta));
+        let normBV = (kendl.volBuyeva / zbrojBuyVol);
+        ioArray[i].input.push(normBV);
+        let normSV = (kendl.volSellova / zbrojSellVol);
+        ioArray[i].input.push(normSV);
+        br++ ;
+    }
 
+    for (let j = 0; j < outputSet; j++) {
+        let kendl = setArray[i][br];
+        let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
 
-
+        ioArray[i].output.push(odnosTriBroja(highSeta, kendlMean, lowSeta))
+    }
 }
 
-console.log(setArray.length);
+
+
+console.log(ioArray[10]);
 
 
 
