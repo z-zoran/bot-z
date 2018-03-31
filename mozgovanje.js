@@ -7,10 +7,13 @@ let putanja = './exchdata/testdata.csv';
 let paketKendlova = agro(putanja);
 
 // CONFIG
-let kolikiSet = 10;
-let inputSet = 9;
-let outputSet = 1;
-let prosirenjeSeta = 10;
+let kolikiSet = 6;  // koliki je jedan input + output set za treniranje
+let inputSet = 5;   // koliki je input set
+let outputSet = 1;  // koliki je output set
+let prosirenjeSeta = 1; // za koliko EUR proširujemo high-low raspon input seta
+let testSet = 5;    // koliko elemenata izvući prije treninga da bi testirali kasnije
+let izvorKendlova = paketKendlova.arr5min;  // odakle čupamo kendlove
+let velicinaKanala = 30;    // u slučaju da fiksiramo H-L kanal, kolika mu je veličina
 
 // PROVJERA JEL CONFIG DOBAR
 if (kolikiSet !== (inputSet + outputSet)) {
@@ -38,10 +41,10 @@ function odnosTriBroja(gornja, srednja, donja) {
 // ALGORITAM //
 
 // čupanje iz agro paketa
-while (paketKendlova.arr1min.length > kolikiSet) {
+while (izvorKendlova.length > kolikiSet) {
     setArray[idSet] = [];
     for (let i = 0; i < kolikiSet; i++) {
-        setArray[idSet].push(paketKendlova.arr1min.shift());
+        setArray[idSet].push(izvorKendlova.shift());
     }
     idSet++;
 }
@@ -55,10 +58,12 @@ for (let i = 0; i < setArray.length; i++) {
         // nađemo najniži L i najviši H cijelog input seta, povisimo H i snizimo L za prosirenjeSeta (config vrijednost)
         // onda sve cijene (uključujući output) prikazujemo kao postotak unutar te razlike
     // volumen normaliziramo ovako:
-        // zbrojimo sve volumene (zasebno buy i sell) za cijeli set (bez outputa)
+        // zbrojimo sve volumene (zasebno buy i sell) za cijeli input set (bez outputa)
         // onda taj zbroj gledamo kao 100% i prikazujemo pojedine volumene kao postotke
     // u konačnici treba rezultat formatirati tako da svaki set izgleda ovako: 
-    // {input: [mean0, buyVol0, sellVol0, mean1, buyVol1, sellVol1, ..., mean8, buyVol8, sellVol8], output: [mean9]}
+    // {input: [mean0, buyVol0, sellVol0, mean1, buyVol1, sellVol1, ..., mean8, buyVol8, sellVol8], output: [high9, low9]}
+    // ili možda ovako:
+    // {input: [high0, low0, buyVol0, sellVol0, high1, low1, buyVol1, sellVol1, ..., high8, low8, buyVol8, sellVol8], output: [high9, low9]}
     ioArray[i] = {
         input: [],
         output: []
@@ -67,6 +72,7 @@ for (let i = 0; i < setArray.length; i++) {
     let zbrojSellVol = 0;
     let highSeta = 0;
     let lowSeta = 10000000;
+    // prvo prođemo jedan for da nađemo najviši H i najniži L, te da zbrojimo volumene
     for (let j = 0; j < setArray[i].length; j++) {
         let kendl = setArray[i][j];
         zbrojBuyVol += kendl.volBuyeva;
@@ -79,14 +85,33 @@ for (let i = 0; i < setArray.length; i++) {
         }
     }
 
+    // proširimo H-L range za prosirenjeSeta (config vrijednost)
+    /*
+    highSeta += prosirenjeSeta;
+    lowSeta -= prosirenjeSeta; 
+    */
+
+    // alternativno, uzmemo fiksan kanal pa onda unutar njega prikazujemo cijene.
+    // na ovaj način, trebali bi dobiti konzistentnije cijene (neće biti uvjetovane varijacijom H-L)
+    // možda će dolaziti do curenja (cijena izvan predodređenog kanala), treba obratiti pozornost
+    let rangeSeta = highSeta - lowSeta;
+    if (rangeSeta > velicinaKanala) {console.log('EROR! H-L varijacija seta je prevelika. Rezultati nisu dobri. Povećaj kanal. (velicinaKanala)')}
+    let razlika = velicinaKanala - rangeSeta;
+    prosirenjeSeta = razlika / 2;
     highSeta += prosirenjeSeta;
     lowSeta -= prosirenjeSeta; 
 
+
+    // slaganje input seta
     let br = 0;
     for (let j = 0; j < inputSet; j++) {
         let kendl = setArray[i][j];
+        /* možda vratiti na samo mean a ne H i L, ovisi šta daje bolje rezultate
         let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
         ioArray[i].input.push(odnosTriBroja(highSeta, kendlMean, lowSeta));
+        */
+        ioArray[i].input.push(odnosTriBroja(highSeta, kendl.H, lowSeta));
+        ioArray[i].input.push(odnosTriBroja(highSeta, kendl.L, lowSeta));
         let normBV = (kendl.volBuyeva / zbrojBuyVol);
         ioArray[i].input.push(normBV);
         let normSV = (kendl.volSellova / zbrojSellVol);
@@ -94,49 +119,51 @@ for (let i = 0; i < setArray.length; i++) {
         br++ ;
     }
 
+    // slaganje output seta
     for (let j = 0; j < outputSet; j++) {
         let kendl = setArray[i][br];
-        let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
 
-        ioArray[i].output.push(odnosTriBroja(highSeta, kendlMean, lowSeta))
+        ioArray[i].output.push(odnosTriBroja(highSeta, kendl.H, lowSeta));
+        ioArray[i].output.push(odnosTriBroja(highSeta, kendl.L, lowSeta));
     }
 }
 
+// rendomiziramo ioArray (neki algoritam s interneta, Fisher-Yates)
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+  
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+    
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+    return array;
+}
 
+ioArray = shuffle(ioArray);
 
-console.log(ioArray[10]);
+let testArray = [];
 
+for (let i = 0; i < testSet; i++) {
+    testArray.push(ioArray.shift());
+}
 
+console.log(ioArray.length);
 
+let net = new brain.NeuralNetwork();
 
+console.log(net.train(ioArray));
 
-
-
-/*
-//create a simple feed forward neural network with backpropagation
-var net = new brain.NeuralNetwork();
-
-net.train([{input: [0, 0], output: [0]},
-           {input: [0, 1], output: [1]},
-           {input: [1, 0], output: [1]},
-           {input: [1, 1], output: [0]}]);
-
-var output = net.run([1, 0]);  // [0.987]
-console.log(output);
-*/
-
-/*
-var net = new brain.recurrent.RNN();
-
-net.train([{input: [0, 0], output: [0]},
-           {input: [0, 1], output: [1]},
-           {input: [1, 0], output: [1]},
-           {input: [1, 1], output: [0]}]);
-
-var output1 = net.run([0, 0]);  // [0]
-let output2 = net.run([0, 1]);  // [1]
-let output3 = net.run([1, 0]);  // [1]
-let output4 = net.run([1, 1]);  // [0]
-
-console.log(output1, output2, output3, output4);
-*/
+for (let i = 0; i < testArray.length; i++) {
+    let output = net.run(testArray[i].input);
+    console.log(i + ' Projekcija  H:' + (output[0] * 100).toFixed(2) + ' |  H:' + (testArray[i].output[0] * 100).toFixed(2) + '  Stvarnost');
+    console.log(i + '             L:' + (output[1] * 100).toFixed(2) + ' |  L:' + (testArray[i].output[1] * 100).toFixed(2));
+    console.log('');
+}
