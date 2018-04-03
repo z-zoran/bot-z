@@ -7,12 +7,12 @@ let putanja = './exchdata/testdata.csv';
 let paketKendlova = agro(putanja);
 
 // CONFIG
-let kolikiSet = 6;  // koliki je jedan input + output set za treniranje
-let inputSet = 5;   // koliki je input set
-let outputSet = 1;  // koliki je output set
+let kolikiSet = 10;  // koliki je jedan input + output set za treniranje
+let inputSet = 8;   // koliki je input set
+let outputSet = 2;  // koliki je output set
 let prosirenjeSeta = 1; // za koliko EUR proširujemo high-low raspon input seta
 let testSet = 5;    // koliko elemenata izvući prije treninga da bi testirali kasnije
-let izvorKendlova = paketKendlova.arr5min;  // odakle čupamo kendlove
+let izvorKendlova = paketKendlova.arr15min;  // odakle čupamo kendlove
 let velicinaKanala = 30;    // u slučaju da fiksiramo H-L kanal, kolika mu je veličina
 
 // PROVJERA JEL CONFIG DOBAR
@@ -85,6 +85,11 @@ for (let i = 0; i < setArray.length; i++) {
         }
     }
 
+    // treći pristup. gledamo trenutnu cijenu (zadnji kendl) kao centar (0.50)
+    let zadnjiKendl = setArray[i][setArray[i].length - 1];
+    let rangeHL = highSeta - lowSeta;
+
+
     // proširimo H-L range za prosirenjeSeta (config vrijednost)
     /*
     highSeta += prosirenjeSeta;
@@ -94,37 +99,53 @@ for (let i = 0; i < setArray.length; i++) {
     // alternativno, uzmemo fiksan kanal pa onda unutar njega prikazujemo cijene.
     // na ovaj način, trebali bi dobiti konzistentnije cijene (neće biti uvjetovane varijacijom H-L)
     // možda će dolaziti do curenja (cijena izvan predodređenog kanala), treba obratiti pozornost
+    /*
     let rangeSeta = highSeta - lowSeta;
     if (rangeSeta > velicinaKanala) {console.log('EROR! H-L varijacija seta je prevelika. Rezultati nisu dobri. Povećaj kanal. (velicinaKanala)')}
     let razlika = velicinaKanala - rangeSeta;
     prosirenjeSeta = razlika / 2;
     highSeta += prosirenjeSeta;
     lowSeta -= prosirenjeSeta; 
-
+    */
 
     // slaganje input seta
     let br = 0;
     for (let j = 0; j < inputSet; j++) {
         let kendl = setArray[i][j];
-        /* možda vratiti na samo mean a ne H i L, ovisi šta daje bolje rezultate
+        /* možda vratiti na samo mean a ne H i L, ovisi šta daje bolje rezultate */
         let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+        
         ioArray[i].input.push(odnosTriBroja(highSeta, kendlMean, lowSeta));
-        */
+       
+        /*
         ioArray[i].input.push(odnosTriBroja(highSeta, kendl.H, lowSeta));
         ioArray[i].input.push(odnosTriBroja(highSeta, kendl.L, lowSeta));
+        */
         let normBV = (kendl.volBuyeva / zbrojBuyVol);
         ioArray[i].input.push(normBV);
         let normSV = (kendl.volSellova / zbrojSellVol);
         ioArray[i].input.push(normSV);
-        br++ ;
+        br++;
     }
 
     // slaganje output seta
     for (let j = 0; j < outputSet; j++) {
         let kendl = setArray[i][br];
-
+        let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+        
+        if (kendlMean > highSeta) {
+            ioArray[i].output.push(1);
+        } else if (kendlMean < lowSeta) {
+            ioArray[i].output.push(0);
+        } else {
+            ioArray[i].output.push(odnosTriBroja(highSeta, kendlMean, lowSeta));
+        }
+        /*
         ioArray[i].output.push(odnosTriBroja(highSeta, kendl.H, lowSeta));
         ioArray[i].output.push(odnosTriBroja(highSeta, kendl.L, lowSeta));
+        */
+
+        br++;
     }
 }
 
@@ -149,21 +170,27 @@ function shuffle(array) {
 
 ioArray = shuffle(ioArray);
 
+// čupanje test arraya
 let testArray = [];
-
 for (let i = 0; i < testSet; i++) {
     testArray.push(ioArray.shift());
 }
 
+// log prije treninga
 console.log(ioArray.length);
 
+//let net = new brain.recurrent.RNN();
 let net = new brain.NeuralNetwork();
 
 console.log(net.train(ioArray));
 
 for (let i = 0; i < testArray.length; i++) {
     let output = net.run(testArray[i].input);
+    /*
     console.log(i + ' Projekcija  H:' + (output[0] * 100).toFixed(2) + ' |  H:' + (testArray[i].output[0] * 100).toFixed(2) + '  Stvarnost');
     console.log(i + '             L:' + (output[1] * 100).toFixed(2) + ' |  L:' + (testArray[i].output[1] * 100).toFixed(2));
+    */
+    console.log(i + ' Projekcija  : ' + (output[0] * 100).toFixed(2) + ' | ' + (output[1] * 100).toFixed(2));
+    console.log(i + ' Stvarnost   : ' + (testArray[i].output[0] * 100).toFixed(2) + ' | ' + (testArray[i].output[1] * 100).toFixed(2));
     console.log('');
 }
