@@ -7,11 +7,15 @@ let putanja = './exchdata/testdata.csv';
 let paketKendlova = agro(putanja);
 
 // CONFIG
-let kolikiSet = 10;  // koliki je jedan input + output set za treniranje
-let inputSet = 8;   // koliki je input set
+let kolikiSet = 15;  // koliki je jedan input + output set za treniranje
+let inputSet = 13;   // koliki je input set
 let outputSet = 2;  // koliki je output set
 let prosirenjeSeta = 1; // za koliko EUR proširujemo high-low raspon input seta
+<<<<<<< HEAD
 let testSet = 10;    // koliko elemenata izvući prije treninga da bi testirali kasnije
+=======
+let testSet = 5;    // koliko elemenata izvući prije treninga da bi testirali kasnije
+>>>>>>> 3457d1eae0c551493807fc2ba95da964e4924f11
 let izvorKendlova = paketKendlova.arr5min;  // odakle čupamo kendlove
 let velicinaKanala = 30;    // u slučaju da fiksiramo H-L kanal, kolika mu je veličina
 
@@ -86,9 +90,15 @@ for (let i = 0; i < setArray.length; i++) {
     }
 
     // treći pristup. gledamo trenutnu cijenu (zadnji kendl) kao centar (0.50)
+<<<<<<< HEAD
     let kendl = setArray[i][inputSet - 1]; // zadnji kendl inputa
     let rangeHL = highSeta - lowSeta;
     let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+=======
+    let kendl = setArray[i][inputSet - 1];
+    let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+    let rangeHL = highSeta - lowSeta;
+>>>>>>> 3457d1eae0c551493807fc2ba95da964e4924f11
     highSeta = kendlMean + rangeHL;
     lowSeta = kendlMean - rangeHL;
 
