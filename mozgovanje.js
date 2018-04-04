@@ -11,8 +11,8 @@ let kolikiSet = 10;  // koliki je jedan input + output set za treniranje
 let inputSet = 8;   // koliki je input set
 let outputSet = 2;  // koliki je output set
 let prosirenjeSeta = 1; // za koliko EUR proširujemo high-low raspon input seta
-let testSet = 5;    // koliko elemenata izvući prije treninga da bi testirali kasnije
-let izvorKendlova = paketKendlova.arr15min;  // odakle čupamo kendlove
+let testSet = 10;    // koliko elemenata izvući prije treninga da bi testirali kasnije
+let izvorKendlova = paketKendlova.arr5min;  // odakle čupamo kendlove
 let velicinaKanala = 30;    // u slučaju da fiksiramo H-L kanal, kolika mu je veličina
 
 // PROVJERA JEL CONFIG DOBAR
@@ -86,8 +86,11 @@ for (let i = 0; i < setArray.length; i++) {
     }
 
     // treći pristup. gledamo trenutnu cijenu (zadnji kendl) kao centar (0.50)
-    let zadnjiKendl = setArray[i][setArray[i].length - 1];
+    let kendl = setArray[i][inputSet - 1]; // zadnji kendl inputa
     let rangeHL = highSeta - lowSeta;
+    let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+    highSeta = kendlMean + rangeHL;
+    lowSeta = kendlMean - rangeHL;
 
 
     // proširimo H-L range za prosirenjeSeta (config vrijednost)
@@ -134,8 +137,10 @@ for (let i = 0; i < setArray.length; i++) {
         let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
         
         if (kendlMean > highSeta) {
+            console.log('Projekcija previsoka, stabiliziram na 1.00');
             ioArray[i].output.push(1);
         } else if (kendlMean < lowSeta) {
+            console.log('Projekcija preniska, stabiliziram na 0.00');
             ioArray[i].output.push(0);
         } else {
             ioArray[i].output.push(odnosTriBroja(highSeta, kendlMean, lowSeta));
@@ -179,6 +184,7 @@ for (let i = 0; i < testSet; i++) {
 // log prije treninga
 console.log(ioArray.length);
 
+
 //let net = new brain.recurrent.RNN();
 let net = new brain.NeuralNetwork();
 
@@ -190,7 +196,7 @@ for (let i = 0; i < testArray.length; i++) {
     console.log(i + ' Projekcija  H:' + (output[0] * 100).toFixed(2) + ' |  H:' + (testArray[i].output[0] * 100).toFixed(2) + '  Stvarnost');
     console.log(i + '             L:' + (output[1] * 100).toFixed(2) + ' |  L:' + (testArray[i].output[1] * 100).toFixed(2));
     */
-    console.log(i + ' Projekcija  : ' + (output[0] * 100).toFixed(2) + ' | ' + (output[1] * 100).toFixed(2));
-    console.log(i + ' Stvarnost   : ' + (testArray[i].output[0] * 100).toFixed(2) + ' | ' + (testArray[i].output[1] * 100).toFixed(2));
+    console.log(i + ' Projekcija  -> ' + (output[0] * 100).toFixed(2) + ' -> ' + (output[1] * 100).toFixed(2));
+    console.log(i + ' Stvarnost   -> ' + (testArray[i].output[0] * 100).toFixed(2) + ' -> ' + (testArray[i].output[1] * 100).toFixed(2));
     console.log('');
 }
