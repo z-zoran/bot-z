@@ -3,7 +3,7 @@
 // IMPORTANJE
 let brain = require('./brain.js');
 let agro = require('./agregator.js');
-let putanja = './exchdata/testdata.csv';
+let putanja = './exchdata/testdata4.csv';
 let paketKendlova = agro(putanja);
 
 // CONFIG
@@ -188,7 +188,10 @@ console.log(ioArray.length);
 //let net = new brain.recurrent.RNN();
 let net = new brain.NeuralNetwork();
 
-console.log(net.train(ioArray));
+net.train(ioArray, {log:true, logPeriod:100});
+//console.log(net.train(ioArray));
+let jsonMozak = net.toJSON();
+
 
 for (let i = 0; i < testArray.length; i++) {
     let output = net.run(testArray[i].input);

@@ -52,9 +52,9 @@ function kendlizator(arr) {     // proslijeđujemo mu array trejdova.
     let arrKendlovi = [];
     let novi = true;
     let kendl = {};
-    for (let i = 0; i < arr.length; i++) {  // kružimo kroz cjeli array trejdova
+    for (let i = 1; i < arr.length; i++) {  // kružimo kroz cjeli array trejdova
         
-        if (i === 0) {      // ako je prvi trejd, kažemo logici da je novi kendl
+        if (i === 1) {      // ako je prvi trejd, kažemo logici da je novi kendl
             novi = true;
         } else if (arr[i].minuta === arr[i-1].minuta) {
             novi = false;   // ako je trenutna minuta ista kao prošla minuta, nije novi candle
