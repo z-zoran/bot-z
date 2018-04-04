@@ -7,12 +7,12 @@ let putanja = './exchdata/testdata.csv';
 let paketKendlova = agro(putanja);
 
 // CONFIG
-let kolikiSet = 10;  // koliki je jedan input + output set za treniranje
-let inputSet = 8;   // koliki je input set
+let kolikiSet = 15;  // koliki je jedan input + output set za treniranje
+let inputSet = 13;   // koliki je input set
 let outputSet = 2;  // koliki je output set
 let prosirenjeSeta = 1; // za koliko EUR proširujemo high-low raspon input seta
 let testSet = 5;    // koliko elemenata izvući prije treninga da bi testirali kasnije
-let izvorKendlova = paketKendlova.arr15min;  // odakle čupamo kendlove
+let izvorKendlova = paketKendlova.arr5min;  // odakle čupamo kendlove
 let velicinaKanala = 30;    // u slučaju da fiksiramo H-L kanal, kolika mu je veličina
 
 // PROVJERA JEL CONFIG DOBAR
@@ -86,8 +86,11 @@ for (let i = 0; i < setArray.length; i++) {
     }
 
     // treći pristup. gledamo trenutnu cijenu (zadnji kendl) kao centar (0.50)
-    let zadnjiKendl = setArray[i][setArray[i].length - 1];
+    let kendl = setArray[i][inputSet - 1];
+    let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
     let rangeHL = highSeta - lowSeta;
+    highSeta = kendlMean + rangeHL;
+    lowSeta = kendlMean - rangeHL;
 
 
     // proširimo H-L range za prosirenjeSeta (config vrijednost)
