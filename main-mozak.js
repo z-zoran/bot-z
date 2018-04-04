@@ -34,7 +34,10 @@ let portfolio = memorija[pfID] = new klas.Portfolio(pfID, 1000, 3, 0, 0, 0);
 let jahanje = strat.stratJahanjeCijene;
 
 // duljina charta (broj vremenskih jedinica)
-let duljinaCharta = 60;
+let duljinaCharta = 40;
+
+// koeficijent za logističku funkciju (za mapiranje cijene na 0,1)
+let kKoef = 3;
 
 /* pathovi za gornje i donje pecivo sendviča */
 let gornjiHTMLPath = './HTMLburgerGornji.html';
@@ -64,10 +67,8 @@ let chartData = {
     // data za m1 chart
     m1: {
         close: [],
+        mozg: [],
         vrijeme: [],
-        buyLimiti: [],
-        sellLimiti: [],
-        pozStopovi: {},
         traileri: {}
     },
     // data za m15 chart
@@ -205,7 +206,7 @@ function izmisliBoju() {
 }
 
 // FUNKCIJA KOJA ČUPA DATA IZ portfolio I KENDLOVA
-function predChartifikacija(kendl1, kendl15) { 
+function predChartifikacija(kendl1, kendl15, mozg) { 
     
     /**** GURANJE CIJENE I VREMENA ****/
     chartData.m1.close.push(kendl1.C);
@@ -216,6 +217,7 @@ function predChartifikacija(kendl1, kendl15) {
             chartData.m1.close.shift();
         }
     }
+    
     chartData.m1.vrijeme.push(kendl1.datum + ' ' + kendl1.sat + ':' + kendl1.minuta.toFixed(2));
     while (chartData.m1.vrijeme.length !== duljinaCharta) {
         if (chartData.m1.vrijeme.length < duljinaCharta) {
@@ -225,87 +227,8 @@ function predChartifikacija(kendl1, kendl15) {
         }
     }
 
-    /**** GURANJE BUY LIMITA ****/
-    let pfBuyLimit = portfolio.limiti['buy'];
-    if (pfBuyLimit) {
-        chartData.m1.buyLimiti.push(pfBuyLimit.limitCijena);
-    } else {
-        chartData.m1.buyLimiti.push(null);
-    }
-    while (chartData.m1.buyLimiti.length !== duljinaCharta) {
-        if (chartData.m1.buyLimiti.length < duljinaCharta) {
-            chartData.m1.buyLimiti.unshift(null);
-        } else if (chartData.m1.buyLimiti.length > duljinaCharta) {
-            chartData.m1.buyLimiti.shift();
-        }
-    }
-    
-    /**** GURANJE SELL LIMITA ****/
-    let pfSellLimit = portfolio.limiti['sell'];
-    if (pfSellLimit) {
-        chartData.m1.sellLimiti.push(pfSellLimit.limitCijena);
-    } else {
-        chartData.m1.sellLimiti.push(null);
-    }
-    while (chartData.m1.sellLimiti.length !== duljinaCharta) {
-        if (chartData.m1.sellLimiti.length < duljinaCharta) {
-            chartData.m1.sellLimiti.unshift(null);
-        } else if (chartData.m1.sellLimiti.length > duljinaCharta) {
-            chartData.m1.sellLimiti.shift();
-        }
-    }
-
-    /**** GURANJE STOPOVA ****/
-    // ako pozicija ima stop, guraj u chartData
-    for (let p in portfolio.pozicije) {
-        if (portfolio.pozicije[p].stop) {
-            let stopRegistriran = false;
-            for (let c in chartData.m1.pozStopovi) {
-                if (p === c) {
-                    chartData.m1.pozStopovi[p].push(portfolio.pozicije[p].stop);
-                    stopRegistriran = true;
-                    break;
-                }
-            }
-            if (!stopRegistriran) {
-                chartData.m1.pozStopovi[p] = [];
-                chartData.m1.pozStopovi[p].push(portfolio.pozicije[p].stop);
-                chartData.boje[p] = izmisliBoju();
-                chartData.ulazneCijene[p] = portfolio.pozicije[p].cijena;
-            }
-        }
-    }
-    // još jednom proći sve pozStop arrayeve i gurnuti null ako neki nije taknut u prošlom for-u
-    for (let c in chartData.m1.pozStopovi) {
-        if (chartData.m1.pozStopovi[c].length === duljinaCharta) {
-            chartData.m1.pozStopovi[c].push(null);
-        }
-    }
-    // onda skraćujemo / produžujemo sve arrayeve po potrebi
-    for (let c in chartData.m1.pozStopovi) {
-        while (chartData.m1.pozStopovi[c].length !== duljinaCharta) {
-            if (chartData.m1.pozStopovi[c].length < duljinaCharta) {
-                chartData.m1.pozStopovi[c].unshift(null);
-            } else if (chartData.m1.pozStopovi[c].length > duljinaCharta) {
-                chartData.m1.pozStopovi[c].shift();
-            }
-        }
-    }
-    // onda čistimo null arrayeve (ostatke starih stopova)
-    for (let c in chartData.m1.pozStopovi) {
-        let ovajArray = chartData.m1.pozStopovi[c];
-        let ovoJeNullArr = true;
-        // krećemo s pretpostavkom da je null array, ako nije onda idemo na sljedeći
-        for (let i = 0; i < ovajArray.length; i++) {
-            if (ovajArray[i] !== null) {
-                ovoJeNullArr = false;
-                break;
-            }
-        }
-        if (ovoJeNullArr) {
-            delete chartData.m1.pozStopovi[c];
-        }
-    }
+    /**** GURANJE MOŽDANIH PREDIKCIJA ****/
+    //chartData.m1.mozg.push(mozg)
 
     /**** GURANJE TRAILERA ****/
     // isti postupak za trailere
@@ -377,8 +300,57 @@ function predChartifikacija(kendl1, kendl15) {
             }
         }
     }
+}
 
+// MAPIRANJE CIJENE NA [0,1] - LOGISTIČKA FUNKCIJA
+function logFunkcija(x) {
+    let y = 1 / (1 - (Math.E ** (-kKoef * x)));
+    return y;
+}
+
+// KONZULTIRANJE S MOZGOM
+let mozak;
+mozak.fromJSON(JSON.parse('./mozak.json'));
+function mozgarija() {
+    if (ss1min.length >= 15) {
+        let inputArr = [];
+        let zbrojBuyVol = 0;
+        let zbrojSellVol = 0;
+        let highSeta = 0;
+        let lowSeta = 10000000;
+        // prvo prođemo jedan for da nađemo najviši H i najniži L, te da zbrojimo volumene
+        for (let i = 14; i >= 0; i--) {
+            let kendl = ss1min[ss1min.length - i];
+            zbrojBuyVol += kendl.volBuyeva;
+            zbrojSellVol += kendl.volSellova;
+            if (kendl.H > highSeta) {
+                highSeta = kendl.H;
+            }
+            if (kendl.L < lowSeta) {
+                lowSeta = kendl.L;
+            }
+        }
     
+        // gledamo trenutnu cijenu (zadnji kendl) kao centar (0.50)
+        let kendl = ss1min[ss1min.length - 1]; // zadnji kendl inputa
+        let rangeHL = highSeta - lowSeta;
+        let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+        highSeta = kendlMean + rangeHL;
+        lowSeta = kendlMean - rangeHL;
+    
+        for (let i = 14; i >= 0; i--) {
+        
+        }
+
+
+        for (let i = 14; i >= 0; i--) {
+            let kendl = ss1min[ss1min.length - i];
+            let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
+            inputArr.push(kendlMean)
+        }
+        let output = mozak.run(inputArr);
+
+    }
 }
 
 // FORMATIRANJE ZA CHART JS
@@ -387,15 +359,6 @@ function stvaranjeCharta() {
     let m1Dataset = [];
     // guramo cijenu
     m1Dataset.push(cijenaTemplate(chartData.m1.close));
-    // buy limite
-    m1Dataset.push(buyLimitTemplate(chartData.m1.buyLimiti));
-    // sell limite
-    m1Dataset.push(sellLimitTemplate(chartData.m1.sellLimiti));
-    // stopove
-    for (let i in chartData.m1.pozStopovi) {
-        let lejbl = 'Stop ' + i + ' || ulazna cijena: ' + chartData.ulazneCijene[i].toFixed(2);
-        m1Dataset.push(stopTemplate(lejbl, chartData.m1.pozStopovi[i], chartData.boje[i]));
-    }
     // trailere
     for (let i in chartData.m1.traileri) {
         let lejbl = 'Trailer ' + i + ' || ulazna cijena: ' + chartData.ulazneCijene[i].toFixed(2);

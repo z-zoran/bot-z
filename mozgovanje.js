@@ -1,22 +1,22 @@
 "use strict";
 
 // IMPORTANJE
+let fs = require('fs');
 let brain = require('./brain.js');
 let agro = require('./agregator.js');
-let putanja = './exchdata/testdata4.csv';
+let putanja = './exchdata/testdata.csv';
 let paketKendlova = agro(putanja);
 
 // CONFIG
-let kolikiSet = 15;  // koliki je jedan input + output set za treniranje
-let inputSet = 13;   // koliki je input set
-let outputSet = 2;  // koliki je output set
-let prosirenjeSeta = 1; // za koliko EUR proširujemo high-low raspon input seta
-let testSet = 10;    // koliko elemenata izvući prije treninga da bi testirali kasnije
-let izvorKendlova = paketKendlova.arr5min;  // odakle čupamo kendlove
-let velicinaKanala = 30;    // u slučaju da fiksiramo H-L kanal, kolika mu je veličina
+const kolikiSet = 15;  // koliki je jedan input + output set za treniranje
+const inputSetSize = 13;   // koliki je input set
+const outputSetSize = 2;  // koliki je output set
+const testSet = 10;    // koliko elemenata izvući prije treninga da bi testirali kasnije
+const izvorKendlova = paketKendlova.arr5min;  // odakle čupamo kendlove
+const kKoef = 3;  // koeficijent za logističku funkciju
 
 // PROVJERA JEL CONFIG DOBAR
-if (kolikiSet !== (inputSet + outputSet)) {
+if (kolikiSet !== (inputSetSize + outputSetSize)) {
     console.log('EROR!!1 NIJE DOBRO PODEŠEN CONFIG')
 }
 
@@ -35,7 +35,63 @@ function odnosTriBroja(gornja, srednja, donja) {
     return faktor;
 }
 
+// MAPIRANJE CIJENE NA [0,1] - LOGISTIČKA FUNKCIJA
+function logFunkcija(x) {
+    let y = (1 / (1 + (Math.E ** (-kKoef * x))));
+    return y;
+}
 
+// MAPIRANJE [0,1] NA CIJENU - ANTI-LOGISTIČKA FUNKCIJA
+function odLogFunkcija(y) {
+    let x = (Math.log((1-y) / y) / (-k));
+    return x;
+}
+
+// UZETI KENDLOVE, MAPIRATI RAZLIKU NA [0,1]
+function logCijena(kendl0, kendl1) {
+    let razlika = kendl0.close - kendl1.close;
+    return logFunkcija(razlika);
+}
+
+// UZETI [0,1], VRATITI RAZLIKU U CIJENI
+function odLogCijena(norm) {
+    return odLogFunkcija(norm);
+}
+
+
+
+// FORMATIRANJE SETA ZA NN
+function formatiranjeZaNN(array) {
+    let ioSet = {
+        input: [],
+        output: []
+    }
+    let zbrojBuyVol = 0;
+    let zbrojSellVol = 0;
+    for (let i = 1; i < inputSetSize; i++) {
+        let kendl = array[i];
+        zbrojBuyVol += kendl.volBuyeva;
+        zbrojSellVol += kendl.volSellova;
+    }
+    let br = 1;
+    for (let i = 1; i < inputSetSize; i++) {
+        let kendl0 = array[br];
+        let kendl1 = array[br-1];
+        ioSet.input.push(logCijena(kendl0, kendl1))
+        ioSet.input.push(kendl.volBuyeva / zbrojBuyVol);
+        ioSet.input.push(kendl.volSellova / zbrojSellVol);
+        br++;
+    }
+    for (let i = 0; i < outputSetSize; i++) {
+        let kendl0 = array[br-1];
+        let kendl1 = array[br];
+        ioSet.input.push(logCijena(kendl0, kendl1))
+        ioSet.input.push(kendl.volBuyeva / zbrojBuyVol);
+        ioSet.input.push(kendl.volSellova / zbrojSellVol);
+        br++;
+    }
+    return ioArray;
+}
 
 
 // ALGORITAM //
@@ -86,7 +142,7 @@ for (let i = 0; i < setArray.length; i++) {
     }
 
     // treći pristup. gledamo trenutnu cijenu (zadnji kendl) kao centar (0.50)
-    let kendl = setArray[i][inputSet - 1]; // zadnji kendl inputa
+    let kendl = setArray[i][inputSetSize - 1]; // zadnji kendl inputa
     let rangeHL = highSeta - lowSeta;
     let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
     highSeta = kendlMean + rangeHL;
@@ -113,7 +169,7 @@ for (let i = 0; i < setArray.length; i++) {
 
     // slaganje input seta
     let br = 0;
-    for (let j = 0; j < inputSet; j++) {
+    for (let j = 0; j < inputSetSize; j++) {
         let kendl = setArray[i][j];
         /* možda vratiti na samo mean a ne H i L, ovisi šta daje bolje rezultate */
         let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
@@ -132,7 +188,7 @@ for (let i = 0; i < setArray.length; i++) {
     }
 
     // slaganje output seta
-    for (let j = 0; j < outputSet; j++) {
+    for (let j = 0; j < outputSetSize; j++) {
         let kendl = setArray[i][br];
         let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
         
@@ -191,6 +247,7 @@ let net = new brain.NeuralNetwork();
 net.train(ioArray, {log:true, logPeriod:100});
 //console.log(net.train(ioArray));
 let jsonMozak = net.toJSON();
+fs.writeFileSync('./mozak.json', JSON.stringify(jsonMozak));
 
 
 for (let i = 0; i < testArray.length; i++) {
