@@ -6,14 +6,17 @@ let brain = require('./brain.js');
 let agro = require('./agregator.js');
 let putanja = './exchdata/testdata.csv';
 let paketKendlova = agro(putanja);
+let testPutanja = './exchdata/testdata3.csv';
+let testPaket = agro(testPutanja);
 
 // CONFIG
-const kolikiSet = 15;  // koliki je jedan input + output set za treniranje
-const inputSetSize = 13;   // koliki je input set
-const outputSetSize = 2;  // koliki je output set
+const kolikiSet = 20;  // koliki je jedan input + output set za treniranje
+const inputSetSize = 19;   // koliki je input set
+const outputSetSize = 1;  // koliki je output set
 const testSet = 10;    // koliko elemenata izvući prije treninga da bi testirali kasnije
 const izvorKendlova = paketKendlova.arr5min;  // odakle čupamo kendlove
-const kKoef = 3;  // koeficijent za logističku funkciju
+const izvorTestKendlova = testPaket.arr5min;  // kendlovi za testiranje (zaseban izvorni testdata)
+const kKoef = 1;  // koeficijent za logističku funkciju
 
 // PROVJERA JEL CONFIG DOBAR
 if (kolikiSet !== (inputSetSize + outputSetSize)) {
@@ -120,15 +123,27 @@ function shuffle(array) {
     return array;
 }
 
+function testiranje(array, mozak) {
+    let sumaRazlika = 0;
+    for (let i = 0; i < array.length; i++) {
+        let testRes = mozak.run(array[i].input);
+        let razlika = Math.abs(odLogCijena(testRes[0]) - odLogCijena(array[i].output[0]));
+        sumaRazlika += razlika;
+    }
+    return (sumaRazlika / array.length);
+}
+
 // ALGORITAM //
 
 let ioArray = shuffle(arraySetovaZaNN(izvorKendlova));
 
+/*
 // čupanje test arraya
 let testArray = [];
 for (let i = 0; i < testSet; i++) {
     testArray.push(ioArray.shift());
 }
+*/
 
 // log prije treninga
 console.log(ioArray.length);
@@ -139,17 +154,23 @@ let net = new brain.NeuralNetwork();
 
 net.train(ioArray, {log:true, logPeriod:100});
 //console.log(net.train(ioArray));
+
+ioArray = [];
+ioArray = arraySetovaZaNN(izvorTestKendlova);
+
+console.log(testiranje(ioArray, net));
+
+/*
 let jsonMozak = net.toJSON();
 fs.writeFileSync('./mozak.json', JSON.stringify(jsonMozak));
+*/
 
 
+
+/*
 for (let i = 0; i < testArray.length; i++) {
     let output = net.run(testArray[i].input);
-    /*
-    console.log(i + ' Projekcija  H:' + (output[0] * 100).toFixed(2) + ' |  H:' + (testArray[i].output[0] * 100).toFixed(2) + '  Stvarnost');
-    console.log(i + '             L:' + (output[1] * 100).toFixed(2) + ' |  L:' + (testArray[i].output[1] * 100).toFixed(2));
-    */
-    console.log(i + ' Projekcija  -> ' + (odLogCijena(output[0])).toFixed(2) + ' -> ' + (odLogCijena(output[1])).toFixed(2));
-    console.log(i + ' Stvarnost   -> ' + (odLogCijena(testArray[i].output[0])).toFixed(2) + ' -> ' + (odLogCijena(testArray[i].output[1])).toFixed(2));
+    console.log(i + ' Projekcija  -> ' + output[0].toFixed(2));
+    console.log(i + ' Stvarnost   -> ' + testArray[i].output[0].toFixed(2));
     console.log('');
-}
+} */
