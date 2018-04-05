@@ -20,11 +20,6 @@ if (kolikiSet !== (inputSetSize + outputSetSize)) {
     console.log('EROR!!1 NIJE DOBRO PODEŠEN CONFIG')
 }
 
-// INICIJALIZACIJA VARIJABLI
-let setArray = [];
-let idSet = 0;
-let ioArray = [];
-
 // FUNKCIJE
 
 // funkcija vraća odnos 3 broja kao faktor (od 0 do 1)
@@ -43,25 +38,23 @@ function logFunkcija(x) {
 
 // MAPIRANJE [0,1] NA CIJENU - ANTI-LOGISTIČKA FUNKCIJA
 function odLogFunkcija(y) {
-    let x = (Math.log((1-y) / y) / (-k));
+    let x = (Math.log((1-y) / y) / (-kKoef));
     return x;
 }
 
 // UZETI KENDLOVE, MAPIRATI RAZLIKU NA [0,1]
 function logCijena(kendl0, kendl1) {
-    let razlika = kendl0.close - kendl1.close;
+    let razlika = kendl0.C - kendl1.C;
     return logFunkcija(razlika);
 }
 
 // UZETI [0,1], VRATITI RAZLIKU U CIJENI
-function odLogCijena(norm) {
-    return odLogFunkcija(norm);
+function odLogCijena(normRazlika) {
+    return odLogFunkcija(normRazlika);
 }
 
-
-
 // FORMATIRANJE SETA ZA NN
-function formatiranjeZaNN(array) {
+function jedanSetZaNN(array) {
     let ioSet = {
         input: [],
         output: []
@@ -78,136 +71,34 @@ function formatiranjeZaNN(array) {
         let kendl0 = array[br];
         let kendl1 = array[br-1];
         ioSet.input.push(logCijena(kendl0, kendl1))
-        ioSet.input.push(kendl.volBuyeva / zbrojBuyVol);
-        ioSet.input.push(kendl.volSellova / zbrojSellVol);
+        ioSet.input.push(kendl0.volBuyeva / zbrojBuyVol);
+        ioSet.input.push(kendl0.volSellova / zbrojSellVol);
         br++;
     }
     for (let i = 0; i < outputSetSize; i++) {
-        let kendl0 = array[br-1];
-        let kendl1 = array[br];
-        ioSet.input.push(logCijena(kendl0, kendl1))
-        ioSet.input.push(kendl.volBuyeva / zbrojBuyVol);
-        ioSet.input.push(kendl.volSellova / zbrojSellVol);
+        let kendl0 = array[br];
+        let kendl1 = array[br-1];
+        ioSet.output.push(logCijena(kendl0, kendl1))
         br++;
+    }
+    return ioSet;
+}
+
+function arraySetovaZaNN(izvor) {
+    let siroviArray = [];
+    let ioArray = [];
+    let idSet = 0;
+    while (izvor.length > kolikiSet) {
+        siroviArray[idSet] = [];
+        for (let i = 0; i < kolikiSet; i++) {
+            siroviArray[idSet].push(izvorKendlova.shift());
+        }
+        idSet++;
+    }
+    for (let i = 0; i < siroviArray.length; i++) {
+        ioArray[i] = jedanSetZaNN(siroviArray[i]);
     }
     return ioArray;
-}
-
-
-// ALGORITAM //
-
-// čupanje iz agro paketa
-while (izvorKendlova.length > kolikiSet) {
-    setArray[idSet] = [];
-    for (let i = 0; i < kolikiSet; i++) {
-        setArray[idSet].push(izvorKendlova.shift());
-    }
-    idSet++;
-}
-
-// data normalizacija
-// prolazimo kroz sve setove
-for (let i = 0; i < setArray.length; i++) {
-    // sad smo u jednom setu i treba ga normalizirati na vrijednosti od 0 do 1
-    // radimo to na dva načina, ovisno o tome je li normaliziramo cijenu ili volumen
-    // cijenu normaliziramo ovako:
-        // nađemo najniži L i najviši H cijelog input seta, povisimo H i snizimo L za prosirenjeSeta (config vrijednost)
-        // onda sve cijene (uključujući output) prikazujemo kao postotak unutar te razlike
-    // volumen normaliziramo ovako:
-        // zbrojimo sve volumene (zasebno buy i sell) za cijeli input set (bez outputa)
-        // onda taj zbroj gledamo kao 100% i prikazujemo pojedine volumene kao postotke
-    // u konačnici treba rezultat formatirati tako da svaki set izgleda ovako: 
-    // {input: [mean0, buyVol0, sellVol0, mean1, buyVol1, sellVol1, ..., mean8, buyVol8, sellVol8], output: [high9, low9]}
-    // ili možda ovako:
-    // {input: [high0, low0, buyVol0, sellVol0, high1, low1, buyVol1, sellVol1, ..., high8, low8, buyVol8, sellVol8], output: [high9, low9]}
-    ioArray[i] = {
-        input: [],
-        output: []
-    }
-    let zbrojBuyVol = 0;
-    let zbrojSellVol = 0;
-    let highSeta = 0;
-    let lowSeta = 10000000;
-    // prvo prođemo jedan for da nađemo najviši H i najniži L, te da zbrojimo volumene
-    for (let j = 0; j < setArray[i].length; j++) {
-        let kendl = setArray[i][j];
-        zbrojBuyVol += kendl.volBuyeva;
-        zbrojSellVol += kendl.volSellova;
-        if (kendl.H > highSeta) {
-            highSeta = kendl.H;
-        }
-        if (kendl.L < lowSeta) {
-            lowSeta = kendl.L;
-        }
-    }
-
-    // treći pristup. gledamo trenutnu cijenu (zadnji kendl) kao centar (0.50)
-    let kendl = setArray[i][inputSetSize - 1]; // zadnji kendl inputa
-    let rangeHL = highSeta - lowSeta;
-    let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
-    highSeta = kendlMean + rangeHL;
-    lowSeta = kendlMean - rangeHL;
-
-
-    // proširimo H-L range za prosirenjeSeta (config vrijednost)
-    /*
-    highSeta += prosirenjeSeta;
-    lowSeta -= prosirenjeSeta; 
-    */
-
-    // alternativno, uzmemo fiksan kanal pa onda unutar njega prikazujemo cijene.
-    // na ovaj način, trebali bi dobiti konzistentnije cijene (neće biti uvjetovane varijacijom H-L)
-    // možda će dolaziti do curenja (cijena izvan predodređenog kanala), treba obratiti pozornost
-    /*
-    let rangeSeta = highSeta - lowSeta;
-    if (rangeSeta > velicinaKanala) {console.log('EROR! H-L varijacija seta je prevelika. Rezultati nisu dobri. Povećaj kanal. (velicinaKanala)')}
-    let razlika = velicinaKanala - rangeSeta;
-    prosirenjeSeta = razlika / 2;
-    highSeta += prosirenjeSeta;
-    lowSeta -= prosirenjeSeta; 
-    */
-
-    // slaganje input seta
-    let br = 0;
-    for (let j = 0; j < inputSetSize; j++) {
-        let kendl = setArray[i][j];
-        /* možda vratiti na samo mean a ne H i L, ovisi šta daje bolje rezultate */
-        let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
-        
-        ioArray[i].input.push(odnosTriBroja(highSeta, kendlMean, lowSeta));
-       
-        /*
-        ioArray[i].input.push(odnosTriBroja(highSeta, kendl.H, lowSeta));
-        ioArray[i].input.push(odnosTriBroja(highSeta, kendl.L, lowSeta));
-        */
-        let normBV = (kendl.volBuyeva / zbrojBuyVol);
-        ioArray[i].input.push(normBV);
-        let normSV = (kendl.volSellova / zbrojSellVol);
-        ioArray[i].input.push(normSV);
-        br++;
-    }
-
-    // slaganje output seta
-    for (let j = 0; j < outputSetSize; j++) {
-        let kendl = setArray[i][br];
-        let kendlMean = ((kendl.H * kendl.volBuyeva) + (kendl.L * Math.abs(kendl.volSellova))) / (kendl.volBuyeva + Math.abs(kendl.volSellova));
-        
-        if (kendlMean > highSeta) {
-            console.log('Projekcija previsoka, stabiliziram na 1.00');
-            ioArray[i].output.push(1);
-        } else if (kendlMean < lowSeta) {
-            console.log('Projekcija preniska, stabiliziram na 0.00');
-            ioArray[i].output.push(0);
-        } else {
-            ioArray[i].output.push(odnosTriBroja(highSeta, kendlMean, lowSeta));
-        }
-        /*
-        ioArray[i].output.push(odnosTriBroja(highSeta, kendl.H, lowSeta));
-        ioArray[i].output.push(odnosTriBroja(highSeta, kendl.L, lowSeta));
-        */
-
-        br++;
-    }
 }
 
 // rendomiziramo ioArray (neki algoritam s interneta, Fisher-Yates)
@@ -229,7 +120,9 @@ function shuffle(array) {
     return array;
 }
 
-ioArray = shuffle(ioArray);
+// ALGORITAM //
+
+let ioArray = shuffle(arraySetovaZaNN(izvorKendlova));
 
 // čupanje test arraya
 let testArray = [];
@@ -256,7 +149,7 @@ for (let i = 0; i < testArray.length; i++) {
     console.log(i + ' Projekcija  H:' + (output[0] * 100).toFixed(2) + ' |  H:' + (testArray[i].output[0] * 100).toFixed(2) + '  Stvarnost');
     console.log(i + '             L:' + (output[1] * 100).toFixed(2) + ' |  L:' + (testArray[i].output[1] * 100).toFixed(2));
     */
-    console.log(i + ' Projekcija  -> ' + (output[0] * 100).toFixed(2) + ' -> ' + (output[1] * 100).toFixed(2));
-    console.log(i + ' Stvarnost   -> ' + (testArray[i].output[0] * 100).toFixed(2) + ' -> ' + (testArray[i].output[1] * 100).toFixed(2));
+    console.log(i + ' Projekcija  -> ' + (odLogCijena(output[0])).toFixed(2) + ' -> ' + (odLogCijena(output[1])).toFixed(2));
+    console.log(i + ' Stvarnost   -> ' + (odLogCijena(testArray[i].output[0])).toFixed(2) + ' -> ' + (odLogCijena(testArray[i].output[1])).toFixed(2));
     console.log('');
 }
