@@ -6,10 +6,7 @@ const fs = require('fs');
 const inPutanja = './exchdata/testdata.csv';
 const outPutanja = './test-stream.txt';
 
-const inputter = fs.createReadStream(inPutanja);
-const outputter = fs.createWriteStream(outPutanja);
 
-let vodotoci = {};
 
 function kendl1Template(trejd) {
     this.O = trejd.cijena;
@@ -37,7 +34,7 @@ function kendlAgroTemplate(prvi) {
 
 class zTransform extends stream.Transform {
     constructor(param) {
-        super(); // da li treba proslijediti parametre u super???
+        super(param);
         // dodajemo par stvari u konstruktor transform streama
         this.tempArr = [];  // ovo je privremeni array koji pamti kendlove i nakon pushanja
         if (param.rezolucija) {this.rezolucija = param.rezolucija} // ovo je rezolucija (veličina kendlova - 5, 15, 60 itd.)
@@ -90,9 +87,10 @@ const kendlizator = new zTransform({
     }
 });
 
-function konstruktorAgregatora(rezolucija) {
+function Agregator(rezolucija) {
     const agregator = new zTransform({
         objectMode: true,
+        rezolucija: rezolucija,
         transform(chunk, encoding, callback) {
             if ((chunk.minuta % this.rezolucija === 0) && (this.tempArr.length > 0)) {
                 let agroKendl = new kendlAgroTemplate(this.tempArr[0]);
@@ -108,7 +106,7 @@ function konstruktorAgregatora(rezolucija) {
                 agroKendl.minuta = chunk.minuta;
                 this.tempArr = []; // flushamo temp array
                 this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
-                this.push(kendl); // šaljemo gotov kendl dalje
+                this.push(agroKendl); // šaljemo gotov kendl dalje
             } else {
                 this.tempArr.push(chunk);
             }
@@ -118,22 +116,25 @@ function konstruktorAgregatora(rezolucija) {
     return agregator;
 }
 
+function agro(input, output, rezolucija) {
+    let inputter = fs.createReadStream(input);
+    let outputter = fs.createWriteStream(output);
 
-const lajne = readline.createInterface({
-    input: inputter,
-    terminal: false,
-    crlfDelay: Infinity
-});
+    let agregator = new Agregator(rezolucija);
+    let lajne = readline.createInterface({
+        input: inputter,
+        terminal: false,
+        crlfDelay: Infinity
+    });
+    lajne.on('line', (lajna) => {
+        objektifikator.write(lajna);
+    });
+    objektifikator
+        .pipe(kendlizator)
+        .pipe(agregator)
+        .pipe(outputter);
+}
 
-lajne.on('line', (lajna) => {
-    objektifikator.write(lajna);
-});
+agro(inPutanja, outPutanja, 5);
 
-objektifikator
-    .pipe(kendlizator)
-    .pipe(outputter);
-
-
-
-
-module.exports = vodotoci;
+module.exports = agro;

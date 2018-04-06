@@ -73,7 +73,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     }
     // pisalo.pisi('Ukupno EUR: ' + strat.trenutnoEuroStanje(popisSvihCijena, portfolio));
     // pisalo.pisi('EUR u portfoliu: ' + portfolio.EUR);
-
+/*
     // UBOJICA LOŠIH POZICIJA (STOP LOSS)
     for (let id in portfolio.pozicije) {
         let poz = portfolio.pozicije[id];
@@ -90,7 +90,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
 
         }
     }
-
+*/
     // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     let nemaNijedanLimit = (!portfolio.limiti.sell && !portfolio.limiti.buy);
     let imaObaLimita = (portfolio.limiti.sell && portfolio.limiti.buy);
