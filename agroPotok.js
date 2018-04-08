@@ -36,7 +36,7 @@ class zTransform extends stream.Transform {
     constructor(param) {
         super(param);
         // dodajemo par stvari u konstruktor transform streama
-        this.tempArr = [];  // ovo je privremeni array koji pamti kendlove i nakon pushanja
+        this.tempArr = [];  // ovo je privremeni array koji pamti kendlove i nakon pushanja (sve do flushanja)
         if (param.rezolucija) {this.rezolucija = param.rezolucija} // ovo je rezolucija (veličina kendlova - 5, 15, 60 itd.)
     }
 }
@@ -64,12 +64,20 @@ const objektifikator = new zTransform({
 const kendlizator = new zTransform({
     objectMode: true,
     transform(chunk, encoding, callback) {
+        /* logičke konstrukcije za čitkiji algoritam */
         let zadnjiTrejd = this.tempArr[this.tempArr.length - 1];
-        console.log(zadnjiTrejd);
-        if ((zadnjiTrejd == undefined) || (zadnjiTrejd.minuta == chunk.minuta)) {
+        let prazanJeTempArr = (zadnjiTrejd == undefined);
+        let josNijeGotovKendl = ((!prazanJeTempArr) && (zadnjiTrejd.minuta == chunk.minuta));
+        let brojilo = 0;
+        if (prazanJeTempArr || josNijeGotovKendl) {
             this.tempArr.push(chunk);
-        } else if (((chunk.minuta == 0) && (zadnjiTrejd.minuta == 59)) || (chunk.minuta == (zadnjiTrejd.minuta + 1))) { 
-            // chunk na čekanju dok ne složimo novi kendl
+        } else if (chunk.minuta > zadnjiTrejd.minuta) {
+            brojilo = chunk.minuta - zadnjiTrejd.minuta;
+        } else if (chunk.minuta < zadnjiTrejd.minuta) {
+            brojilo = chunk.minuta + (60 - zadnjiTrejd.minuta);
+        }
+        if (brojilo > 0) {
+            // chunk na čekanju dok ne složimo kendl
             let kendl = new kendl1Template(this.tempArr[0])
             for (let i = 0; i < this.tempArr.length; i++) {
                 let trejd = this.tempArr[i];
@@ -78,11 +86,19 @@ const kendlizator = new zTransform({
                 if (trejd.volumen > 0) {kendl.volBuyeva += trejd.volumen}
                 if (trejd.volumen < 0) {kendl.volSellova += trejd.volumen}
             }
+            this.push(kendl); // šaljemo gotov 1min kendl dalje
+            // ako je slučajno prošlo više minuta, popunjavamo s praznim kendlovima
+            for (let i = 0; i < (brojilo - 1); i++) {
+                let fillKendl = new kendl1Template(zadnjiTrejd);
+                if (fillKendl.minuta == 59) {
+                    fillKendl.minuta = 0;
+                } else {
+                    fillKendl.minuta += 1;
+                }
+                this.push(fillKendl);
+            }
             this.tempArr = []; // flushamo temp array
             this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
-            this.push(kendl); // šaljemo gotov 1min kendl dalje
-        } else {
-            console.log('GREŠKA. PRESKOČENA JE JEDNA MINUTA: ' + chunk.datum + ' ' + chunk.sat + ':' + (chunk.minuta - 1));
         }
         callback();
     }
@@ -107,7 +123,7 @@ function Agregator(rezolucija) {
                 agroKendl.minuta = chunk.minuta;
                 this.tempArr = []; // flushamo temp array
                 this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
-                this.push(JSON.stringify(agroKendl)); // šaljemo gotov kendl dalje
+                this.push(JSON.stringify(agroKendl) + '\n'); // šaljemo gotov kendl dalje
             } else {
                 this.tempArr.push(chunk);
             }
@@ -136,6 +152,6 @@ function agro(input, output, rezolucija) {
         .pipe(outputter);
 }
 
-agro(inPutanja, outPutanja, 5);
+agro(inPutanja, outPutanja, 1);
 
 module.exports = agro;

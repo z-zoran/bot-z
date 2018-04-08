@@ -7,7 +7,7 @@ if (!test[test.length - 1]) {
     console.log('je');
 }
 */
-
+/*
 class Jedan {
     constructor(ime) {
         this.ime = ime;
@@ -23,3 +23,8 @@ class Drugi extends Jedan {
 
 let neki = new Drugi('Mirko', 21);
 console.log(neki.ime, + neki.dob);
+*/
+
+for (let i = 0; i < 1; i++) {
+    console.log(i);
+}
