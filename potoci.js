@@ -65,7 +65,8 @@ const kendlizator = new zTransform({
     objectMode: true,
     transform(chunk, encoding, callback) {
         let zadnjiTrejd = this.tempArr[this.tempArr.length - 1];
-        if (!zadnjiTrejd || (zadnjiTrejd.minuta == chunk.minuta)) {
+        console.log(zadnjiTrejd);
+        if ((zadnjiTrejd == undefined) || (zadnjiTrejd.minuta == chunk.minuta)) {
             this.tempArr.push(chunk);
         } else if (((chunk.minuta == 0) && (zadnjiTrejd.minuta == 59)) || (chunk.minuta == (zadnjiTrejd.minuta + 1))) { 
             // chunk na čekanju dok ne složimo novi kendl
@@ -106,7 +107,7 @@ function Agregator(rezolucija) {
                 agroKendl.minuta = chunk.minuta;
                 this.tempArr = []; // flushamo temp array
                 this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
-                this.push(agroKendl); // šaljemo gotov kendl dalje
+                this.push(JSON.stringify(agroKendl)); // šaljemo gotov kendl dalje
             } else {
                 this.tempArr.push(chunk);
             }
