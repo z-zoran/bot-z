@@ -73,24 +73,51 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     }
     // pisalo.pisi('Ukupno EUR: ' + strat.trenutnoEuroStanje(popisSvihCijena, portfolio));
     // pisalo.pisi('EUR u portfoliu: ' + portfolio.EUR);
-/*
+
     // UBOJICA LOŠIH POZICIJA (STOP LOSS)
+    let killFaktor = 3;
     for (let id in portfolio.pozicije) {
         let poz = portfolio.pozicije[id];
         let inicijalnaUdaljenostStopa = Math.abs(poz.stop - poz.cijena);
         let trenutnaUdaljenostStopa = Math.abs(poz.stop - cijenaSad);
-        if (trenutnaUdaljenostStopa > (inicijalnaUdaljenostStopa * 2.5)) {
+        if (trenutnaUdaljenostStopa > (inicijalnaUdaljenostStopa * killFaktor)) {
             poz.likvidacija(cijenaSad);
-            
-            
             // TU JE ERROR!!!
             // u ovom trenutku ako više nema stopova, napraviti buy ili sell - ovisno koji nedostaje
-
-
-
         }
     }
-*/
+    // popravak erora di smo trajno ostajali bez jednog od limita (ako bi killer pobio sve stopove)
+    let nemaViseStopova = true;
+    for (let id in portfolio.pozicije) {
+        let poz = portfolio.pozicije[id];
+        if (poz.stop) {
+            nemaViseStopova = false;
+            break;
+        }
+    }
+    // nešto se pokvarilo. popije mi cijeli portfolio ETH
+    if (nemaViseStopova) {
+        if (portfolio.limiti.buy) {
+            // postavimo sell limit
+            let sellLimitData = {};
+            sellLimitData.portfolio = portfolio.portfolio;
+            sellLimitData.tip = 'sell';
+            sellLimitData.market = 'ETH/EUR';
+            sellLimitData.iznos = iznos;
+            sellLimitData.limitCijena = cijenaSad + odmakLambda;
+            portfolio.postLimit(sellLimitData);
+        } else if (portfolio.limiti.sell) {
+            // postavimo buy limit
+            let buyLimitData = {};
+            buyLimitData.portfolio = portfolio.portfolio;
+            buyLimitData.tip = 'buy';
+            buyLimitData.market = 'ETH/EUR';
+            buyLimitData.iznos = iznos;
+            buyLimitData.limitCijena = cijenaSad - odmakLambda;
+            portfolio.postLimit(buyLimitData);
+        }
+    }
+
     // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     let nemaNijedanLimit = (!portfolio.limiti.sell && !portfolio.limiti.buy);
     let imaObaLimita = (portfolio.limiti.sell && portfolio.limiti.buy);
