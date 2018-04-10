@@ -25,6 +25,3 @@ let neki = new Drugi('Mirko', 21);
 console.log(neki.ime, + neki.dob);
 */
 
-for (let i = 0; i < 1; i++) {
-    console.log(i);
-}
