@@ -359,31 +359,6 @@ function predChartifikacija(kendl1, kendl15) {
             delete chartData.ulazneCijene[c];
         }
     }
-
-    function zbrojiLimite(portfolio, cijena) {
-        let zbrojLimita = 0;
-        for (let i in portfolio.limiti) {
-            if (i === 'buy') {
-                zbrojLimita += portfolio.limiti.buy.umnozak;
-            } else if (i === 'sell') {
-                zbrojLimita += portfolio.limiti.sell.iznos * cijena;
-            }
-        }
-        return zbrojLimita;
-    }
-
-    function zbrojiPozicije(portfolio, cijena) {
-        let zbrojPozicija = 0;
-        for (let i in portfolio.pozicije) {
-            let poz = portfolio.pozicije[i];
-            if (poz.tip === 'buy') {
-                zbrojPozicija += poz.base * cijena;
-            } else if (poz.tip === 'sell') {
-                zbrojPozicija += poz.quote / cijena;
-            }
-        }
-        return zbrojPozicija;
-    }
 /*
     /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****
     if (i1 % 15 === 0) {
@@ -405,7 +380,31 @@ function predChartifikacija(kendl1, kendl15) {
         }
     }
 */
-    /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
+    function zbrojiLimite(portfolio, cijena) {
+        let zbrojLimita = 0;
+        if (portfolio.limiti.buy) {
+            zbrojLimita += portfolio.limiti.buy.umnozak;
+        }
+        if (portfolio.limiti.sell) {
+            zbrojLimita += portfolio.limiti.sell.iznos * cijena;
+        }
+        return zbrojLimita;
+    }
+
+    function zbrojiPozicije(portfolio, cijena) {
+        let zbrojPozicija = 0;
+        for (let i in portfolio.pozicije) {
+            let poz = portfolio.pozicije[i];
+            if (poz.tip === 'buy') {
+                zbrojPozicija += poz.base * cijena;
+            } else if (poz.tip === 'sell') {
+                zbrojPozicija += poz.quote / cijena;
+            }
+        }
+        return zbrojPozicija;
+    }
+
+/**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
     chartData.m15.high.push(kendl1.H);
     chartData.m15.low.push(kendl1.L);
     chartData.m15.vrijeme.push(kendl1.datum + ' ' + kendl1.sat + ':' + kendl1.minuta);
@@ -553,7 +552,7 @@ function playPauza(koraka) {
         let odmakLambda = 0.6 * dev5;
         let odmakTau = 0.3 * dev5;
         let kendlic = ss1min[i1-1];
-        let iznos = 0.5;
+        let iznos = 0.1;
         let cijenaSad = kendlic.C;
         let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
 

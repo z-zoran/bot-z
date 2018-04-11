@@ -73,21 +73,30 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     }
     // pisalo.pisi('Ukupno EUR: ' + strat.trenutnoEuroStanje(popisSvihCijena, portfolio));
     // pisalo.pisi('EUR u portfoliu: ' + portfolio.EUR);
-/*
+
     // UBOJICA LOŠIH POZICIJA (STOP LOSS)
-    let killFaktor = 3;
+    let killFaktor = 2;
     for (let id in portfolio.pozicije) {
         let poz = portfolio.pozicije[id];
-        let inicijalnaUdaljenostStopa = Math.abs(poz.stop - poz.cijena);
-        let trenutnaUdaljenostStopa = Math.abs(poz.stop - cijenaSad);
-        if (trenutnaUdaljenostStopa > (inicijalnaUdaljenostStopa * killFaktor)) {
-            poz.likvidacija(cijenaSad);
-            // TU JE ERROR!!!
-            // u ovom trenutku ako više nema stopova, napraviti buy ili sell - ovisno koji nedostaje
+        if (poz.stop) {
+            let inicijalnaUdaljenostStopa = Math.abs(poz.stop - poz.cijena);
+            let trenutnaUdaljenostStopa = Math.abs(poz.stop - cijenaSad);
+            if (trenutnaUdaljenostStopa > (inicijalnaUdaljenostStopa * killFaktor)) {
+                poz.likvidacija(cijenaSad);
+                // TU JE ERROR!!!
+                // u ovom trenutku ako više nema stopova, napraviti buy ili sell - ovisno koji nedostaje
+            }
         }
     }
     // popravak erora di smo trajno ostajali bez jednog od limita (ako bi killer pobio sve stopove)
     
+    let postojeNekePozicije = false;
+    for (let id in portfolio.pozicije) {
+        if (portfolio.pozicije[id]) {
+            postojeNekePozicije = true;
+            break;
+        }
+    }
     let nemaViseStopova = true;
     for (let id in portfolio.pozicije) {
         let poz = portfolio.pozicije[id];
@@ -97,8 +106,8 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
         }
     }
     // nešto se pokvarilo. popije mi cijeli portfolio ETH
-    if (nemaViseStopova) {
-        if (portfolio.limiti.buy) {
+    if (nemaViseStopova && postojeNekePozicije) {
+        if (portfolio.limiti.buy && !portfolio.limiti.sell) {
             // postavimo sell limit
             let sellLimitData = {};
             sellLimitData.portfolio = portfolio.portfolio;
@@ -107,7 +116,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
             sellLimitData.iznos = iznos;
             sellLimitData.limitCijena = cijenaSad + odmakLambda;
             portfolio.postLimit(sellLimitData);
-        } else if (portfolio.limiti.sell) {
+        } else if (portfolio.limiti.sell && !portfolio.limiti.buy) {
             // postavimo buy limit
             let buyLimitData = {};
             buyLimitData.portfolio = portfolio.portfolio;
@@ -118,7 +127,9 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
             portfolio.postLimit(buyLimitData);
         }
     }
-*/
+
+    // PRIJE ALGORITMA, PROVJERITI STOPOVE I TRAILERE, NE U ALGORITMU.
+
     // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
     let nemaNijedanLimit = (!portfolio.limiti.sell && !portfolio.limiti.buy);
     let imaObaLimita = (portfolio.limiti.sell && portfolio.limiti.buy);
