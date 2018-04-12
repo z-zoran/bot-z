@@ -57,7 +57,7 @@ function odnosTriBroja(gornja, srednja, donja) {
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
-strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau) {  // strategija za jahanje cijene 
+strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, odmakKappa) {  // strategija za jahanje cijene 
     // KOREKCIJA POSTOJEĆIH TRAILERA
     for (let trID in portfolio.traileri) {
         let trailer = portfolio.traileri[trID];
@@ -75,7 +75,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     // pisalo.pisi('EUR u portfoliu: ' + portfolio.EUR);
 
     // UBOJICA LOŠIH POZICIJA (STOP LOSS)
-    let killFaktor = 2;
+    let killFaktor = odmakKappa;
     for (let id in portfolio.pozicije) {
         let poz = portfolio.pozicije[id];
         if (poz.stop) {

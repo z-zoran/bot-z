@@ -183,6 +183,18 @@ klas.Pozicija.prototype.likvidacija = function likvidacija(cijenaSad) {
 	// pisalo.pisi(poruka);
 }
 
+// UNIVERZALNA METODA ZA ODRŽAVANJE POZICIJE (OBJEDINJUJE OSTALE)
+	// parametri su odmakTau, odmakKappa i cijenaSad
+	// izvana, u strategiji, svaki krug samo treba odraditi korekciju
+	// tu će biti sva logika za tu korekciju
+/*****
+ * logika je slijedeća:
+ * svaki krug strategije, čekiramo sve pozicije u portfoliju s ovom metodom.
+ * ima li stop?
+ * ako ne, 
+ * 
+ */
+
 // KLASA ZA TRAILERE
 klas.Trailer = function Trailer(trailerData) {
 	this.portfolio = trailerData.portfolio;
