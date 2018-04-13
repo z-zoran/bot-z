@@ -23,6 +23,7 @@ PORTFOLIO METODE:
 POZICIJA METODE:
 	.stopTriggeran(odmak)
 	.likvidacija(cijenaSad)
+	.korekcija(cijenaSad, koefKappa, odmakTau)
 
 TRAILER METODE:
 	.korekcija(cijenaSad)
@@ -45,6 +46,7 @@ klas.Portfolio = function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
 	this.limiti = {};
 	this.pozicije = {};
 	this.traileri = {};
+	this.imaStopova = false;
 }
 
 
@@ -138,6 +140,17 @@ klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	delete this.limiti[koja];
 }
 
+// METODA ZA PROVJERU STOPOVA (na razini portfolia)
+klas.Portfolio.prototype.provjeriStopove = function provjeriStopove() {
+	this.imaStopova = false;
+	for (let poz in this.pozicije) {
+		if (this.pozicije[poz].stop) {
+			this.imaStopova = true;
+			break;
+		}
+	}
+}
+
 // KLASA ZA POZICIJE
 klas.Pozicija = function Pozicija(id, pozData) {
 	this.portfolio = pozData.portfolio;
@@ -183,17 +196,33 @@ klas.Pozicija.prototype.likvidacija = function likvidacija(cijenaSad) {
 	// pisalo.pisi(poruka);
 }
 
-// UNIVERZALNA METODA ZA ODRŽAVANJE POZICIJE (OBJEDINJUJE OSTALE)
-	// parametri su odmakTau, odmakKappa i cijenaSad
+// METODA ZA KOREKCIJU POZICIJE (STOP CHECK I KILL LOSS)
+	// parametri su odmakTau (za postaviti trailer), koefKappa (za procjeniti da li killati) i cijenaSad
 	// izvana, u strategiji, svaki krug samo treba odraditi korekciju
 	// tu će biti sva logika za tu korekciju
 /*****
  * logika je slijedeća:
- * svaki krug strategije, čekiramo sve pozicije u portfoliju s ovom metodom.
- * ima li stop?
- * ako ne, 
+ *		ima li stop?
+ * 			da: je li triggeran? 
+ * 				da: pokreni trailer i obriši stop 
+ * 		je li prošišao killOdmak?
+ * 			da: ubi poziciju
+ * 		
  * 
  */
+klas.Pozicija.prototype.korekcija = function pozKorekcija(cijenaSad, koefKappa, odmakTau) {
+	if (this.stop) {
+		let stopJeTriggeran = ((this.tip === 'buy') && (cijenaSad > this.stop)) || ((this.tip === 'sell') && (cijenaSad < this.stop));
+		if (stopJeTriggeran) {
+			this.stopTriggeran(odmakTau);
+		}
+		let inicijalnaUdaljenostStopa = Math.abs(this.stop - this.cijena);
+		let trenutnaUdaljenostStopa = Math.abs(this.stop - cijenaSad);
+		if (trenutnaUdaljenostStopa > (inicijalnaUdaljenostStopa * koefKappa)) {
+			this.likvidacija(cijenaSad);
+		}
+	}
+}
 
 // KLASA ZA TRAILERE
 klas.Trailer = function Trailer(trailerData) {
@@ -207,7 +236,7 @@ klas.Trailer = function Trailer(trailerData) {
 }
   
 // METODA ZA KOREKCIJU TRAILERA
-klas.Trailer.prototype.korekcija = function korekcija(cijenaSad) {
+klas.Trailer.prototype.korekcija = function trailerKorekcija(cijenaSad) {
 	let trenutnaUdaljenost = cijenaSad - this.gdjeSam;
 	// logičke konstrukcije za čitkiji algoritam
 	let pratimOdozdo = (this.odmak < 0);

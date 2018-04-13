@@ -551,14 +551,14 @@ function playPauza(koraka) {
         let odmakPhi = dev5;
         let odmakLambda = 0.6 * dev5;
         let odmakTau = 0.3 * dev5;
-        let odmakKappa = 2; // koeficijent. ako je 2, znači killOdmak je 2*inicijalniOdmak
+        let koefKappa = 2; // koeficijent. ako je 2, znači killOdmak je 2*inicijalniOdmak
         let kendlic = ss1min[i1-1];
         let iznos = 0.1;
         let cijenaSad = kendlic.C;
         let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
 
         for (let i = 0; i < 50; i++) {
-            jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, odmakKappa);
+            jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa);
         }
 
         predChartifikacija(ss1min[i1-1], ss15min[i15-1]);
