@@ -108,11 +108,18 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     // dodali smo u portfolio property imaStopova. svaki krug strategije provjerava je li 
     // pozicija ima stopova.
 
-    // moguće kombinacije su:
+    // moguće kombinacije limita, cijene i stopova su:
     /**
-     * 1) buy limit & sell limit
-     * 2) buy limit & stop iznad
-     * 3)
+     * "NORMALNE" KOMBINACIJE
+     * 1) BUY  | CIJENA | SELL
+     * 2) BUY  | CIJENA | STOP
+     * 3) STOP | CIJENA | SELL
+     * 
+     * 
+     * 
+     * 
+     * "NENORMALNE" KOMBINACIJE
+     * 1) 
      */
 
     // PRIJE ALGORITMA, PROVJERITI STOPOVE I TRAILERE, NE U ALGORITMU.
