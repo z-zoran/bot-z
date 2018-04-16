@@ -74,7 +74,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
         let trailer = portfolio.traileri[trID];
         trailer.korekcija(cijenaSad);
     }
-    // KOREKCIJA POSTOJEĆIH POZICIJA (STOPOVI I KILLOVI)
+    // KOREKCIJA POSTOJEĆIH POZICIJA (triggerani stopovi ili killovi)
     for (let pozID in portfolio.pozicije) {
         let poz = portfolio.pozicije[pozID];
         poz.korekcija(cijenaSad, koefKappa, odmakTau);
@@ -95,21 +95,6 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
 
     // popravak erora di smo trajno ostajali bez jednog od limita (ako bi killer pobio sve stopove)
     
-    let postojeNekePozicije = false;
-    for (let id in portfolio.pozicije) {
-        if (portfolio.pozicije[id]) {
-            postojeNekePozicije = true;
-            break;
-        }
-    }
-    let nemaViseStopova = true;
-    for (let id in portfolio.pozicije) {
-        let poz = portfolio.pozicije[id];
-        if (poz.stop) {
-            nemaViseStopova = false;
-            break;
-        }
-    }
     // nešto se pokvarilo. popije mi cijeli portfolio ETH (!?)
     if (nemaViseStopova && postojeNekePozicije) {
         if (portfolio.limiti.buy && !portfolio.limiti.sell) {
@@ -122,6 +107,13 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
 // OVDJE NASTAVITI!    
     // dodali smo u portfolio property imaStopova. svaki krug strategije provjerava je li 
     // pozicija ima stopova.
+
+    // moguće kombinacije su:
+    /**
+     * 1) buy limit & sell limit
+     * 2) buy limit & stop iznad
+     * 3)
+     */
 
     // PRIJE ALGORITMA, PROVJERITI STOPOVE I TRAILERE, NE U ALGORITMU.
 
