@@ -70,10 +70,8 @@ function limitTemplate(portfolio, tip, market, iznos, limitCijena) {
 // THE strategija
 strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa) {  // strategija za jahanje cijene 
     // KOREKCIJA POSTOJEĆIH TRAILERA
-    for (let trID in portfolio.traileri) {
-        let trailer = portfolio.traileri[trID];
-        trailer.korekcija(cijenaSad);
-    }
+    portfolio.provjeriTrailere(cijenaSad);
+
     // KOREKCIJA POSTOJEĆIH POZICIJA (triggerani stopovi ili killovi)
     for (let pozID in portfolio.pozicije) {
         let poz = portfolio.pozicije[pozID];

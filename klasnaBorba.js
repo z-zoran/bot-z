@@ -21,18 +21,21 @@ PORTFOLIO METODE:
 	.ubiLimit(koji)
 	.postPoziciju(koja, odmakPhi)
 
+
 	(kompozitne metode)
 	.provjeriStopove(cijenaSad, odmakTau)
 	.provjeriLimite(cijenaSad, odmakPhi)
 	.provjeriTrailere(cijenaSad)
+	.provjeriKillove(cijenaSad, koefKappa)
+
 	
 POZICIJA METODE:
 	.stopTriggeran(odmak)
 	.likvidacija(cijenaSad)
-	.korekcija(cijenaSad, koefKappa, odmakTau)
+	.pozKorekcija(cijenaSad, koefKappa, odmakTau)
 
 TRAILER METODE:
-	.korekcija(cijenaSad)
+	.trailerKorekcija(cijenaSad)
 
 */
 
@@ -148,8 +151,8 @@ klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 
 // METODA ZA PROVJERU STOPOVA (na razini portfolia)
 klas.Portfolio.prototype.provjeriStopove = function provjeriStopove(cijenaSad, odmakTau) {
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-this.imaStopova = false;
+	
+	this.imaStopova = false;
 	for (let poz in this.pozicije) {
 		if (this.pozicije[poz].stop) {
 			this.imaStopova = true;
@@ -158,13 +161,27 @@ this.imaStopova = false;
 	}
 }
 
+// METODA ZA PROVJERU SVIH TRAILERA
+klas.Portfolio.prototype.provjeriTrailere = function provjeriTrailere(cijenaSad) {
+	for (let trID in this.traileri) {
+        let trailer = this.traileri[trID];
+        trailer.trailerKorekcija(cijenaSad);
+    }
+}
 
+// METODA ZA UBIJANJE LOŠIH POZICIJA
+klas.Portfolio.prototype.provjeriKillove = function provjeriKillove(cijenaSad, koefKappa) {
+
+}
+
+// METODA ZA 
 
 /*
 (kompozitne metode)
 .provjeriStopove(cijenaSad, odmakTau)
 .provjeriLimite(cijenaSad, odmakPhi)
 .provjeriTrailere(cijenaSad)
+.provjeriKillove(cijenaSad, koefKappa)
 */
 
 // KLASA ZA POZICIJE
@@ -226,7 +243,9 @@ klas.Pozicija.prototype.likvidacija = function likvidacija(cijenaSad) {
  * 		
  * 
  */
-klas.Pozicija.prototype.korekcija = function pozKorekcija(cijenaSad, koefKappa, odmakTau) {
+
+ // ovo razdvojiti na .provjeriStopove i .provjeriKillove
+klas.Pozicija.prototype.pozKorekcija = function pozKorekcija(cijenaSad, koefKappa, odmakTau) {
 	if (this.stop) {
 		let stopJeTriggeran = ((this.tip === 'buy') && (cijenaSad > this.stop)) || ((this.tip === 'sell') && (cijenaSad < this.stop));
 		if (stopJeTriggeran) {
@@ -248,11 +267,11 @@ klas.Trailer = function Trailer(trailerData) {
 	this.odmak = trailerData.odmak;			// odmak trailera (pozitivan ili negativan)
 	this.gdjeSam = this.cijena + this.odmak;	// na kojoj cijeni je trenutno trailing stop
 	/* Kad se trailer inicira, postavlja se s odmakom od cijene. 
-	Svaki candle zovemo svim Trailerima metodu .korekcija koja podešava trailing stop. */
+	Svaki candle zovemo svim Trailerima metodu .trailerKorekcija koja podešava trailing stop. */
 }
   
 // METODA ZA KOREKCIJU TRAILERA
-klas.Trailer.prototype.korekcija = function trailerKorekcija(cijenaSad) {
+klas.Trailer.prototype.trailerKorekcija = function trailerKorekcija(cijenaSad) {
 	let trenutnaUdaljenost = cijenaSad - this.gdjeSam;
 	// logičke konstrukcije za čitkiji algoritam
 	let pratimOdozdo = (this.odmak < 0);
