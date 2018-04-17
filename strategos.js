@@ -69,64 +69,23 @@ function limitTemplate(portfolio, tip, market, iznos, limitCijena) {
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
 strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa) {  // strategija za jahanje cijene 
+    // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
+    let sellLimit = portfolio.limiti.sell;
+    let buyLimit = portfolio.limiti.buy;
+    let nemaNijedanLimit = (!sellLimit && !buyLimit);
+    let imaObaLimita = (sellLimit && buyLimit);
+    let imaSamoBuyLimit = (!sellLimit && buyLimit);
+    let imaSamoSellLimit = (sellLimit && !buyLimit);
+
     // KOREKCIJA POSTOJEĆIH TRAILERA
     portfolio.provjeriTrailere(cijenaSad);
 
-    // KOREKCIJA POSTOJEĆIH POZICIJA (triggerani stopovi ili killovi)
-    for (let pozID in portfolio.pozicije) {
-        let poz = portfolio.pozicije[pozID];
-        poz.korekcija(cijenaSad, koefKappa, odmakTau);
-    }
-    // PROVJERA JELI IMA STOPOVA
-    portfolio.provjeriStopove();
+    // KILLANJE LOŠIH POZICIJA
+    portfolio.provjeriKillove(cijenaSad, koefKappa);
 
-    // IZLIST PORTFOLIO U EURIMA
-    let popisSvihCijena = {
-        'EUR': 1.00,
-        'ETH': cijenaSad,
-        'BTC': 0,
-        'LTC': 0,
-        'BCH': 0
-    }
-    // pisalo.pisi('Ukupno EUR: ' + strat.trenutnoEuroStanje(popisSvihCijena, portfolio));
-    // pisalo.pisi('EUR u portfoliu: ' + portfolio.EUR);
+    // PROVJERA STOPOVA
+    portfolio.provjeriStopove(cijenaSad, odmakTau);
 
-    // popravak erora di smo trajno ostajali bez jednog od limita (ako bi killer pobio sve stopove)
-    
-    // nešto se pokvarilo. popije mi cijeli portfolio ETH (!?)
-    if (nemaViseStopova && postojeNekePozicije) {
-        if (portfolio.limiti.buy && !portfolio.limiti.sell) {
-            portfolio.postLimit(new limitTemplate(portfolio.portfolio, 'sell', 'ETH/EUR', iznos, (cijenaSad + odmakLambda)));
-        } else if (portfolio.limiti.sell && !portfolio.limiti.buy) {
-            portfolio.postLimit(new limitTemplate(portfolio.portfolio, 'buy', 'ETH/EUR', iznos, (cijenaSad - odmakLambda)));
-        }
-    }
-
-// OVDJE NASTAVITI!    
-    // dodali smo u portfolio property imaStopova. svaki krug strategije provjerava je li 
-    // pozicija ima stopova.
-
-    // moguće kombinacije limita, cijene i stopova su:
-    /**
-     * "NORMALNE" KOMBINACIJE
-     * 1) BUY  | CIJENA | SELL
-     * 2) BUY  | CIJENA | STOP
-     * 3) STOP | CIJENA | SELL
-     * 
-     * 
-     * 
-     * 
-     * "NENORMALNE" KOMBINACIJE
-     * 1) 
-     */
-
-    // PRIJE ALGORITMA, PROVJERITI STOPOVE I TRAILERE, NE U ALGORITMU.
-
-    // LOGIČKE KONSTRUKCIJE ZA ČITKIJI ALGORITAM
-    let nemaNijedanLimit = (!portfolio.limiti.sell && !portfolio.limiti.buy);
-    let imaObaLimita = (portfolio.limiti.sell && portfolio.limiti.buy);
-    let imaSamoBuyLimit = (!portfolio.limiti.sell && portfolio.limiti.buy);
-    let imaSamoSellLimit = (portfolio.limiti.sell && !portfolio.limiti.buy);
     /*-opcija 1--------------AKO NEMA NIJEDAN LIMIT-----------------------*/
     if (nemaNijedanLimit) {
         portfolio.postLimit(new limitTemplate(portfolio.portfolio, 'sell', 'ETH/EUR', iznos, (cijenaSad + odmakLambda)));
@@ -185,17 +144,6 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
                 pozCounterString = i;
             }
         }
-        /*
-        // traženje pozicije koja još ima stop (stop se briše kad je triggeran)
-        for (let i = 0; i <= portfolio.pozCounter; i++) {
-            pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
-            let pozicija = portfolio.pozicije[pozCounterString];
-            if (pozicija && pozicija.stop) {
-                break;
-            }
-        }
-        */
-        let buyLimit = portfolio.limiti.buy;
         let zadnjaPozicijaSaStopom = portfolio.pozicije[pozCounterString];
         let stopTriggerIznadJeTriggeran = (zadnjaPozicijaSaStopom.tip === 'buy') && (cijenaSad > zadnjaPozicijaSaStopom.stop);  // prvi uvjet redundantan, ali neka ga
         let triggeranBuyLimit = (buyLimit.limitCijena > cijenaSad);
@@ -258,17 +206,6 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
                 pozCounterString = i;
             }
         }
-        /*
-        // traženje pozicije koja još ima stop (stop se briše kad je triggeran)
-        for (let i = 0; i <= portfolio.pozCounter; i++) {
-            pozCounterString = ((portfolio.pozCounter - i).toString()).padStart(4, "0");
-            let pozicija = portfolio.pozicije[pozCounterString];
-            if (pozicija && pozicija.stop) {
-                break;
-            }
-        }
-        */
-        let sellLimit = portfolio.limiti.sell;
         let zadnjaPozicijaSaStopom = portfolio.pozicije[pozCounterString];
         let stopTriggerIspodJeTriggeran = (zadnjaPozicijaSaStopom.tip === 'sell') && (cijenaSad < zadnjaPozicijaSaStopom.stop);  // prvi uvjet redundantan, ali neka ga
         let triggeranSellLimit = (sellLimit.limitCijena < cijenaSad);

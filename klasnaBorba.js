@@ -149,15 +149,26 @@ klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	delete this.limiti[koja];
 }
 
-// METODA ZA PROVJERU STOPOVA (na razini portfolia)
+// METODA ZA PROVJERU SVIH STOPOVA
 klas.Portfolio.prototype.provjeriStopove = function provjeriStopove(cijenaSad, odmakTau) {
-	
+	for (let pozID in this.pozicije) {
+        let poz = this.pozicije[pozID];
+        poz.stopCheck(cijenaSad, odmakTau);
+    }
 	this.imaStopova = false;
-	for (let poz in this.pozicije) {
-		if (this.pozicije[poz].stop) {
+	for (let pozID in this.pozicije) {
+		if (this.pozicije[pozID].stop) {
 			this.imaStopova = true;
 			break;
 		}
+	}
+}
+
+// METODA ZA UBIJANJE LOŠIH POZICIJA
+klas.Portfolio.prototype.provjeriKillove = function provjeriKillove(cijenaSad, koefKappa) {
+	for (let pozID in this.pozicije) {
+		let poz = this.pozicije[pozID];
+		poz.killCheck(cijenaSad, koefKappa);
 	}
 }
 
@@ -168,21 +179,6 @@ klas.Portfolio.prototype.provjeriTrailere = function provjeriTrailere(cijenaSad)
         trailer.trailerKorekcija(cijenaSad);
     }
 }
-
-// METODA ZA UBIJANJE LOŠIH POZICIJA
-klas.Portfolio.prototype.provjeriKillove = function provjeriKillove(cijenaSad, koefKappa) {
-
-}
-
-// METODA ZA 
-
-/*
-(kompozitne metode)
-.provjeriStopove(cijenaSad, odmakTau)
-.provjeriLimite(cijenaSad, odmakPhi)
-.provjeriTrailere(cijenaSad)
-.provjeriKillove(cijenaSad, koefKappa)
-*/
 
 // KLASA ZA POZICIJE
 klas.Pozicija = function Pozicija(id, pozData) {
@@ -229,28 +225,19 @@ klas.Pozicija.prototype.likvidacija = function likvidacija(cijenaSad) {
 	// pisalo.pisi(poruka);
 }
 
-// METODA ZA KOREKCIJU POZICIJE (STOP CHECK I KILL LOSS)
-	// parametri su odmakTau (za postaviti trailer), koefKappa (za procjeniti da li killati) i cijenaSad
-	// izvana, u strategiji, svaki krug samo treba odraditi korekciju
-	// tu će biti sva logika za tu korekciju
-/*****
- * logika je slijedeća:
- *		ima li stop?
- * 			da: je li triggeran? 
- * 				da: pokreni trailer i obriši stop 
- * 		je li prošišao killOdmak?
- * 			da: ubi poziciju
- * 		
- * 
- */
-
- // ovo razdvojiti na .provjeriStopove i .provjeriKillove
-klas.Pozicija.prototype.pozKorekcija = function pozKorekcija(cijenaSad, koefKappa, odmakTau) {
+// METODA ZA ČEKIRANJE STOPA POZICIJE
+klas.Pozicija.prototype.stopCheck = function stopCheck(cijenaSad, odmakTau) {
 	if (this.stop) {
 		let stopJeTriggeran = ((this.tip === 'buy') && (cijenaSad > this.stop)) || ((this.tip === 'sell') && (cijenaSad < this.stop));
 		if (stopJeTriggeran) {
 			this.stopTriggeran(odmakTau);
 		}
+	}
+}
+
+// METODA ZA ČEKIRANJE DA LI TREBA KILLAT POZICIJU
+klas.Pozicija.prototype.killCheck = function killCheck(cijenaSad, koefKappa) {
+	if (this.stop) {
 		let inicijalnaUdaljenostStopa = Math.abs(this.stop - this.cijena);
 		let trenutnaUdaljenostStopa = Math.abs(this.stop - cijenaSad);
 		if (trenutnaUdaljenostStopa > (inicijalnaUdaljenostStopa * koefKappa)) {
