@@ -16,9 +16,15 @@ Neka osnovna logika je slijedeća:
 			- Trailer se kod triggeranja samo-ubija, ubija i Poziciju i hrani njen iznos natrag u Portfolio.
 
 PORTFOLIO METODE:
+	(elementarne metode)
 	.postLimit(limitData)
 	.ubiLimit(koji)
 	.postPoziciju(koja, odmakPhi)
+
+	(kompozitne metode)
+	.provjeriStopove(cijenaSad, odmakTau)
+	.provjeriLimite(cijenaSad, odmakPhi)
+	.provjeriTrailere(cijenaSad)
 	
 POZICIJA METODE:
 	.stopTriggeran(odmak)
@@ -141,8 +147,9 @@ klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 }
 
 // METODA ZA PROVJERU STOPOVA (na razini portfolia)
-klas.Portfolio.prototype.provjeriStopove = function provjeriStopove() {
-	this.imaStopova = false;
+klas.Portfolio.prototype.provjeriStopove = function provjeriStopove(cijenaSad, odmakTau) {
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+this.imaStopova = false;
 	for (let poz in this.pozicije) {
 		if (this.pozicije[poz].stop) {
 			this.imaStopova = true;
@@ -150,6 +157,15 @@ klas.Portfolio.prototype.provjeriStopove = function provjeriStopove() {
 		}
 	}
 }
+
+
+
+/*
+(kompozitne metode)
+.provjeriStopove(cijenaSad, odmakTau)
+.provjeriLimite(cijenaSad, odmakPhi)
+.provjeriTrailere(cijenaSad)
+*/
 
 // KLASA ZA POZICIJE
 klas.Pozicija = function Pozicija(id, pozData) {
