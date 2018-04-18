@@ -3,7 +3,7 @@
 const readline = require('readline');
 const stream = require('stream');
 const fs = require('fs');
-const inPutanja = './exchdata/testdata.csv';
+const inPutanja = './exchdata/testdata2.csv';
 const outPutanja = './test-stream.txt';
 
 
@@ -44,6 +44,8 @@ class zTransform extends stream.Transform {
 const objektifikator = new zTransform({
     objectMode: true,
     transform(chunk, encoding, callback) {
+        // format jednog trejda: 
+        // 2017-08-24 11:57:42,-18.7448,324.64
         let sjeckani = chunk.split(',');
         if (sjeckani[0] !== 'timestamp') {
             let vrijeme = sjeckani[0].split(' ');
@@ -89,7 +91,10 @@ const kendlizator = new zTransform({
             this.push(kendl); // šaljemo gotov 1min kendl dalje
             // ako je slučajno prošlo više minuta, popunjavamo s praznim kendlovima
             for (let i = 0; i < (brojilo - 1); i++) {
-                let fillKendl = new kendl1Template(zadnjiTrejd);
+                let fillKendl = JSON.parse(JSON.stringify(kendl));
+                fillKendl.volBuyeva = 0;
+                fillKendl.volSellova = 0;
+                fillKendl.O = fillKendl.H = fillKendl.L = fillKendl.C;
                 if (fillKendl.minuta == 59) {
                     fillKendl.minuta = 0;
                 } else {
@@ -152,6 +157,6 @@ function agro(input, output, rezolucija) {
         .pipe(outputter);
 }
 
-agro(inPutanja, outPutanja, 1);
+// agro(inPutanja, outPutanja, 1);
 
 module.exports = agro;
