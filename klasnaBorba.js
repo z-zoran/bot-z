@@ -24,7 +24,6 @@ PORTFOLIO METODE:
 
 	(kompozitne metode)
 	.provjeriStopove(cijenaSad, odmakTau)
-	.provjeriLimite(cijenaSad, odmakPhi)
 	.provjeriTrailere(cijenaSad)
 	.provjeriKillove(cijenaSad, koefKappa)
 
@@ -32,7 +31,8 @@ PORTFOLIO METODE:
 POZICIJA METODE:
 	.stopTriggeran(odmak)
 	.likvidacija(cijenaSad)
-	.pozKorekcija(cijenaSad, koefKappa, odmakTau)
+	.stopCheck(cijenaSad, odmakTau)
+	.killCheck(cijenaSad, koefKappa)
 
 TRAILER METODE:
 	.trailerKorekcija(cijenaSad)
@@ -70,6 +70,23 @@ klas.LimitOrder = function LimitOrder(id, limitData) {
 	this.iznos = limitData.iznos;
 	this.limitCijena = limitData.limitCijena;
 	this.umnozak = limitData.iznos * limitData.limitCijena;
+}
+
+// METODA ZA SAMO-PROVJERU LIMITA
+klas.LimitOrder.prototype.limitCheck = function limitCheck(cijenaSad, odmakLambda) {
+	if (this.tip = 'buy') {
+		if (this.limitCijena > cijenaSad) {
+			// limit triggeran
+		} else if (memorija[this.portfolio].imaStopova) {
+			// provjeri je li daleko
+		}
+	} else if (this.tip = 'sell') {
+		if (this.limitCijena < cijenaSad) {
+			// limit triggeran
+		} else if (memorija[this.portfolio].imaStopova) {
+			// provjeri je li daleko
+		}
+	}
 }
 
 

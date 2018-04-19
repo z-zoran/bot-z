@@ -77,14 +77,21 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     let imaSamoBuyLimit = (!sellLimit && buyLimit);
     let imaSamoSellLimit = (sellLimit && !buyLimit);
 
-    // KOREKCIJA POSTOJEĆIH TRAILERA
+    /** PRVO VRŠIMO KOREKCIJE I ELIMINACIJE **/
     portfolio.provjeriTrailere(cijenaSad);
-
-    // KILLANJE LOŠIH POZICIJA
     portfolio.provjeriKillove(cijenaSad, koefKappa);
-
-    // PROVJERA STOPOVA
     portfolio.provjeriStopove(cijenaSad, odmakTau);
+    portfolio.provjeriLimite(cijenaSad, odmakLambda, iznos);
+    /** KRAJ KOREKCIJA I ELIMINACIJA **/
+
+    /** ONDA RE-EVALUIRAMO TRENUTNO STANJE **/
+    // (gledamo koji limiti-sleš-stopovi postoje)
+
+    if (buyLimit && stopKojiJeIznad) {
+
+    } else if (sellLimit && stopKojiJeIspod) {
+        
+    }
 
     /*-opcija 1--------------AKO NEMA NIJEDAN LIMIT-----------------------*/
     if (nemaNijedanLimit) {
