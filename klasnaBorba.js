@@ -2,7 +2,7 @@
 
 // Library s klasama. WIP
 // portfolio je ustvari "glavna pozicija" u koju vraćamo sve slobodne pozicije. 
-// Vezana za strategiju. Svaka strategija imati će svoj portfolio.
+// Vezana za strategiju. Svaka strategija imati će svoj portfolio (ili više njih).
 
 let memorija = require('./memorija.js');
 let pisalo = require('./pisalo.js');
@@ -16,8 +16,8 @@ let klas = {};
 /*********** KONSTRUKTORI KLASA ***********/
 
 // KLASA ZA PORTFOLIO
-klas.Portfolio = function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
-	this.portfolio = portfolio;
+klas.Portfolio = function Portfolio(pfID, eur, eth, btc, ltc, bch) {
+	this.pfID = pfID;
 	this.EUR = eur;
 	this.ETH = eth;
 	this.BTC = btc;
@@ -33,7 +33,7 @@ klas.Portfolio = function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
 
 // KLASA ZA LIMIT ORDERE
 klas.LimitOrder = function LimitOrder(id, limitData) {
-	this.portfolio = limitData.portfolio;
+	this.pfID = limitData.pfID;
 	this.id = id;	
 	this.tip = limitData.tip;
 	this.market = limitData.market;
@@ -46,7 +46,7 @@ klas.LimitOrder = function LimitOrder(id, limitData) {
 
 // KLASA ZA POZICIJE
 klas.Pozicija = function Pozicija(id, pozData) {
-	this.portfolio = pozData.portfolio;
+	this.pfID = pozData.pfID;
 	this.id = id;	
 	this.tip = pozData.tip;	// buy || sell
 	this.market = pozData.market;
@@ -60,7 +60,7 @@ klas.Pozicija = function Pozicija(id, pozData) {
 
 // KLASA ZA TRAILERE
 klas.Trailer = function Trailer(trailerData) {
-	this.portfolio = trailerData.portfolio;
+	this.pfID = trailerData.pfID;
 	this.id = trailerData.id;				// izvorna pozicija
 	this.cijena = trailerData.cijena;		// ulazna cijena pozicije
 	this.odmak = trailerData.odmak;			// odmak trailera (pozitivan ili negativan)
@@ -129,7 +129,7 @@ klas.Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
 klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	let pozData = {};
 	// definiramo pozData za stvaranje nove pozicije.
-	pozData.portfolio = this.portfolio;
+	pozData.pfID = this.pfID;
 	pozData.tip = koja;
 	pozData.market = this.limiti[koja].market;
 	pozData.baseTiker = this.limiti[koja].baseTiker;
@@ -181,6 +181,12 @@ klas.Portfolio.prototype.provjeriTrailere = function provjeriTrailere(cijenaSad)
     }
 }
 
+// METODA ZA PROVJERU LIMITA (KOJI VEĆ POSTOJE)
+klas.Portfolio.prototype.provjeriLimite = function provjeriLimite(cijenaSad, odmakLambda, odmakPhi) {
+	if (this.limiti.buy) {this.limiti.buy.limitTriggerCheck(cijenaSad, odmakLambda, odmakPhi)};
+	if (this.limiti.sell) {this.limiti.sell.limitTriggerCheck(cijenaSad, odmakLambda, odmakPhi)};	
+}
+
 
 
 
@@ -191,14 +197,10 @@ klas.LimitOrder.prototype.limitTriggerCheck = function limitTriggerCheck(cijenaS
 	if (this.tip = 'buy') {
 		if (this.limitCijena > cijenaSad) {
 			// limit triggeran
-		} else if (memorija[this.portfolio].imaStopova) {
-			// provjeri je li daleko
 		}
 	} else if (this.tip = 'sell') {
 		if (this.limitCijena < cijenaSad) {
 			// limit triggeran
-		} else if (memorija[this.portfolio].imaStopova) {
-			// provjeri je li daleko
 		}
 	}
 }
@@ -211,7 +213,7 @@ klas.LimitOrder.prototype.limitTriggerCheck = function limitTriggerCheck(cijenaS
 // METODA ZA TRIGGERANJE STOPA
 klas.Pozicija.prototype.stopTriggeran = function stopTriggeran(odmak) {
 	let trailerData = {};
-	trailerData.portfolio = this.portfolio;
+	trailerData.pfID = this.pfID;
 	trailerData.id = this.id;
 	trailerData.cijena = this.cijena;
 	if (this.tip === 'buy') {
@@ -219,8 +221,8 @@ klas.Pozicija.prototype.stopTriggeran = function stopTriggeran(odmak) {
 	} else if (this.tip === 'sell') {
 		trailerData.odmak = odmak;
 	}
-	memorija[this.portfolio].traileri[this.id] = new klas.Trailer(trailerData);
-	let poruka = 'Stop trigger ' + memorija[this.portfolio].pozicije[this.id] + ' triggeran. Postavljen trailer.';
+	memorija[this.pfID].traileri[this.id] = new klas.Trailer(trailerData);
+	let poruka = 'Stop trigger ' + memorija[this.pfID].pozicije[this.id] + ' triggeran. Postavljen trailer.';
 	// pisalo.pisi(poruka);
 	delete this.stop;
 }
@@ -229,13 +231,13 @@ klas.Pozicija.prototype.stopTriggeran = function stopTriggeran(odmak) {
 klas.Pozicija.prototype.likvidacija = function likvidacija(cijenaSad) {
 	if (this.tip === 'buy') {
 		let prihod = this.base * cijenaSad;
-		memorija[this.portfolio][this.quoteTiker] += prihod;
+		memorija[this.pfID][this.quoteTiker] += prihod;
 	} else if (this.tip === 'sell') {
 		let prihod = this.quote / cijenaSad;
-		memorija[this.portfolio][this.baseTiker] += prihod;
+		memorija[this.pfID][this.baseTiker] += prihod;
 	}
 	let poruka = 'Likvidirana pozicija ' + this.id;
-	delete memorija[this.portfolio].pozicije[this.id];
+	delete memorija[this.pfID].pozicije[this.id];
 	// pisalo.pisi(poruka);
 }
 
@@ -277,8 +279,8 @@ klas.Trailer.prototype.trailerKorekcija = function trailerKorekcija(cijenaSad) {
 	let poruka = '';
 	if (cijenaMeTriggerala) {
 		poruka = 'Triggeran trailer id ' + this.id;
-		memorija[this.portfolio].pozicije[this.id].likvidacija(cijenaSad);
-		delete memorija[this.portfolio].traileri[this.id];
+		memorija[this.pfID].pozicije[this.id].likvidacija(cijenaSad);
+		delete memorija[this.pfID].traileri[this.id];
 	} else if (cijenaMiJePobjegla) {
 		poruka = 'Korekcija trailera id ' + this.id;
 		this.gdjeSam = cijenaSad + this.odmak;
