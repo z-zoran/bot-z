@@ -7,40 +7,13 @@
 let memorija = require('./memorija.js');
 let pisalo = require('./pisalo.js');
 
-/*
-Neka osnovna logika je slijedeća:
-- Portfolio postavlja/ubija limitOrdere.
-	(njihova vrijednost se insta oduzima/dodaje portfoliju)
-	- LimitOrderi kod triggeranja se samo-ubijaju i stvaraju Poziciju koja pamti svoj stop trigger
-		- kad se triggera stop trigger, briše se stop trigger i stvara Trailer.
-			- Trailer se kod triggeranja samo-ubija, ubija i Poziciju i hrani njen iznos natrag u Portfolio.
-
-PORTFOLIO METODE:
-	(elementarne metode)
-	.postLimit(limitData)
-	.ubiLimit(koji)
-	.postPoziciju(koja, odmakPhi)
-
-
-	(kompozitne metode)
-	.provjeriStopove(cijenaSad, odmakTau)
-	.provjeriTrailere(cijenaSad)
-	.provjeriKillove(cijenaSad, koefKappa)
-
-	
-POZICIJA METODE:
-	.stopTriggeran(odmak)
-	.likvidacija(cijenaSad)
-	.stopCheck(cijenaSad, odmakTau)
-	.killCheck(cijenaSad, koefKappa)
-
-TRAILER METODE:
-	.trailerKorekcija(cijenaSad)
-
-*/
-
 // OBJEKT ZA EXPORT
 let klas = {};
+
+
+
+
+/*********** KONSTRUKTORI KLASA ***********/
 
 // KLASA ZA PORTFOLIO
 klas.Portfolio = function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
@@ -58,7 +31,6 @@ klas.Portfolio = function Portfolio(portfolio, eur, eth, btc, ltc, bch) {
 	this.imaStopova = false;
 }
 
-
 // KLASA ZA LIMIT ORDERE
 klas.LimitOrder = function LimitOrder(id, limitData) {
 	this.portfolio = limitData.portfolio;
@@ -72,23 +44,35 @@ klas.LimitOrder = function LimitOrder(id, limitData) {
 	this.umnozak = limitData.iznos * limitData.limitCijena;
 }
 
-// METODA ZA SAMO-PROVJERU LIMITA
-klas.LimitOrder.prototype.limitCheck = function limitCheck(cijenaSad, odmakLambda) {
-	if (this.tip = 'buy') {
-		if (this.limitCijena > cijenaSad) {
-			// limit triggeran
-		} else if (memorija[this.portfolio].imaStopova) {
-			// provjeri je li daleko
-		}
-	} else if (this.tip = 'sell') {
-		if (this.limitCijena < cijenaSad) {
-			// limit triggeran
-		} else if (memorija[this.portfolio].imaStopova) {
-			// provjeri je li daleko
-		}
-	}
+// KLASA ZA POZICIJE
+klas.Pozicija = function Pozicija(id, pozData) {
+	this.portfolio = pozData.portfolio;
+	this.id = id;	
+	this.tip = pozData.tip;	// buy || sell
+	this.market = pozData.market;
+	this.baseTiker = pozData.baseTiker;
+	this.base = pozData.base;	// iznos limita
+	this.quoteTiker = pozData.quoteTiker;
+	this.quote = pozData.quote;	// umnožak
+	this.cijena = pozData.cijena;
+	this.stop = pozData.stop;
 }
 
+// KLASA ZA TRAILERE
+klas.Trailer = function Trailer(trailerData) {
+	this.portfolio = trailerData.portfolio;
+	this.id = trailerData.id;				// izvorna pozicija
+	this.cijena = trailerData.cijena;		// ulazna cijena pozicije
+	this.odmak = trailerData.odmak;			// odmak trailera (pozitivan ili negativan)
+	this.gdjeSam = this.cijena + this.odmak;	// na kojoj cijeni je trenutno trailing stop
+	/* Kad se trailer inicira, postavlja se s odmakom od cijene. 
+	Svaki candle zovemo svim Trailerima metodu .trailerKorekcija koja podešava trailing stop. */
+}
+
+
+
+
+/*********** METODE Portfolio ***********/
 
 // METODA ZA POSTAVLJANJE LIMITA
 klas.Portfolio.prototype.postLimit = function postLimit(limitData) {
@@ -197,19 +181,32 @@ klas.Portfolio.prototype.provjeriTrailere = function provjeriTrailere(cijenaSad)
     }
 }
 
-// KLASA ZA POZICIJE
-klas.Pozicija = function Pozicija(id, pozData) {
-	this.portfolio = pozData.portfolio;
-	this.id = id;	
-	this.tip = pozData.tip;	// buy || sell
-	this.market = pozData.market;
-	this.baseTiker = pozData.baseTiker;
-	this.base = pozData.base;	// iznos limita
-	this.quoteTiker = pozData.quoteTiker;
-	this.quote = pozData.quote;	// umnožak
-	this.cijena = pozData.cijena;
-	this.stop = pozData.stop;
+
+
+
+/*********** METODE LimitOrder ***********/
+
+// METODA ZA SAMO-PROVJERU LIMITA
+klas.LimitOrder.prototype.limitTriggerCheck = function limitTriggerCheck(cijenaSad, odmakLambda, odmakPhi) {
+	if (this.tip = 'buy') {
+		if (this.limitCijena > cijenaSad) {
+			// limit triggeran
+		} else if (memorija[this.portfolio].imaStopova) {
+			// provjeri je li daleko
+		}
+	} else if (this.tip = 'sell') {
+		if (this.limitCijena < cijenaSad) {
+			// limit triggeran
+		} else if (memorija[this.portfolio].imaStopova) {
+			// provjeri je li daleko
+		}
+	}
 }
+
+
+
+
+/*********** METODE Pozicija ***********/
 
 // METODA ZA TRIGGERANJE STOPA
 klas.Pozicija.prototype.stopTriggeran = function stopTriggeran(odmak) {
@@ -263,17 +260,9 @@ klas.Pozicija.prototype.killCheck = function killCheck(cijenaSad, koefKappa) {
 	}
 }
 
-// KLASA ZA TRAILERE
-klas.Trailer = function Trailer(trailerData) {
-	this.portfolio = trailerData.portfolio;
-	this.id = trailerData.id;				// izvorna pozicija
-	this.cijena = trailerData.cijena;		// ulazna cijena pozicije
-	this.odmak = trailerData.odmak;			// odmak trailera (pozitivan ili negativan)
-	this.gdjeSam = this.cijena + this.odmak;	// na kojoj cijeni je trenutno trailing stop
-	/* Kad se trailer inicira, postavlja se s odmakom od cijene. 
-	Svaki candle zovemo svim Trailerima metodu .trailerKorekcija koja podešava trailing stop. */
-}
-  
+
+/*********** METODE Trailer ***********/
+
 // METODA ZA KOREKCIJU TRAILERA
 klas.Trailer.prototype.trailerKorekcija = function trailerKorekcija(cijenaSad) {
 	let trenutnaUdaljenost = cijenaSad - this.gdjeSam;
@@ -298,37 +287,3 @@ klas.Trailer.prototype.trailerKorekcija = function trailerKorekcija(cijenaSad) {
 }
 
 module.exports = klas;
-
-// DOPUNITI OVAJ API S PRECIZNO DEFINIRANIM PROPERTYJIMA
-
-/*
-PODACI ZA TRAILERE
-trailerData = {
-	id: (id pozicije),
-	cijena: 740.40, 
-	odmak: -5.30  
-}
-*/
-
-/*
-PODACI ZA POZICIJE
-pozData = {
-	portfolio
-	tip: 'buy', (ili 'sell')
-	market: 'ETH/EUR',
-	base: 2.345, 
-	quote: 756.78,  
-	stop: 780.50
-}
-*/
-
-/*
-PODACI ZA LIMIT ORDERE
-limitData = {
-	portfolio
-	tip: 'buy', (ili 'sell')
-	market: 'ETH/EUR',
-	iznos: 2.345,
-	limitCijena: 756.78
-}
-*/

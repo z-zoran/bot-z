@@ -15,55 +15,10 @@ let strat = {};
 
 let pisalo = require('./pisalo.js');
 
-/*--------------------------FUNKCIJE----------------------------*/
-
-/*
-OVO JE TIP FUNKCIJE KOJU TREBA SKLONITI U ZASEBAN MODUL. NEKAKAV zUtilly
-ILI TAKO NEŠTO. NEMA SMISLA DA JE TU SA STRATEGIJAMA.
-*/
-// REFORMIRATI U SKLADU S klasnaBorba.js
-strat.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena, portfolio) { 	
-    // popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
-    // U formatu { 'EUR':1.00, 'ETH':750.00, 'BTC':8500.00, 'LTC':123.45, 'BCH':1234.56 }
-    let ukupnoEura = 0;
-    // pretvaranje pasivnog kapitala portfolia u EUR
-    for (let valuta in popisSvihCijena) {
-        ukupnoEura += popisSvihCijena[valuta] * portfolio[valuta];
-    }
-    // pretvaranje postojećih limita u EUR
-    if (portfolio.limiti.buy) {
-        ukupnoEura += portfolio.limiti.buy.umnozak * popisSvihCijena[portfolio.limiti.buy.quoteTiker];
-    }
-    if (portfolio.limiti.sell) {
-        ukupnoEura += portfolio.limiti.sell.iznos * popisSvihCijena[portfolio.limiti.sell.baseTiker];
-    }
-    for (let pozicija in portfolio.pozicije) {
-        if (pozicija.tip === 'buy') {
-            ukupnoEura += pozicija.iznos * popisSvihCijena[pozicija.baseTiker];
-        } else if (pozicija.tip === 'sell') {
-            ukupnoEura += pozicija.umnozak * popisSvihCijena[pozicija.quoteTiker];
-        }
-    }
-    return ukupnoEura;
-}
-
-// funkcija vraća odnos 3 broja kao postotak (na koliko posto je srednji)
-function odnosTriBroja(gornja, srednja, donja) {
-    let cijeliKanal = gornja - donja;
-    let donjiKanal = srednja - donja;
-    let postotak = (100 * donjiKanal) / cijeliKanal;
-    return postotak;
-}
-
-// template za limite
-function limitTemplate(portfolio, tip, market, iznos, limitCijena) {
-    this.portfolio = portfolio.portfolio;
-    this.tip = tip;
-    this.market = market;
-    this.iznos = iznos;
-    this.limitCijena = limitCijena;
-}
-
+/*--------------------KORISNE UTIL FUNKCIJE----------------------*/
+const util = require('./util.js');
+const odnosTriBroja = util.odnosTriBroja;
+const limitTemplate = util.limitTemplate;
 
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
