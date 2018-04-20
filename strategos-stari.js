@@ -18,7 +18,7 @@ let pisalo = require('./pisalo.js');
 /*--------------------KORISNE UTIL FUNKCIJE----------------------*/
 const util = require('./util.js');
 const odnosTriBroja = util.odnosTriBroja;
-const limitTemplate = util.limitTemplate;
+const limitDataTemplate = util.limitDataTemplate;
 
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
@@ -50,8 +50,8 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
 
     /*-opcija 1--------------AKO NEMA NIJEDAN LIMIT-----------------------*/
     if (nemaNijedanLimit) {
-        portfolio.postLimit(new limitTemplate(portfolio.portfolio, 'sell', 'ETH/EUR', iznos, (cijenaSad + odmakLambda)));
-        portfolio.postLimit(new limitTemplate(portfolio.portfolio, 'buy', 'ETH/EUR', iznos, (cijenaSad - odmakLambda)));
+        portfolio.postLimit(new limitDataTemplate(portfolio.portfolio, 'sell', 'ETH/EUR', iznos, (cijenaSad + odmakLambda)));
+        portfolio.postLimit(new limitDataTemplate(portfolio.portfolio, 'buy', 'ETH/EUR', iznos, (cijenaSad - odmakLambda)));
     /*-opcija 2--------------AKO IMA DVA LIMITA-----------------------*/
     } else if (imaObaLimita) {
         let gornjaLimitCijena = portfolio.limiti.sell.limitCijena;

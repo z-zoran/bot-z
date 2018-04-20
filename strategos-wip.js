@@ -18,7 +18,7 @@ let pisalo = require('./pisalo.js');
 /*--------------------KORISNE UTIL FUNKCIJE----------------------*/
 const util = require('./util.js');
 const odnosTriBroja = util.odnosTriBroja;
-const limitTemplate = util.limitTemplate;
+const limitDataTemplate = util.limitDataTemplate;
 
 
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
@@ -36,7 +36,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     portfolio.provjeriTrailere(cijenaSad);
     portfolio.provjeriKillove(cijenaSad, koefKappa);
     portfolio.provjeriStopove(cijenaSad, odmakTau);
-    portfolio.provjeriLimite(cijenaSad, odmakLambda, iznos);
+    portfolio.provjeriLimite(cijenaSad, iznos, odmakLambda, odmakPhi);
     /** KRAJ KOREKCIJA I ELIMINACIJA **/
 
     /** ONDA RE-EVALUIRAMO TRENUTNO STANJE **/
@@ -59,8 +59,8 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
 
     /*-opcija 1--------------AKO NEMA NIJEDAN LIMIT-----------------------*/
     if (nemaNijedanLimit) {
-        portfolio.postLimit(new limitTemplate(portfolio.pfID, 'sell', 'ETH/EUR', iznos, (cijenaSad + odmakLambda)));
-        portfolio.postLimit(new limitTemplate(portfolio.pfID, 'buy', 'ETH/EUR', iznos, (cijenaSad - odmakLambda)));
+        portfolio.postLimit(new limitDataTemplate(portfolio.pfID, 'sell', 'ETH/EUR', iznos, (cijenaSad + odmakLambda)));
+        portfolio.postLimit(new limitDataTemplate(portfolio.pfID, 'buy', 'ETH/EUR', iznos, (cijenaSad - odmakLambda)));
     /*-opcija 2--------------AKO IMA DVA LIMITA-----------------------*/
     } else if (imaObaLimita) {
         let gornjaLimitCijena = portfolio.limiti.sell.limitCijena;
@@ -88,21 +88,6 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
                 portfolio.ubiLimit('sell');
                 portfolio.postLimit(noviLimitData);
             }
-        } else if (triggeranBuyLimit) {
-            let noviLimitData = JSON.parse(JSON.stringify(portfolio.limiti.buy));
-            noviLimitData.iznos = iznos;
-            noviLimitData.limitCijena = cijenaSad - odmakLambda;
-            portfolio.postPoziciju('buy', odmakPhi);
-            portfolio.postLimit(noviLimitData);
-            portfolio.ubiLimit('sell'); // brišemo sell jer pozicija ima stop
-        } else if (triggeranSellLimit) {
-            let noviLimitData = JSON.parse(JSON.stringify(portfolio.limiti.sell));
-            noviLimitData.iznos = iznos;
-            noviLimitData.limitCijena = cijenaSad + odmakLambda;
-            portfolio.postPoziciju('sell', odmakPhi);
-            portfolio.postLimit(noviLimitData);
-            portfolio.ubiLimit('buy'); // brišemo buy jer pozicija ima stop
-
         }
     /*-opcija 3--------------AKO IMA SAMO BUY LIMIT-----------------------*/
     } else if (imaSamoBuyLimit) {
@@ -147,14 +132,6 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
                 limitData.limitCijena = cijenaSad + odmakLambda;
                 portfolio.postLimit(limitData);
             }
-        /*-----------------------BUY LIMIT JE TRIGGERAN?-----------------------*/     
-        } else if (triggeranBuyLimit) {
-            let noviLimitData = JSON.parse(JSON.stringify(buyLimit));
-            noviLimitData.iznos = iznos;
-            noviLimitData.limitCijena = cijenaSad - odmakLambda;
-            portfolio.postPoziciju('buy', odmakPhi);
-            portfolio.postLimit(noviLimitData);
-        /*-----------------------BUY LIMIT NAM JE DALEKO?-----------------------*/      
         } else if (buyLimitPostojiAliDalekoJe) {
             // korekcija buy limita
             let novaBuyLimitCijena = cijenaSad - odmakLambda;
@@ -209,14 +186,6 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
                 limitData.limitCijena = cijenaSad - odmakLambda;
                 portfolio.postLimit(limitData);
             }
-        /*-----------------------SELL LIMIT JE TRIGGERAN?-----------------------*/     
-        } else if (triggeranSellLimit) {
-            let noviLimitData = JSON.parse(JSON.stringify(sellLimit));
-            noviLimitData.iznos = iznos;
-            noviLimitData.limitCijena = cijenaSad + odmakLambda;
-            portfolio.postPoziciju('sell', odmakPhi);
-            portfolio.postLimit(noviLimitData);
-        /*-----------------------SELL LIMIT NAM JE DALEKO?-----------------------*/      
         } else if (sellLimitPostojiAliDalekoJe) {
             // korekcija sell limita
             let novaSellLimitCijena = cijenaSad + odmakLambda;

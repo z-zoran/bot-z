@@ -13,7 +13,7 @@ util.odnosTriBroja = function odnosTriBroja(gornja, srednja, donja) {
 }
 
 // template za limite
-util.limitTemplate = function limitTemplate(pfID, tip, market, iznos, limitCijena) {
+util.limitDataTemplate = function limitDataTemplate(pfID, tip, market, iznos, limitCijena) {
     this.pfID = pfID;
     this.tip = tip;
     this.market = market;

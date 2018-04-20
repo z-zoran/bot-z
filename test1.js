@@ -1,5 +1,13 @@
-const util = require('./util.js');
-const odnosTriBroja = util.odnosTriBroja;
-const limitTemplate = util.limitTemplate;
+let util = require('./util.js');
+let odnos = util.odnosTriBroja;
 
-console.log(odnosTriBroja(80,20,10));
+let a = {
+    b: {
+        c: 3
+    },
+    d: 2,
+    e: 1
+}
+
+let test1 = (odnos(a.e, a.d, a.b.c) < 5);
+console.log(test1);
