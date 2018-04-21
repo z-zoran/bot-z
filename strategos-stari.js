@@ -34,7 +34,7 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
 
     /** PRVO VRŠIMO KOREKCIJE I ELIMINACIJE **/
     portfolio.provjeriTrailere(cijenaSad);
-    portfolio.provjeriKillove(cijenaSad, koefKappa);
+    portfolio.obaviKillove(cijenaSad, koefKappa);
     portfolio.provjeriStopove(cijenaSad, odmakTau);
     portfolio.provjeriLimite(cijenaSad, odmakLambda, iznos);
     /** KRAJ KOREKCIJA I ELIMINACIJA **/

@@ -47,4 +47,5 @@ util.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena, portfolio
     return ukupnoEura;
 }
 
+
 module.exports = util;

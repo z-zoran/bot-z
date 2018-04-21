@@ -28,7 +28,7 @@ kompozitne:
 #### `.provjeriStopove(cijenaSad, odmakTau)`
 #### `.provjeriLimite`
 #### `.provjeriTrailere(cijenaSad)`
-#### `.provjeriKillove(cijenaSad, koefKappa)`
+#### `.obaviKillove(cijenaSad, koefKappa)`
 
 ### `LimitOrder`
 Klasa za Limit order (buy ili sell).

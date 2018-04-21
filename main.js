@@ -216,7 +216,7 @@ function predChartifikacija(kendl1, kendl15) {
             chartData.m1.close.shift();
         }
     }
-    chartData.m1.vrijeme.push(kendl1.datum + ' ' + kendl1.sat + ':' + kendl1.minuta.toFixed(2));
+    chartData.m1.vrijeme.push(kendl1.datum + ' ' + String(kendl1.sat).padStart(2, "0") + ':' + String(kendl1.minuta).padStart(2, "0"));
     while (chartData.m1.vrijeme.length !== duljinaCharta) {
         if (chartData.m1.vrijeme.length < duljinaCharta) {
             chartData.m1.vrijeme.unshift(null);
@@ -407,7 +407,7 @@ function predChartifikacija(kendl1, kendl15) {
 /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
     chartData.m15.high.push(kendl1.H);
     chartData.m15.low.push(kendl1.L);
-    chartData.m15.vrijeme.push(kendl1.datum + ' ' + kendl1.sat + ':' + kendl1.minuta);
+    chartData.m15.vrijeme.push(kendl1.datum + ' ' + String(kendl1.sat).padStart(2, "0") + ':' + String(kendl1.minuta).padStart(2, "0"));
     chartData.m15.pasivnoEUR.push(portfolio.EUR);
     chartData.m15.pasETHuEUR.push(portfolio.ETH * kendl1.C);
     chartData.m15.aktLimitiuEUR.push(zbrojiLimite(portfolio, kendl1.C));
@@ -548,10 +548,10 @@ function playPauza(koraka) {
         */
         let dev5 = devijacija(ss5min, 20);
         let dev15 = devijacija(ss15min, 20);
-        let odmakPhi = dev5;
-        let odmakLambda = 0.6 * dev5;
-        let odmakTau = 0.3 * dev5;
-        let koefKappa = 2; // koeficijent. ako je 2, znači killOdmak je 2*inicijalniOdmak
+        let odmakPhi = 1 * dev5;
+        let odmakLambda = 1 * dev5;
+        let odmakTau = 0.5 * dev5;
+        let koefKappa = 1.5; // koeficijent. ako je 2, znači killOdmak je 2*inicijalniOdmak
         let kendlic = ss1min[i1-1];
         let iznos = 0.1;
         let cijenaSad = kendlic.C;

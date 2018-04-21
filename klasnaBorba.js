@@ -169,7 +169,7 @@ klas.Portfolio.prototype.provjeriStopove = function provjeriStopove(cijenaSad, o
 }
 
 // METODA ZA UBIJANJE LOŠIH POZICIJA
-klas.Portfolio.prototype.provjeriKillove = function provjeriKillove(cijenaSad, koefKappa) {
+klas.Portfolio.prototype.obaviKillove = function obaviKillove(cijenaSad, koefKappa) {
 	for (let pozID in this.pozicije) {
 		let poz = this.pozicije[pozID];
 		poz.killCheck(cijenaSad, koefKappa);
@@ -214,63 +214,71 @@ klas.Portfolio.prototype.provjeriLimite = function provjeriLimite(cijenaSad, izn
 	if (this.limiti.buy) {
 		if (this.limiti.buy.limitCijena > cijenaSad) {
 			let noviLimitData = JSON.parse(JSON.stringify(this.limiti.buy));
-            noviLimitData.iznos = iznos;
-            noviLimitData.limitCijena = cijenaSad - odmakLambda;
-            this.postPoziciju('buy', odmakPhi);
-            this.postLimit(noviLimitData);
-            this.ubiLimit('sell'); // brišemo sell jer pozicija ima stop
+			noviLimitData.iznos = iznos;
+			noviLimitData.limitCijena = cijenaSad - odmakLambda;
+			this.postPoziciju('buy', odmakPhi);
+			this.postLimit(noviLimitData);
+			if (this.limiti.sell) {this.ubiLimit('sell')} // brišemo sell jer pozicija ima stop
 		}
-	} 
+	}
 	if (this.limiti.sell) {
 		if (this.limiti.sell.limitCijena < cijenaSad) {
 			let noviLimitData = JSON.parse(JSON.stringify(this.limiti.sell));
-            noviLimitData.iznos = iznos;
-            noviLimitData.limitCijena = cijenaSad + odmakLambda;
-            this.postPoziciju('sell', odmakPhi);
-            this.postLimit(noviLimitData);
-            this.ubiLimit('buy'); // brišemo buy jer pozicija ima stop
-		}
-	}
-	// ovo je pravo rješenje za korekciju limita. dovršiti
-	if ((cijenaSad - this.limiti.buy.limitCijena) > odmakLambda) {
-
-	} else if ((this.limiti.sell.limitCijena - cijenaSad) > odmakLambda) {
-
-	}
-	// ovo ne obuhvaća situaciju kad su samo dva limita
-	if (odnosTriBroja(this.najnizaStopCijena(), cijenaSad, this.limiti.buy.limitCijena) > 50) {
-	
-	} else if (odnosTriBroja(this.limiti.sell.limitCijena, cijenaSad, this.najvisaStopCijena())) {
-
-	}
-}
-
-
-
-
-
-/*********** METODE LimitOrder ***********/
-
-// obrisati ovo. napravili smo cijelu ovu metodu odmah iznad, iz perspektive portfolija
-/*
-// METODA ZA SAMO-PROVJERU LIMITA
-klas.LimitOrder.prototype.limitTriggerCheck = function limitTriggerCheck(cijenaSad, odmakLambda, odmakPhi) {
-	if (this.tip = 'buy') {
-		if (this.limitCijena > cijenaSad) {
-			let noviLimitData = JSON.parse(JSON.stringify(portfolio.limiti.buy));
-            noviLimitData.iznos = iznos;
-            noviLimitData.limitCijena = cijenaSad - odmakLambda;
-            portfolio.postPoziciju('buy', odmakPhi);
-            portfolio.postLimit(noviLimitData);
-            portfolio.ubiLimit('sell'); // brišemo sell jer pozicija ima stop
-		}
-	} else if (this.tip = 'sell') {
-		if (this.limitCijena < cijenaSad) {
-			// limit triggeran
+			noviLimitData.iznos = iznos;
+			noviLimitData.limitCijena = cijenaSad + odmakLambda;
+			this.postPoziciju('sell', odmakPhi);
+			this.postLimit(noviLimitData);
+			if (this.limiti.buy) {this.ubiLimit('buy')} // brišemo buy jer pozicija ima stop
 		}
 	}
 }
-*/
+
+// METODA ZA KOREKCIJU LIMITA
+klas.Portfolio.prototype.korigirajLimite = function korigirajLimite(cijenaSad, iznos, odmakLambda) {
+	// provjera i obavljanje korekcije (približavanje limita)
+	if (this.limiti.buy) {
+		if ((cijenaSad - this.limiti.buy.limitCijena) > odmakLambda) {
+			let noviLimitData = JSON.parse(JSON.stringify(this.limiti.buy)); 
+			noviLimitData.limitCijena = cijenaSad - odmakLambda;
+			this.ubiLimit('buy');
+			this.postLimit(noviLimitData);
+		}
+	}
+	if (this.limiti.sell) {
+		if ((this.limiti.sell.limitCijena - cijenaSad) > odmakLambda) {
+			let noviLimitData = JSON.parse(JSON.stringify(this.limiti.sell)); 
+			noviLimitData.limitCijena = cijenaSad + odmakLambda;
+			this.ubiLimit('sell');
+			this.postLimit(noviLimitData);
+		}
+	}
+	// dodavanje limita ako neki fali
+    let nemaNijedanLimit = (!this.limiti.sell && !this.limiti.buy);
+    let imaObaLimita = (this.limiti.sell && this.limiti.buy);
+    let imaSamoBuyLimit = (!this.limiti.sell && this.limiti.buy);
+    let imaSamoSellLimit = (this.limiti.sell && !this.limiti.buy);
+    if (!this.imaStopova) {
+        if (imaSamoBuyLimit) {
+            let limitData = JSON.parse(JSON.stringify(this.limiti.buy));
+            limitData.tip = 'sell';
+            limitData.iznos = iznos;
+            limitData.limitCijena = cijenaSad + odmakLambda;
+            this.postLimit(limitData);
+        } else if (imaSamoSellLimit) {
+            let limitData = JSON.parse(JSON.stringify(this.limiti.sell));
+            limitData.tip = 'buy';
+            limitData.iznos = iznos;
+            limitData.limitCijena = cijenaSad - odmakLambda;
+            this.postLimit(limitData);
+        } else if (nemaNijedanLimit) {
+            this.postLimit(new limitDataTemplate(this.pfID, 'sell', 'ETH/EUR', iznos, (cijenaSad + odmakLambda)));
+            this.postLimit(new limitDataTemplate(this.pfID, 'buy', 'ETH/EUR', iznos, (cijenaSad - odmakLambda)));
+        } else if (imaObaLimita) {
+            // sve ok!
+        }
+    }
+}
+
 
 
 
