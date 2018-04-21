@@ -22,30 +22,33 @@ util.limitDataTemplate = function limitDataTemplate(pfID, tip, market, iznos, li
 }
 
 // (nije funkcionalno trenutno) REFORMIRATI U SKLADU S klasnaBorba.js 
-util.trenutnoEuroStanje = function trenutnoEuroStanje(popisSvihCijena, portfolio) { 	
-    // popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
-    // U formatu { 'EUR':1.00, 'ETH':750.00, 'BTC':8500.00, 'LTC':123.45, 'BCH':1234.56 }
-    let ukupnoEura = 0;
-    // pretvaranje pasivnog kapitala portfolia u EUR
-    for (let valuta in popisSvihCijena) {
-        ukupnoEura += popisSvihCijena[valuta] * portfolio[valuta];
-    }
+util.trenutnoEura = function trenutnoEura(cijenaSad, portfolio) { 	
+    // popisSvihCijena je stari način ove funkcije, po novome, uzima samo trenutnu cijenu i onda preračunava.
+    // dakle uzima kao pretpostavku da se radi o ETH/EUR paru.
+        // --staro-- popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
+        // --staro-- U formatu { 'EUR':1.00, 'ETH':750.00, 'BTC':8500.00, 'LTC':123.45, 'BCH':1234.56 }
+    let ukupnoEura = {
+        'uEUR': portfolio.EUR, // pasiva
+        'uETH': portfolio.ETH * cijenaSad, // pasiva
+        'uLimitima': 0, // aktiva u limitima
+        'uPozicijama': 0    // aktiva u pozicijama
+    };
     // pretvaranje postojećih limita u EUR
     if (portfolio.limiti.buy) {
-        ukupnoEura += portfolio.limiti.buy.umnozak * popisSvihCijena[portfolio.limiti.buy.quoteTiker];
+        ukupnoEura.uLimitima += portfolio.limiti.buy.umnozak;
     }
     if (portfolio.limiti.sell) {
-        ukupnoEura += portfolio.limiti.sell.iznos * popisSvihCijena[portfolio.limiti.sell.baseTiker];
+        ukupnoEura.uLimitima += portfolio.limiti.sell.iznos * cijenaSad;
     }
-    for (let pozicija in portfolio.pozicije) {
+    for (let pozID in portfolio.pozicije) {
+        let pozicija = portfolio.pozicije[pozID];
         if (pozicija.tip === 'buy') {
-            ukupnoEura += pozicija.iznos * popisSvihCijena[pozicija.baseTiker];
+            ukupnoEura.uPozicijama += pozicija.base * cijenaSad;
         } else if (pozicija.tip === 'sell') {
-            ukupnoEura += pozicija.umnozak * popisSvihCijena[pozicija.quoteTiker];
+            ukupnoEura.uPozicijama += pozicija.quote;
         }
     }
     return ukupnoEura;
 }
-
 
 module.exports = util;

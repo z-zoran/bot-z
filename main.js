@@ -19,6 +19,8 @@ let strat = require('./strategos.js');
 let memorija = require('./memorija.js');
 let klas = require('./klasnaBorba.js');
 let devijacija = require('./indikator.js');
+const util = require('./util.js');
+const trenutnoEura = util.trenutnoEura;
 
 /*---------------------VARIJABLE--------------------------*/
 
@@ -380,38 +382,15 @@ function predChartifikacija(kendl1, kendl15) {
         }
     }
 */
-    function zbrojiLimite(portfolio, cijena) {
-        let zbrojLimita = 0;
-        if (portfolio.limiti.buy) {
-            zbrojLimita += portfolio.limiti.buy.umnozak;
-        }
-        if (portfolio.limiti.sell) {
-            zbrojLimita += portfolio.limiti.sell.iznos * cijena;
-        }
-        return zbrojLimita;
-    }
 
-    function zbrojiPozicije(portfolio, cijena) {
-        let zbrojPozicija = 0;
-        for (let i in portfolio.pozicije) {
-            let poz = portfolio.pozicije[i];
-            if (poz.tip === 'buy') {
-                zbrojPozicija += poz.base * cijena;
-            } else if (poz.tip === 'sell') {
-                zbrojPozicija += poz.quote / cijena;
-            }
-        }
-        return zbrojPozicija;
-    }
-
-/**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
+    /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
     chartData.m15.high.push(kendl1.H);
     chartData.m15.low.push(kendl1.L);
     chartData.m15.vrijeme.push(kendl1.datum + ' ' + String(kendl1.sat).padStart(2, "0") + ':' + String(kendl1.minuta).padStart(2, "0"));
-    chartData.m15.pasivnoEUR.push(portfolio.EUR);
-    chartData.m15.pasETHuEUR.push(portfolio.ETH * kendl1.C);
-    chartData.m15.aktLimitiuEUR.push(zbrojiLimite(portfolio, kendl1.C));
-    chartData.m15.aktPozicijeuEUR.push(zbrojiPozicije(portfolio, kendl1.C));
+    chartData.m15.pasivnoEUR.push(trenutnoEura(kendl1.C, portfolio).uEUR);
+    chartData.m15.pasETHuEUR.push(trenutnoEura(kendl1.C, portfolio).uETH);
+    chartData.m15.aktLimitiuEUR.push(trenutnoEura(kendl1.C, portfolio).uLimitima);
+    chartData.m15.aktPozicijeuEUR.push(trenutnoEura(kendl1.C, portfolio).uPozicijama);
     for (let c in chartData.m15) {
         while (chartData.m15[c].length !== duljinaCharta) {
             if (chartData.m15[c].length < duljinaCharta) {
@@ -550,10 +529,10 @@ function playPauza(koraka) {
         let dev15 = devijacija(ss15min, 20);
         let odmakPhi = 1 * dev5;
         let odmakLambda = 1 * dev5;
-        let odmakTau = 0.5 * dev5;
-        let koefKappa = 1.5; // koeficijent. ako je 2, znači killOdmak je 2*inicijalniOdmak
+        let odmakTau = 0.2 * dev5;
+        let koefKappa = 2; // koeficijent. ako je 2, znači killOdmak je 2*inicijalniOdmak
         let kendlic = ss1min[i1-1];
-        let iznos = 0.1;
+        let iznos = 0.5;
         let cijenaSad = kendlic.C;
         let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
 
@@ -600,8 +579,10 @@ http.createServer(function (req, response) {
         playPauza(360);
     } else if (req.url === '/?kolikoMinuta=1440') {
         playPauza(1440);
+    } else if (req.url === '/?kolikoMinuta=10080') {
+        playPauza(10080);
     }
-    // sastavljamo sendvič od HTML-a, JS-a i JSON-a
+// sastavljamo sendvič od HTML-a, JS-a i JSON-a
     response.write("let ctx1min = document.getElementById('chart1min').getContext('2d');");
     response.write("let ctx15min = document.getElementById('chart15min').getContext('2d');");
     

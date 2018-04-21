@@ -27,6 +27,7 @@ elementarne:
 kompozitne:
 #### `.provjeriStopove(cijenaSad, odmakTau)`
 #### `.provjeriLimite`
+#### `.korigirajLimite`
 #### `.provjeriTrailere(cijenaSad)`
 #### `.obaviKillove(cijenaSad, koefKappa)`
 

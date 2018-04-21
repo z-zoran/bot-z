@@ -5,31 +5,47 @@
         Testiranje Chart.js
         </title>
         <style>
-                * {text-align:center;}
+            * {
+                text-align:center;
+            }
+            ul {
+                list-style: none;
+                margin-left: 0;
+                padding-left: 1em;
+                text-indent: -1em;
+            }
         </style>
+                
     </head>
     <body>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
         
-        <div style="width:100%">
-            <canvas id="chart1min" width="1600" height="600"></canvas>
+        <div style="width: 75%; float: left;">
+            <div style="width:100%">
+                <canvas id="chart1min" width="1400" height="600"></canvas>
+            </div>
 
+            <form>
+                <button name="kolikoMinuta" type="submit" value="5" style="height:30px;width:200px"> 5 minuta </button>
+                <button name="kolikoMinuta" type="submit" value="15" style="height:30px;width:200px"> 15 minuta </button>
+                <button name="kolikoMinuta" type="submit" value="60" style="height:30px;width:200px"> 60 minuta </button>
+                <button name="kolikoMinuta" type="submit" value="360" style="height:30px;width:200px"> 6 sati </button>
+                <button name="kolikoMinuta" type="submit" value="1440" style="height:30px;width:200px"> 24 sata </button>
+                <button name="kolikoMinuta" type="submit" value="10080" style="height:30px;width:200px"> 7 dana </button>
+            </form>
+
+            <div style="width:100%">
+                <canvas id="chart15min" width="1400" height="300"></canvas>
+            </div>
         </div>
 
-        <form>
-            <button name="kolikoMinuta" type="submit" value="5" style="height:30px;width:200px"> 5 minuta </button>
-            <button name="kolikoMinuta" type="submit" value="15" style="height:30px;width:200px"> 15 minuta </button>
-            <button name="kolikoMinuta" type="submit" value="60" style="height:30px;width:200px"> 60 minuta </button>
-            <button name="kolikoMinuta" type="submit" value="360" style="height:30px;width:200px"> 6 sati </button>
-            <button name="kolikoMinuta" type="submit" value="1440" style="height:30px;width:200px"> 24 sata </button>
-        </form>
-
-        <div style="width:100%">
-            <canvas id="chart15min" width="1600" height="300"></canvas>
-
-        </div>
-
-        <br/>
+        
+        <ul style="float: right;height:900px;width:450px;border:1px solid #ccc;font:12px/26px Georgia, Garamond, Serif;overflow:auto;">
+            <li style="text-align: left">
+                Testing 123. <br/>
+                Testing 400000 asdasdads                
+            </li>
+        </ul>
 
         <script>
 
