@@ -361,27 +361,6 @@ function predChartifikacija(kendl1, kendl15) {
             delete chartData.ulazneCijene[c];
         }
     }
-/*
-    /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****
-    if (i1 % 15 === 0) {
-        chartData.m15.high.push(kendl15.H);
-        chartData.m15.low.push(kendl15.L);
-        chartData.m15.vrijeme.push(kendl15.datum + ' ' + kendl15.sat + ':' + kendl15.minuta);
-        chartData.m15.pasivnoEUR.push(portfolio.EUR);
-        chartData.m15.pasETHuEUR.push(portfolio.ETH * kendl15.C);
-        chartData.m15.aktLimitiuEUR.push(zbrojiLimite(portfolio, kendl15.C));
-        chartData.m15.aktPozicijeuEUR.push(zbrojiPozicije(portfolio, kendl15.C));
-    }
-    for (let c in chartData.m15) {
-        while (chartData.m15[c].length !== duljinaCharta) {
-            if (chartData.m15[c].length < duljinaCharta) {
-                chartData.m15[c].unshift(null);
-            } else if (chartData.m15[c].length > duljinaCharta) {
-                chartData.m15[c].shift();
-            }
-        }
-    }
-*/
 
     /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
     chartData.m15.high.push(kendl1.H);
@@ -457,6 +436,7 @@ function stvaranjeCharta() {
     m15Dataset.push(pfTemplate('Portfolio ETH u EURima', chartData.m15.pasETHuEUR, rozaBoja));
     m15Dataset.push(pfTemplate('Limiti u EURima', chartData.m15.aktLimitiuEUR, zelenaBoja));
     m15Dataset.push(pfTemplate('Pozicije u EURima', chartData.m15.aktPozicijeuEUR, crvenaBoja));
+    
     chartFormatiran.m15 = {
         type: 'bar',
         options: {

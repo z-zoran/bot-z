@@ -133,6 +133,22 @@ function testiranje(array, mozak) {
     return (sumaRazlika / array.length);
 }
 
+//let net = new brain.recurrent.RNN();
+let net = new brain.NeuralNetwork();
+
+function flood(stream, data) {
+
+}
+
+let stream = net.createTrainStream({
+    floodCallback: function() {
+
+    },
+    doneTrainingCallback: function(info) {
+
+    }
+})
+
 // ALGORITAM //
 
 let ioArray = shuffle(arraySetovaZaNN(izvorKendlova));
@@ -147,10 +163,6 @@ for (let i = 0; i < testSet; i++) {
 
 // log prije treninga
 console.log(ioArray.length);
-
-
-//let net = new brain.recurrent.RNN();
-let net = new brain.NeuralNetwork();
 
 net.train(ioArray, {log:true, logPeriod:100});
 //console.log(net.train(ioArray));
@@ -174,3 +186,4 @@ for (let i = 0; i < testArray.length; i++) {
     console.log(i + ' Stvarnost   -> ' + testArray[i].output[0].toFixed(2));
     console.log('');
 } */
+

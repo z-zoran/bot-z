@@ -2,7 +2,7 @@
 
 const readline = require('readline');
 const stream = require('stream');
-
+const fs = require('fs');
 
 function kendl1Template(trejd) {
     this.O = trejd.cijena;
@@ -124,7 +124,7 @@ function Agregator(rezolucija) {
                 agroKendl.minuta = chunk.minuta;
                 this.tempArr = []; // flushamo temp array
                 this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
-                this.push(JSON.stringify(agroKendl) + '\n'); // šaljemo gotov kendl dalje
+                this.push(agroKendl); // šaljemo gotov kendl dalje
             } else {
                 this.tempArr.push(chunk);
             }
@@ -168,9 +168,44 @@ function IOizator(inSize, outSize) {
     return ioizator;
 }
 
-function agro(inputter, outputter, rezolucija) {
+const adaptor = new zTransform({
+    objectMode: true,
+    transform(chunk, encoding, callback) {
+        let ioSet = {
+            input: [],
+            output: []
+        }
+        for (let i = 0; i < chunk.input.length; i++) {
+            let kendl = {
+                cijena: chunk.input[i].C,
+                sellovi: chunk.input[i].volSellova,
+                buyevi: chunk.input[i].volBuyeva
+            }
+            ioSet.input.push(kendl);
+        }
+        for (let o = 0; o < chunk.output.length; o++) {
+            let kendl = {
+                cijena: chunk.output[o].C
+            }
+            ioSet.output.push(kendl);
+        }
+        this.push(ioSet);
+        callback();
+    }
+});
+
+const stringifikator = new zTransform({
+    objectMode: true,
+    transform(chunk, encoding, callback) {
+        this.push(JSON.stringify(chunk) + '\n');
+        callback();
+    }
+});
+
+function agro(inputter, outputter, rezolucija, inSize, outSize) {
 
     let agregator = new Agregator(rezolucija);
+    let ioizator = new IOizator(inSize, outSize);
     let lajne = readline.createInterface({
         input: inputter,
         terminal: false,
@@ -182,9 +217,15 @@ function agro(inputter, outputter, rezolucija) {
     objektifikator
         .pipe(kendlizator)
         .pipe(agregator)
+        .pipe(ioizator)
+        .pipe(adaptor)
+        .pipe(stringifikator)
         .pipe(outputter);
 }
 
-// agro(inPutanja, outPutanja, 1);
+let izvor = fs.createReadStream('./exchdata/testdata.csv');
+let kraj = fs.createWriteStream('./test-agr.txt');
+
+agro(izvor, kraj, 1, 5, 2);
 
 module.exports = agro;
