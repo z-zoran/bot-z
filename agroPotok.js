@@ -2,10 +2,6 @@
 
 const readline = require('readline');
 const stream = require('stream');
-const fs = require('fs');
-const inPutanja = './exchdata/testdata2.csv';
-const outPutanja = './test-stream.txt';
-
 
 
 function kendl1Template(trejd) {
@@ -138,9 +134,41 @@ function Agregator(rezolucija) {
     return agregator;
 }
 
-function agro(input, output, rezolucija) {
-    let inputter = fs.createReadStream(input);
-    let outputter = fs.createWriteStream(output);
+// implementirati u export
+function IOizator(inSize, outSize) {
+    const ioizator = new zTransform({
+        objectMode: true,
+        transform(chunk, encoding, callback) {
+            // dok tempArr ne dosegne potrebnu dužinu, samo guramo chunkove
+            if (this.tempArr.length < (inSize + outSize)) {
+                this.tempArr.push(chunk);
+            // jednom kad je tempArr potrebne dužine, sa svakim novim chunkom
+            // radimo: konverzija u io, shift tempArr, push chunk
+            // tako da će se ioSetovi preklapati, odnosno sa svakim chunkom (kendlom)
+            // ćemo stvarati cijeli novi ioSet (tako da bude ioSetova skoro koliko i kendlova)
+            } else {
+                let ioSet = {
+                    input: [],
+                    output: []
+                }
+                let ioArr = JSON.parse(JSON.stringify(this.tempArr)); // kloniranje
+                for (let i = 0; i < inSize; i++) {
+                    ioSet.input.push(ioArr.shift());
+                }
+                for (let o = 0; o < outSize; o++) {
+                    ioSet.output.push(ioArr.shift());
+                }
+                this.tempArr.shift(); // režemo najstariji chunk
+                this.tempArr.push(chunk); // dodajemo najnoviji chunk
+                this.push(ioSet);  // pushamo složeni set
+            }
+            callback();
+        }
+    })
+    return ioizator;
+}
+
+function agro(inputter, outputter, rezolucija) {
 
     let agregator = new Agregator(rezolucija);
     let lajne = readline.createInterface({
