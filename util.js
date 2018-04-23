@@ -21,7 +21,7 @@ util.limitDataTemplate = function limitDataTemplate(pfID, tip, market, iznos, li
     this.limitCijena = limitCijena;
 }
 
-// (nije funkcionalno trenutno) REFORMIRATI U SKLADU S klasnaBorba.js 
+// vraća cijelu vrijednost portfolia u eurima 
 util.trenutnoEura = function trenutnoEura(cijenaSad, portfolio) { 	
     // popisSvihCijena je stari način ove funkcije, po novome, uzima samo trenutnu cijenu i onda preračunava.
     // dakle uzima kao pretpostavku da se radi o ETH/EUR paru.
@@ -49,6 +49,20 @@ util.trenutnoEura = function trenutnoEura(cijenaSad, portfolio) {
         }
     }
     return ukupnoEura;
+}
+
+// MAPIRANJE CIJENE NA [0,1] - LOGISTIČKA FUNKCIJA
+util.logisticka = function logisticka(cijenaZadnja, cijenaPredzadnja, kKoef) {
+    let x = cijenaZadnja - cijenaPredzadnja;
+    let y = (1 / (1 + (Math.E ** (-kKoef * x))));
+    return y;
+}
+
+// MAPIRANJE [0,1] NA CIJENU - ANTI-LOGISTIČKA FUNKCIJA
+util.antiLogisticka = function antiLogisticka(cijenaNormalna, proslaCijena, kKoef) {
+    let y = cijenaNormalna;
+    let x = (Math.log((1-y) / y) / (-kKoef));
+    return proslaCijena + x;
 }
 
 module.exports = util;

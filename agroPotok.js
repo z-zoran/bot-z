@@ -271,7 +271,7 @@ function agro(inputter, outputter, rezolucija, inSize, outSize, prosirenje) {
 
 let izvor = fs.createReadStream('./exchdata/testdata.csv');
 let cilj = fs.createWriteStream('./test-agr.txt');
-let rezolucija = 5;
+let rezolucija = 15;
 let inSize = 5;
 let outSize = 2;
 let prosirenje = 1;
