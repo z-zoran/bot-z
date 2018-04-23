@@ -3,6 +3,8 @@
 const readline = require('readline');
 const stream = require('stream');
 const fs = require('fs');
+const util = require('./util.js');
+const ratio = util.odnosTriBroja;
 
 function kendl1Template(trejd) {
     this.O = trejd.cijena;
@@ -134,7 +136,7 @@ function Agregator(rezolucija) {
     return agregator;
 }
 
-// implementirati u export
+// pretvarač niza kendlova u pakete za trening NN-a
 function IOizator(inSize, outSize) {
     const ioizator = new zTransform({
         objectMode: true,
@@ -168,6 +170,7 @@ function IOizator(inSize, outSize) {
     return ioizator;
 }
 
+// uzima pakete za NN i ogoljuje ih (ostavlja samo cijenu i volumen)
 const adaptor = new zTransform({
     objectMode: true,
     transform(chunk, encoding, callback) {
@@ -194,6 +197,47 @@ const adaptor = new zTransform({
     }
 });
 
+// poslje adaptora, normalizira cijene i volumene
+// testirati i usporediti apsolutnu i logističku normalizaciju
+function NormalizatorAps(prosirenje) {
+    const normalizatorAps = new zTransform({
+        objectMode: true,
+        transform(chunk, encoding, callback) {
+            // prvo nađemo high i low input seta i zbroj svih volumena
+            let lowC = 1000000;
+            let highC = 0;
+            let ukupniVol = 0;
+            for (let i = 0; i < chunk.input.length; i++) {
+                if (chunk.input[i].cijena < lowC) {lowC = chunk.input[i].cijena}
+                if (chunk.input[i].cijena > highC) {highC = chunk.input[i].cijena}
+                ukupniVol += Math.abs(chunk.input[i].sellovi);
+                ukupniVol += chunk.input[i].buyevi;
+            }
+            lowC -= prosirenje;
+            highC += prosirenje;
+            // onda modificiramo sve cijene i volumene kompletnog seta
+            for (let i = 0; i < chunk.input.length; i++) {
+                chunk.input[i].cijena = ratio(highC, chunk.input[i].cijena, lowC) / 100;
+                chunk.input[i].sellovi = Math.abs(chunk.input[i].sellovi / ukupniVol);
+                chunk.input[i].buyevi = chunk.input[i].buyevi / ukupniVol;
+            }
+            for (let o = 0; o < chunk.output.length; o++) {
+                if (chunk.output[o].cijena > highC) {
+                    chunk.output[o].cijena = 1;
+                } else if (chunk.output[o].cijena < lowC) {
+                    chunk.output[o].cijena = 0;
+                } else {
+                    chunk.output[o].cijena = ratio(highC, chunk.output[o].cijena, lowC) / 100;
+                }
+            }
+            this.push(chunk);
+            callback();
+        }
+    })
+    return normalizatorAps;
+}
+
+// zadnji transform u lancu tako da možemo slati u write stream (mora biti string)
 const stringifikator = new zTransform({
     objectMode: true,
     transform(chunk, encoding, callback) {
@@ -202,10 +246,11 @@ const stringifikator = new zTransform({
     }
 });
 
-function agro(inputter, outputter, rezolucija, inSize, outSize) {
+function agro(inputter, outputter, rezolucija, inSize, outSize, prosirenje) {
 
     let agregator = new Agregator(rezolucija);
     let ioizator = new IOizator(inSize, outSize);
+    let normalizatorAps = new NormalizatorAps(prosirenje);
     let lajne = readline.createInterface({
         input: inputter,
         terminal: false,
@@ -219,13 +264,18 @@ function agro(inputter, outputter, rezolucija, inSize, outSize) {
         .pipe(agregator)
         .pipe(ioizator)
         .pipe(adaptor)
+        .pipe(normalizatorAps)
         .pipe(stringifikator)
         .pipe(outputter);
 }
 
 let izvor = fs.createReadStream('./exchdata/testdata.csv');
-let kraj = fs.createWriteStream('./test-agr.txt');
+let cilj = fs.createWriteStream('./test-agr.txt');
+let rezolucija = 5;
+let inSize = 5;
+let outSize = 2;
+let prosirenje = 1;
 
-agro(izvor, kraj, 1, 5, 2);
+agro(izvor, cilj, rezolucija, inSize, outSize, prosirenje);
 
 module.exports = agro;
