@@ -246,7 +246,7 @@ const stringifikator = new zTransform({
     }
 });
 
-function agro(inputter, outputter, rezolucija, inSize, outSize, prosirenje) {
+function agro(inputter, outputter, rezolucija/*, inSize, outSize, prosirenje*/) {
 
     let agregator = new Agregator(rezolucija);
     let ioizator = new IOizator(inSize, outSize);
@@ -262,13 +262,14 @@ function agro(inputter, outputter, rezolucija, inSize, outSize, prosirenje) {
     objektifikator
         .pipe(kendlizator)
         .pipe(agregator)
+        /*
         .pipe(ioizator)
         .pipe(adaptor)
         .pipe(normalizatorAps)
-        .pipe(stringifikator)
+        .pipe(stringifikator) */
         .pipe(outputter);
 }
-
+/*
 let izvor = fs.createReadStream('./exchdata/testdata.csv');
 let cilj = fs.createWriteStream('./test-agr.txt');
 let rezolucija = 15;
@@ -277,5 +278,5 @@ let outSize = 2;
 let prosirenje = 1;
 
 agro(izvor, cilj, rezolucija, inSize, outSize, prosirenje);
-
+*/
 module.exports = agro;

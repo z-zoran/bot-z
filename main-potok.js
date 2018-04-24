@@ -21,6 +21,8 @@ let klas = require('./klasnaBorba.js');
 let devijacija = require('./indikator.js');
 const util = require('./util.js');
 const trenutnoEura = util.trenutnoEura;
+const agroPotok = require('./agroPotok.js');
+
 
 /*---------------------VARIJABLE--------------------------*/
 
@@ -41,6 +43,8 @@ let gornjiHTMLPath = './HTMLburgerGornji.html';
 let donjiHTMLPath = './HTMLburgerDonji.html';
 
 /*-----------------INICIJALNE DEKLARACIJE-------------------*/
+
+
 
 // definiramo subsete kendlova izvan while-a
 let ss1min = [];
