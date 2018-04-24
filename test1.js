@@ -1,10 +1,39 @@
-let util = require('./util.js');
-let logFunkcija = util.logFunkcija;
-let odLogFunkcija = util.odLogFunkcija;
+const agro = require('./agroPotok.js');
+const fs = require('fs');
 
-let broj = 37;
-let koef = 1;
-let a = logFunkcija(broj, koef);
-let b = odLogFunkcija(a, koef);
+const inputter = fs.createReadStream('exchdata/testdata.csv');
+const potok = agro(inputter, 1, 2, 1);
 
-console.log(a + ' ' + b);
+let br = 3;
+let koliko = 5;
+
+function kapaljka(br) {
+    if (br) {
+        console.log(br + ' read: ' + JSON.stringify(potok.read()));
+        br--;
+    } else {
+        potok.pause();
+    }
+}
+
+function kapanje(br) {
+    potok.on('readable', () => {
+        if (br) {
+            console.log(br + ' read: ' + JSON.stringify(potok.read()));
+            br--;
+        } else {
+            potok.pause();
+        }
+    })
+}
+kapanje(br);
+console.log('Ovo je prvo jer potok još nije readable');
+
+setTimeout(() => {
+    console.log('Ovo je poslje svega');
+
+    br = 0;
+}, 1000);
+
+// uspješna logika za kapaljku
+// jebem ti mater potocima i svemu

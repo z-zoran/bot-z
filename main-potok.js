@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const http = require('http');
+const stream = require('stream');
 
 /*---------------------kastom zoki.js moduli--------------------------*/
 
@@ -19,9 +20,8 @@ let strat = require('./strategos.js');
 let memorija = require('./memorija.js');
 let klas = require('./klasnaBorba.js');
 let devijacija = require('./indikator.js');
-const util = require('./util.js');
-const trenutnoEura = util.trenutnoEura;
-const agroPotok = require('./agroPotok.js');
+const alatke = require('./alatke.js');
+const trenutnoEura = alatke.trenutnoEura;
 
 
 /*---------------------VARIJABLE--------------------------*/
@@ -92,6 +92,16 @@ let crvenaBoja = 'rgba(188, 32, 32, 0.76)';
 let zelenaBoja = 'rgba(36, 126, 51, 0.95)';
 let plavaBoja = 'rgba(63, 127, 191, 0.54)';
 let rozaBoja = 'rgba(191, 63, 127, 0.54)';
+
+
+/*--------------STREAM IMPLEMENTACIJA-----------------*/
+
+const agroPotok = require('./agroPotok.js');
+
+const izvor = fs.createReadStream('./exchdata/testdata.csv');
+
+
+
 
 
 /*-----------------FUNKCIJE-------------------*/
@@ -566,7 +576,7 @@ http.createServer(function (req, response) {
     } else if (req.url === '/?kolikoMinuta=10080') {
         playPauza(10080);
     }
-// sastavljamo sendvič od HTML-a, JS-a i JSON-a
+    // sastavljamo sendvič od HTML-a, JS-a i JSON-a
     response.write("let ctx1min = document.getElementById('chart1min').getContext('2d');");
     response.write("let ctx15min = document.getElementById('chart15min').getContext('2d');");
     

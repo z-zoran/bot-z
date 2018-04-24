@@ -6,9 +6,9 @@
 
 let memorija = require('./memorija.js');
 let pisalo = require('./pisalo.js');
-const util = require('./util.js');
-const odnosTriBroja = util.odnosTriBroja;
-const limitDataTemplate = util.limitDataTemplate;
+const alatke = require('./alatke.js');
+const odnosTriBroja = alatke.odnosTriBroja;
+const limitDataTemplate = alatke.limitDataTemplate;
 
 // OBJEKT ZA EXPORT
 let klas = {};

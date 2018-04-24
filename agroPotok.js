@@ -3,8 +3,8 @@
 const readline = require('readline');
 const stream = require('stream');
 const fs = require('fs');
-const util = require('./util.js');
-const ratio = util.odnosTriBroja;
+const alatke = require('./alatke.js');
+const ratio = alatke.odnosTriBroja;
 
 function kendl1Template(trejd) {
     this.O = trejd.cijena;
@@ -246,11 +246,13 @@ const stringifikator = new zTransform({
     }
 });
 
-function agro(inputter, outputter, rezolucija/*, inSize, outSize, prosirenje*/) {
+function agro(inputter, rezolucija, inSize, outSize/*, prosirenje*/) {
 
     let agregator = new Agregator(rezolucija);
     let ioizator = new IOizator(inSize, outSize);
+    /*
     let normalizatorAps = new NormalizatorAps(prosirenje);
+    */
     let lajne = readline.createInterface({
         input: inputter,
         terminal: false,
@@ -259,24 +261,21 @@ function agro(inputter, outputter, rezolucija/*, inSize, outSize, prosirenje*/) 
     lajne.on('line', (lajna) => {
         objektifikator.write(lajna);
     });
-    objektifikator
+    return objektifikator
         .pipe(kendlizator)
         .pipe(agregator)
-        /*
-        .pipe(ioizator)
+        /*.pipe(ioizator)
         .pipe(adaptor)
         .pipe(normalizatorAps)
-        .pipe(stringifikator) */
-        .pipe(outputter);
+        .pipe(stringifikator);*/
 }
 /*
 let izvor = fs.createReadStream('./exchdata/testdata.csv');
-let cilj = fs.createWriteStream('./test-agr.txt');
 let rezolucija = 15;
 let inSize = 5;
 let outSize = 2;
 let prosirenje = 1;
 
-agro(izvor, cilj, rezolucija, inSize, outSize, prosirenje);
+agro(izvor, rezolucija, inSize, outSize, prosirenje);
 */
 module.exports = agro;

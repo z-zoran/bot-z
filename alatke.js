@@ -2,10 +2,10 @@
 
 // LIBRARY ZA FUNKCIJE KOJE MOGU BITI KORISNE POSVUDA PO PROGRAMU
 
-let util = {};
+let alatke = {};
 
 // funkcija vraća odnos 3 broja kao postotak (na koliko posto je srednji)
-util.odnosTriBroja = function odnosTriBroja(gornja, srednja, donja) {
+alatke.odnosTriBroja = function odnosTriBroja(gornja, srednja, donja) {
     let cijeliKanal = gornja - donja;
     let donjiKanal = srednja - donja;
     let postotak = (100 * donjiKanal) / cijeliKanal;
@@ -13,7 +13,7 @@ util.odnosTriBroja = function odnosTriBroja(gornja, srednja, donja) {
 }
 
 // template za limite
-util.limitDataTemplate = function limitDataTemplate(pfID, tip, market, iznos, limitCijena) {
+alatke.limitDataTemplate = function limitDataTemplate(pfID, tip, market, iznos, limitCijena) {
     this.pfID = pfID;
     this.tip = tip;
     this.market = market;
@@ -22,7 +22,7 @@ util.limitDataTemplate = function limitDataTemplate(pfID, tip, market, iznos, li
 }
 
 // vraća cijelu vrijednost portfolia u eurima 
-util.trenutnoEura = function trenutnoEura(cijenaSad, portfolio) { 	
+alatke.trenutnoEura = function trenutnoEura(cijenaSad, portfolio) { 	
     // popisSvihCijena je stari način ove funkcije, po novome, uzima samo trenutnu cijenu i onda preračunava.
     // dakle uzima kao pretpostavku da se radi o ETH/EUR paru.
         // --staro-- popisSvihCijena je popis svih različitih valuti u kojima imamo pozicije i trenutne cijene tih valuti u EUR.
@@ -52,17 +52,17 @@ util.trenutnoEura = function trenutnoEura(cijenaSad, portfolio) {
 }
 
 // MAPIRANJE CIJENE NA [0,1] - LOGISTIČKA FUNKCIJA
-util.logisticka = function logisticka(cijenaZadnja, cijenaPredzadnja, kKoef) {
+alatke.logisticka = function logisticka(cijenaZadnja, cijenaPredzadnja, kKoef) {
     let x = cijenaZadnja - cijenaPredzadnja;
     let y = (1 / (1 + (Math.E ** (-kKoef * x))));
     return y;
 }
 
 // MAPIRANJE [0,1] NA CIJENU - ANTI-LOGISTIČKA FUNKCIJA
-util.antiLogisticka = function antiLogisticka(cijenaNormalna, proslaCijena, kKoef) {
+alatke.antiLogisticka = function antiLogisticka(cijenaNormalna, proslaCijena, kKoef) {
     let y = cijenaNormalna;
     let x = (Math.log((1-y) / y) / (-kKoef));
     return proslaCijena + x;
 }
 
-module.exports = util;
+module.exports = alatke;

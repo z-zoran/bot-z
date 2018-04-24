@@ -19,8 +19,8 @@ let strat = require('./strategos.js');
 let memorija = require('./memorija.js');
 let klas = require('./klasnaBorba.js');
 let devijacija = require('./indikator.js');
-const util = require('./util.js');
-const trenutnoEura = util.trenutnoEura;
+const alatke = require('./alatke.js');
+const trenutnoEura = alatke.trenutnoEura;
 
 /*---------------------VARIJABLE--------------------------*/
 
