@@ -1,10 +1,17 @@
+/***** REQUIREi *****/
 const agro = require('./agroPotok.js');
 const fs = require('fs');
 const http = require('http');
-const url = require('url');
 
+/***** CONFIG *****/
 const inputter = fs.createReadStream('exchdata/testdata.csv');
-const potok = agro(inputter, 15, 2, 1);
+const rezolucija = 1;
+const inSize = 15;
+const outSize = 2;
+const prosirenje = 1;
+const mod = 'simulacija' // ili 'trening-aps' ili 'trening-log'
+
+/***** POTOK *****/
 
 let br = 2;
 

@@ -246,13 +246,10 @@ const stringifikator = new zTransform({
     }
 });
 
-function agro(inputter, rezolucija, inSize, outSize/*, prosirenje*/) {
+function agro(mod, inputter, rezolucija, inSize, outSize, prosirenje) {
 
     let agregator = new Agregator(rezolucija);
     let ioizator = new IOizator(inSize, outSize);
-    /*
-    let normalizatorAps = new NormalizatorAps(prosirenje);
-    */
     let lajne = readline.createInterface({
         input: inputter,
         terminal: false,
@@ -261,21 +258,29 @@ function agro(inputter, rezolucija, inSize, outSize/*, prosirenje*/) {
     lajne.on('line', (lajna) => {
         objektifikator.write(lajna);
     });
-    return objektifikator
+    if (mod === 'simulacija') {
+        return objektifikator
         .pipe(kendlizator)
         .pipe(agregator)
-        /*.pipe(ioizator)
+    } else if (mod === 'trening-aps') {
+        let normalizatorAps = new NormalizatorAps(prosirenje);
+        return objektifikator
+        .pipe(kendlizator)
+        .pipe(agregator)
+        .pipe(ioizator)
         .pipe(adaptor)
         .pipe(normalizatorAps)
-        .pipe(stringifikator);*/
+        //.pipe(stringifikator);
+    } else if (mod === 'trening-log') {
+        // normalizator log ubaciti
+        return objektifikator
+        .pipe(kendlizator)
+        .pipe(agregator)
+        .pipe(ioizator)
+        .pipe(adaptor)
+        .pipe(normalizatorLog)
+        //.pipe(stringifikator);
+    }
 }
-/*
-let izvor = fs.createReadStream('./exchdata/testdata.csv');
-let rezolucija = 15;
-let inSize = 5;
-let outSize = 2;
-let prosirenje = 1;
 
-agro(izvor, rezolucija, inSize, outSize, prosirenje);
-*/
 module.exports = agro;
