@@ -14,10 +14,15 @@ gdaxTest.password = 'frazablablatrebamizbogapija';
 
 (async () => {
     let markets = await gdaxTest.loadMarkets();
-    // console.log(await gdaxTest.createMarketBuyOrder ('ETH/EUR', 5));
+    //console.log(await gdaxTest.createMarketBuyOrder ('ETH/EUR', 50));
     //console.log(await gdaxTest.createLimitBuyOrder ('ETH/EUR', 5, 180));
     //console.log(await gdaxTest.fetchMyTrades());
     let trejdovi = await gdaxTest.fetchTrades('ETH/EUR');
     console.log(trejdovi);
 }) ();
+
+// GDAX obrnuto prikazuje "side" svakog trejda.
+// CCXT to okrene naopako za svaki trejd.
+// Dakle, kad neko napravi market buy, odnosno bude taker,
+// gdax krivo kaže da je napravljen "sell", a ccxt ispravno kaže da je "buy"
 
