@@ -38,7 +38,6 @@ let duljinaCharta = 60;
 
 /* pathovi za gornje i donje pecivo sendviča */
 let gornjiHTMLPath = './HTMLburgerGornji.html';
-let donjiHTMLPath = './HTMLburgerDonji.html';
 
 /*-----------------INICIJALNE DEKLARACIJE-------------------*/
 
@@ -549,17 +548,17 @@ http.createServer(function (req, response) {
     // gornji dio HTML-a, do <script>-a
     response.write(fs.readFileSync(gornjiHTMLPath));
 
-    if (req.url === '/?kolikoMinuta=5') {
+    if (req.url === '/?i=5') {
         playPauza(5);
-    } else if (req.url === '/?kolikoMinuta=15') {
+    } else if (req.url === '/?i=15') {
         playPauza(15);
-    } else if (req.url === '/?kolikoMinuta=60') {
+    } else if (req.url === '/?i=60') {
         playPauza(60);
-    } else if (req.url === '/?kolikoMinuta=360') {
+    } else if (req.url === '/?i=360') {
         playPauza(360);
-    } else if (req.url === '/?kolikoMinuta=1440') {
+    } else if (req.url === '/?i=1440') {
         playPauza(1440);
-    } else if (req.url === '/?kolikoMinuta=10080') {
+    } else if (req.url === '/?i=10080') {
         playPauza(10080);
     }
 // sastavljamo sendvič od HTML-a, JS-a i JSON-a
@@ -570,7 +569,7 @@ http.createServer(function (req, response) {
     response.write("let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta(chartData).m15) + ");");
 
     // donji dio HTML-a, od </script> nadalje
-    response.write(fs.readFileSync(donjiHTMLPath));
+    response.write('</script></body></html>');
     response.end();
 }).listen(1337, '127.0.0.1');
 

@@ -15,14 +15,13 @@ const stream = require('stream');
 
 /*---------------------kastom zoki.js moduli--------------------------*/
 
-let agro = require('./agregator.js');
 let strat = require('./strategos.js');
 let memorija = require('./memorija.js');
 let klas = require('./klasnaBorba.js');
 let devijacija = require('./indikator.js');
 const alatke = require('./alatke.js');
 const trenutnoEura = alatke.trenutnoEura;
-
+const templ = require('./chartTemplejti.js');
 
 /*---------------------VARIJABLE--------------------------*/
 
@@ -40,11 +39,8 @@ let duljinaCharta = 60;
 
 /* pathovi za gornje i donje pecivo sendviča */
 let gornjiHTMLPath = './HTMLburgerGornji.html';
-let donjiHTMLPath = './HTMLburgerDonji.html';
 
 /*-----------------INICIJALNE DEKLARACIJE-------------------*/
-
-
 
 // definiramo subsete kendlova izvan while-a
 let ss1min = [];
@@ -97,119 +93,22 @@ let rozaBoja = 'rgba(191, 63, 127, 0.54)';
 /*--------------STREAM IMPLEMENTACIJA-----------------*/
 
 const agroPotok = require('./agroPotok.js');
-
+const inputter = fs.createReadStream('exchdata/testdata.csv');
+const rezolucija = 1;
+const inSize = 15;
+const outSize = 2;
+const prosirenje = 1;
+const mod = 'simulacija' // ili 'trening-aps' ili 'trening-log'
 const izvor = fs.createReadStream('./exchdata/testdata.csv');
 
 
+let br = 2;
+
+let tekst = '<p>';
 
 
 
 /*-----------------FUNKCIJE-------------------*/
-
-function buyLimitTemplate(data) {
-    let template = {
-        type: 'line',
-        label: 'Buy limit',
-        data: data, // popuni
-        borderColor: zelenaBoja, 
-        borderWidth: 0.01,
-        pointBorderWidth: 2,
-        lineTension: 0,
-        fill: false,
-        yAxisID: 'right-y-axis',
-        xAxisID: 'vrijeme-x-axis',
-        pointBackgroundColor: zelenaBoja,  
-        backgroundColor: zelenaBoja 
-    }
-    return template;
-}   
-
-function sellLimitTemplate(data) {
-    let template = {
-        type: 'line',
-        label: 'Sell limit',
-        data: data, // popuni
-        borderColor: crvenaBoja,
-        borderWidth: 0.01,
-        pointBorderWidth: 2,
-        lineTension: 0,
-        fill: false,
-        yAxisID: 'right-y-axis',
-        xAxisID: 'vrijeme-x-axis',
-        pointBackgroundColor: crvenaBoja,
-        backgroundColor: crvenaBoja
-    }
-    return template;
-}
-
-function stopTemplate(label, data, boja) {
-    let template = {
-        type: 'line',
-        label: label, // popuni
-        data: data, // popuni
-        borderColor: boja, // popuni
-        borderWidth: 0.01,
-        pointBorderWidth: 1,
-        pointStyle: 'rect',
-        lineTension: 0,
-        fill: false,
-        yAxisID: 'right-y-axis',
-        xAxisID: 'vrijeme-x-axis',
-        pointBackgroundColor: boja,  // popuni
-        backgroundColor: boja // popuni
-    }
-    return template;
-}
-
-function trailerTemplate(label, data, boja) {
-    let template = {
-        type: 'line',
-        label: label, // popuni
-        data: data, // popuni
-        borderColor: boja, // popuni
-        borderWidth: 0.01,
-        pointBorderWidth: 1,
-        pointStyle: 'cross',
-        lineTension: 0,
-        fill: false,
-        yAxisID: 'right-y-axis',
-        xAxisID: 'vrijeme-x-axis',
-        pointBackgroundColor: boja,  // popuni
-        backgroundColor: boja // popuni
-    }
-    return template;
-}
-
-function cijenaTemplate(data) {
-    let template = {
-        type: 'line',
-        label: 'Cijena',
-        data: data,
-        borderColor: crnaBoja,
-        borderWidth: 3,
-        lineTension: 0,
-        pointBorderWidth: 1,
-        pointRadius: 2,
-        fill: false,
-        yAxisID: 'right-y-axis',
-        xAxisID: 'vrijeme-x-axis'    
-    }
-    return template;
-}
-
-function pfTemplate(label, data, boja) {
-    let template = {
-        type: 'bar',
-        label: label,
-        data: data,
-        borderColor: boja,
-        backgroundColor: boja,
-        borderWidth: 0,
-        yAxisID: 'left-y-axis',
-        xAxisID: 'portf-x-axis'    
-    }
-    return template;
-}
 
 function izmisliBoju() {
     let r = (Math.floor(Math.random() * 255));
@@ -220,7 +119,24 @@ function izmisliBoju() {
     return boja;
 }
 
+function kapanje(br) {
+    for (let i = 0; i < br; i++) {
+        let jedan = potok.read();
+        if (jedan) {tekst += jedan.datum + ' ' + jedan.sat + ':' + jedan.minuta + ' ' + jedan.C + '<br/>'}
+        else {tekst += 'Nema ništa smisleno <br/>'}
+    }
+}
+
+function parsaj(url) {
+    if (url.slice(0, 4) === '/?i=') {
+        return url.slice(4, url.length);
+    }
+}
+
+
 // FUNKCIJA KOJA ČUPA DATA IZ portfolio I KENDLOVA
+// ne koristi uopće kendl15 ali neki stari nazivi su ostali (m15dataset - iako nema 15min već 1min kendlove)
+// malo počistiti odnosno vidjeti što dodati u layout
 function predChartifikacija(kendl1, kendl15) { 
     
     /**** GURANJE CIJENE I VREMENA ****/
@@ -400,20 +316,20 @@ function stvaranjeCharta(chartData) {
     let chartFormatiran = {};
     let m1Dataset = [];
     // guramo cijenu
-    m1Dataset.push(cijenaTemplate(chartData.m1.close));
+    m1Dataset.push(templ.cijenaTemplate(chartData.m1.close));
     // buy limite
-    m1Dataset.push(buyLimitTemplate(chartData.m1.buyLimiti));
+    m1Dataset.push(templ.buyLimitTemplate(chartData.m1.buyLimiti));
     // sell limite
-    m1Dataset.push(sellLimitTemplate(chartData.m1.sellLimiti));
+    m1Dataset.push(templ.sellLimitTemplate(chartData.m1.sellLimiti));
     // stopove
     for (let i in chartData.m1.pozStopovi) {
         let lejbl = 'Stop ' + i + ' || ulazna cijena: ' + chartData.ulazneCijene[i].toFixed(2);
-        m1Dataset.push(stopTemplate(lejbl, chartData.m1.pozStopovi[i], chartData.boje[i]));
+        m1Dataset.push(templ.stopTemplate(lejbl, chartData.m1.pozStopovi[i], chartData.boje[i]));
     }
     // trailere
     for (let i in chartData.m1.traileri) {
         let lejbl = 'Trailer ' + i + ' || ulazna cijena: ' + chartData.ulazneCijene[i].toFixed(2);
-        m1Dataset.push(trailerTemplate(lejbl, chartData.m1.traileri[i], chartData.boje[i]));
+        m1Dataset.push(templ.trailerTemplate(lejbl, chartData.m1.traileri[i], chartData.boje[i]));
     }
     
     chartFormatiran.m1 = {
@@ -444,12 +360,12 @@ function stvaranjeCharta(chartData) {
     };
 
     let m15Dataset = [];
-    m15Dataset.push(cijenaTemplate(chartData.m15.high));
-    m15Dataset.push(cijenaTemplate(chartData.m15.low));
-    m15Dataset.push(pfTemplate('Portfolio EUR', chartData.m15.pasivnoEUR, plavaBoja));
-    m15Dataset.push(pfTemplate('Portfolio ETH u EURima', chartData.m15.pasETHuEUR, rozaBoja));
-    m15Dataset.push(pfTemplate('Limiti u EURima', chartData.m15.aktLimitiuEUR, zelenaBoja));
-    m15Dataset.push(pfTemplate('Pozicije u EURima', chartData.m15.aktPozicijeuEUR, crvenaBoja));
+    m15Dataset.push(templ.cijenaTemplate(chartData.m15.high));
+    m15Dataset.push(templ.cijenaTemplate(chartData.m15.low));
+    m15Dataset.push(templ.pfTemplate('Portfolio EUR', chartData.m15.pasivnoEUR, plavaBoja));
+    m15Dataset.push(templ.pfTemplate('Portfolio ETH u EURima', chartData.m15.pasETHuEUR, rozaBoja));
+    m15Dataset.push(templ.pfTemplate('Limiti u EURima', chartData.m15.aktLimitiuEUR, zelenaBoja));
+    m15Dataset.push(templ.pfTemplate('Pozicije u EURima', chartData.m15.aktPozicijeuEUR, crvenaBoja));
     
     chartFormatiran.m15 = {
         type: 'bar',
@@ -557,23 +473,40 @@ function playPauza(koraka) {
 // inicijalni krug da se popune subseti dovoljno za chart
 inicijalnoFilanjeSubsetova();
 
+
+// madrfakin server
+http.createServer(function (req, response) {
+    response.writeHead(200, { 'Content-Type': 'text/html' });
+    response.write(fs.readFileSync(gornjiHTMLPath));
+
+    parsaj(req.url) ? kapanje(parsaj(req.url)) : null;
+    response.write(tekst);
+    response.write('</p></body></html>');
+    response.end();
+}).listen(1337, '127.0.0.1');
+
+console.log('Testiranje na http://127.0.0.1:1337/ ');
+
+
+
+
 // madrfakin server
 http.createServer(function (req, response) {
     response.writeHead(200, { 'Content-Type': 'text/html' });
     // gornji dio HTML-a, do <script>-a
     response.write(fs.readFileSync(gornjiHTMLPath));
 
-    if (req.url === '/?kolikoMinuta=5') {
+    if (req.url === '/?i=5') {
         playPauza(5);
-    } else if (req.url === '/?kolikoMinuta=15') {
+    } else if (req.url === '/?i=15') {
         playPauza(15);
-    } else if (req.url === '/?kolikoMinuta=60') {
+    } else if (req.url === '/?i=60') {
         playPauza(60);
-    } else if (req.url === '/?kolikoMinuta=360') {
+    } else if (req.url === '/?i=360') {
         playPauza(360);
-    } else if (req.url === '/?kolikoMinuta=1440') {
+    } else if (req.url === '/?i=1440') {
         playPauza(1440);
-    } else if (req.url === '/?kolikoMinuta=10080') {
+    } else if (req.url === '/?i=10080') {
         playPauza(10080);
     }
     // sastavljamo sendvič od HTML-a, JS-a i JSON-a
@@ -584,7 +517,7 @@ http.createServer(function (req, response) {
     response.write("let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta(chartData).m15) + ");");
 
     // donji dio HTML-a, od </script> nadalje
-    response.write(fs.readFileSync(donjiHTMLPath));
+    response.write('</script></body></html>');
     response.end();
 }).listen(1337, '127.0.0.1');
 
