@@ -283,4 +283,7 @@ function agro(mod, inputter, rezolucija, inSize, outSize, prosirenje) {
     }
 }
 
-module.exports = agro;
+module.exports = {
+    agro: agro,
+    Agregator: Agregator
+}    

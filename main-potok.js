@@ -15,41 +15,47 @@ const stream = require('stream');
 
 /*---------------------kastom zoki.js moduli--------------------------*/
 
-let strat = require('./strategos.js');
-let memorija = require('./memorija.js');
-let klas = require('./klasnaBorba.js');
-let devijacija = require('./indikator.js');
+const strat = require('./strategos.js');
+const memorija = require('./memorija.js');
+const klas = require('./klasnaBorba.js');
+const devijacija = require('./indikator.js');
 const alatke = require('./alatke.js');
 const trenutnoEura = alatke.trenutnoEura;
 const templ = require('./chartTemplejti.js');
 
 /*---------------------VARIJABLE--------------------------*/
-
+/*
 let putanja = './exchdata/testdata.csv';
 // testni trejdovi i kendlovi
 let paketKendlova = agro(putanja);
-
-let pfID = '001';
-let portfolio = memorija[pfID] = new klas.Portfolio(pfID, 1000, 3, 0, 0, 0);
-
-let jahanje = strat.stratJahanjeCijene;
+*/
+const pfID = '001';
+const portfolio = memorija[pfID] = new klas.Portfolio(pfID, 1000, 3, 0, 0, 0);
+const jahanje = strat.stratJahanjeCijene;
 
 // duljina charta (broj vremenskih jedinica)
-let duljinaCharta = 60;
+const duljinaCharta = 60;
 
 /* pathovi za gornje i donje pecivo sendviča */
-let gornjiHTMLPath = './HTMLburgerGornji.html';
+const gornjiHTMLPath = './HTMLburgerGornji.html';
 
 /*-----------------INICIJALNE DEKLARACIJE-------------------*/
 
+// subset kendlova iz potoka
+const jezerce = [];
+
+/*
 // definiramo subsete kendlova izvan while-a
 let ss1min = [];
 let ss5min = [];
 let ss15min = [];
+*/
 
+/*
 // definiramo countere za subsetove
 let i1 = 0;
 let i15 = 0;
+*/
 
 // definiramo chartData paket
 let chartData = {
@@ -89,26 +95,64 @@ let zelenaBoja = 'rgba(36, 126, 51, 0.95)';
 let plavaBoja = 'rgba(63, 127, 191, 0.54)';
 let rozaBoja = 'rgba(191, 63, 127, 0.54)';
 
+/*---------OSIGURAČ-------- */
+
+process.on('unhandledRejection', (err) => { 
+    console.error(err);
+    process.exit(1);
+});
 
 /*--------------STREAM IMPLEMENTACIJA-----------------*/
 
 const agroPotok = require('./agroPotok.js');
-const inputter = fs.createReadStream('exchdata/testdata.csv');
+
+const mod = 'simulacija' // ili 'trening-aps' ili 'trening-log'
+const inputter = fs.createReadStream('exchdata/testdata3.csv');
 const rezolucija = 1;
 const inSize = 15;
 const outSize = 2;
 const prosirenje = 1;
-const mod = 'simulacija' // ili 'trening-aps' ili 'trening-log'
-const izvor = fs.createReadStream('./exchdata/testdata.csv');
 
+const potok = agroPotok.agro(mod, inputter, rezolucija, inSize, outSize, prosirenje);
 
-let br = 2;
+let tekst = '123 nešto.';
 
-let tekst = '<p>';
-
+// stream agregatori
+const agroi = {};
+agroi.ss1min = new agroPotok.Agregator(1);
+const agregator5minuta = new agroPotok.Agregator(5);
+const agregator15minuta = new agroPotok.Agregator(15);
 
 
 /*-----------------FUNKCIJE-------------------*/
+
+function floodanjeJezerca(duljinaCharta) {
+    while (jezerce.length < (duljinaCharta * 15)) {
+        let kap = potok.read();
+        jezerce.push(kap);
+    }
+}
+
+function kapaljka(br) {
+    for (let i = 0; i < br; i++) {
+        let kap = potok.read();
+        jezerce.push(kap);
+        jezerce.shift();
+    }
+    jezerce.forEach(item => { 
+        agro1.push(item);
+        agregator5minuta.push(item);
+        agregator15minuta.push(item);
+    });
+    return 
+        agregator1minuta.pipe()
+}
+
+function parsaj(url) {
+    if (url.slice(0, 4) === '/?i=') {
+        return url.slice(4, url.length);
+    }
+}
 
 function izmisliBoju() {
     let r = (Math.floor(Math.random() * 255));
@@ -118,21 +162,6 @@ function izmisliBoju() {
     let boja = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
     return boja;
 }
-
-function kapanje(br) {
-    for (let i = 0; i < br; i++) {
-        let jedan = potok.read();
-        if (jedan) {tekst += jedan.datum + ' ' + jedan.sat + ':' + jedan.minuta + ' ' + jedan.C + '<br/>'}
-        else {tekst += 'Nema ništa smisleno <br/>'}
-    }
-}
-
-function parsaj(url) {
-    if (url.slice(0, 4) === '/?i=') {
-        return url.slice(4, url.length);
-    }
-}
-
 
 // FUNKCIJA KOJA ČUPA DATA IZ portfolio I KENDLOVA
 // ne koristi uopće kendl15 ali neki stari nazivi su ostali (m15dataset - iako nema 15min već 1min kendlove)
@@ -409,6 +438,7 @@ function stvaranjeCharta(chartData) {
 }
 
 function inicijalnoFilanjeSubsetova() {
+    /*
     for (let i = 0; i < 15 * duljinaCharta; i++) {
         ss1min.push(paketKendlova.arr1min.shift());
         if (i1 % 5 === 0) {
@@ -422,7 +452,7 @@ function inicijalnoFilanjeSubsetova() {
         if (i1 % 15 === 0) {
             i15++;
         }    
-    }
+    }*/
 }
 
 // funkcija koja se vrti sa svakim klikom
@@ -437,22 +467,22 @@ function playPauza(koraka) {
         */
         let dev5 = devijacija(ss5min, 20);
         let dev15 = devijacija(ss15min, 20);
+        
+        let kendlic = ss1min[i1-1];
+        let cijenaSad = kendlic.C;
+        let iznos = 0.5;
         let odmakPhi = 1 * dev5;
         let odmakLambda = 1 * dev5;
         let odmakTau = 0.2 * dev5;
         let koefKappa = 2; // koeficijent. ako je 2, znači killOdmak je 2*inicijalniOdmak
-        let kendlic = ss1min[i1-1];
-        let iznos = 0.5;
-        let cijenaSad = kendlic.C;
-        let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
 
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 5; i++) {
             jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa);
         }
 
         predChartifikacija(ss1min[i1-1], ss15min[i15-1]);
 
-
+        /*
         ss1min.push(paketKendlova.arr1min.shift());
         if (i1 % 5 === 0) {
             ss5min.push(paketKendlova.arr5min.shift())
@@ -465,6 +495,7 @@ function playPauza(koraka) {
         if (i1 % 15 === 0) {
             i15++;
         }
+        */
     }
 }
 
@@ -478,10 +509,19 @@ inicijalnoFilanjeSubsetova();
 http.createServer(function (req, response) {
     response.writeHead(200, { 'Content-Type': 'text/html' });
     response.write(fs.readFileSync(gornjiHTMLPath));
+    
+    response.write('<li>' + tekst + '</li>');
+    response.write('</ul><script>');
 
-    parsaj(req.url) ? kapanje(parsaj(req.url)) : null;
-    response.write(tekst);
-    response.write('</p></body></html>');
+
+
+    parsaj(req.url) ? kapaljka(parsaj(req.url)) : null;
+    // sastavljamo sendvič od HTML-a, JS-a i JSON-a
+    response.write("let ctx1min = document.getElementById('chart1min').getContext('2d');");
+    response.write("let ctx15min = document.getElementById('chart15min').getContext('2d');");
+    response.write("let chart1min = new Chart(ctx1min, " + JSON.stringify(stvaranjeCharta(chartData).m1) + ");");
+    response.write("let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta(chartData).m15) + ");");
+    response.write('</script></body></html>');
     response.end();
 }).listen(1337, '127.0.0.1');
 
