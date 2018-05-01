@@ -25,7 +25,6 @@ const templ = require('./chartTemplejti.js');
 
 /*---------------------VARIJABLE--------------------------*/
 /*
-let putanja = './exchdata/testdata.csv';
 // testni trejdovi i kendlovi
 let paketKendlova = agro(putanja);
 */
@@ -43,19 +42,6 @@ const gornjiHTMLPath = './HTMLburgerGornji.html';
 
 // subset kendlova iz potoka
 const jezerce = [];
-
-/*
-// definiramo subsete kendlova izvan while-a
-let ss1min = [];
-let ss5min = [];
-let ss15min = [];
-*/
-
-/*
-// definiramo countere za subsetove
-let i1 = 0;
-let i15 = 0;
-*/
 
 // definiramo chartData paket
 let chartData = {
@@ -103,11 +89,20 @@ process.on('unhandledRejection', (err) => {
 });
 
 /*--------------STREAM IMPLEMENTACIJA-----------------*/
+/***
+ * dolazni potok  --> jezerce array --> kanalizacija() --> set1min
+ * (dolazni stream)  (privremeni pool)              -----> set5min
+ *                                                -------> set15min
+ */
+//
 
+let tekst = '123 nešto.'; 
 const agroPotok = require('./agroPotok.js');
 
+// CONFIGURACIJA ZA DOLAZNI POTOK
+let putanja = './exchdata/testdata.csv';
 const mod = 'simulacija' // ili 'trening-aps' ili 'trening-log'
-const inputter = fs.createReadStream('exchdata/testdata3.csv');
+const inputter = fs.createReadStream(putanja);
 const rezolucija = 1;
 const inSize = 15;
 const outSize = 2;
@@ -115,37 +110,77 @@ const prosirenje = 1;
 
 const potok = agroPotok.agro(mod, inputter, rezolucija, inSize, outSize, prosirenje);
 
-let tekst = '123 nešto.';
-
-// stream agregatori
-const agroi = {};
-agroi.ss1min = new agroPotok.Agregator(1);
-const agregator5minuta = new agroPotok.Agregator(5);
-const agregator15minuta = new agroPotok.Agregator(15);
-
-
 /*-----------------FUNKCIJE-------------------*/
 
-function floodanjeJezerca(duljinaCharta) {
-    while (jezerce.length < (duljinaCharta * 15)) {
-        let kap = potok.read();
-        jezerce.push(kap);
+function obecanaLokva(kanal) {
+    return new Promise(function(resolve, reject) {
+        kanal.on("end", () => resolve(kanal.tempArr));
+        kanal.on("error", reject);
+    });
+}
+
+function kanalizacija(jezerce) {
+    const pisac = {
+        p1: new agroPotok.PisacPotok(duljinaCharta),
+        p5: new agroPotok.PisacPotok(duljinaCharta),
+        p15: new agroPotok.PisacPotok(duljinaCharta)
     }
+    const kanal = {
+        k1: new agroPotok.Agregator(1),
+        k5: new agroPotok.Agregator(5),
+        k15: new agroPotok.Agregator(15)
+    }
+    // cjedimo jezerce u kanale
+    jezerce.forEach((kendl) => {
+        kanal.k1.write(kendl);
+        kanal.k5.write(kendl);
+        kanal.k15.write(kendl);
+    })
+    // pajpamo kanale kroz pisce u promise set
+    const set = {
+        ss1: kanal.k1.pipe(pisac.p1).tempArr,
+        ss5: kanal.k5.pipe(pisac.p5).tempArr,
+        ss15: kanal.k15.pipe(pisac.p15).tempArr
+    }
+    setTimeout(() => {
+        Promise.all([set.ss1, set.ss5, set.ss15])
+        .then(() => {
+            //console.log(set.ss15[set.ss15.length - 1].minuta);
+            egzekutorStrategije(stratConfig, set);
+            predChartifikacija(dohvatiTriplet(set));
+        })
+    }, 0);
+}
+
+function floodanjeJezerca() {
+    setTimeout(function() {
+        while (jezerce.length < (duljinaCharta * 15)) {
+            let kap = potok.read();
+            if (kap) {
+                jezerce.push(kap);
+            }
+        }
+    }, 100);
+}
+
+function dohvatiTriplet(set) {
+    const triplet = {
+        k1: set.ss1[set.ss1.length - 1],
+        k5: set.ss5[set.ss5.length - 1], 
+        k15: set.ss15[set.ss15.length - 1]
+    }
+    return triplet;
 }
 
 function kapaljka(br) {
     for (let i = 0; i < br; i++) {
         let kap = potok.read();
-        jezerce.push(kap);
-        jezerce.shift();
+        if (kap) {
+            jezerce.push(kap);
+            jezerce.shift();
+            kanalizacija(jezerce);
+        }
     }
-    jezerce.forEach(item => { 
-        agro1.push(item);
-        agregator5minuta.push(item);
-        agregator15minuta.push(item);
-    });
-    return 
-        agregator1minuta.pipe()
 }
 
 function parsaj(url) {
@@ -166,10 +201,10 @@ function izmisliBoju() {
 // FUNKCIJA KOJA ČUPA DATA IZ portfolio I KENDLOVA
 // ne koristi uopće kendl15 ali neki stari nazivi su ostali (m15dataset - iako nema 15min već 1min kendlove)
 // malo počistiti odnosno vidjeti što dodati u layout
-function predChartifikacija(kendl1, kendl15) { 
+function predChartifikacija(tripletKendl) { 
     
     /**** GURANJE CIJENE I VREMENA ****/
-    chartData.m1.close.push(kendl1.C);
+    chartData.m1.close.push(tripletKendl.k1.C);
     while (chartData.m1.close.length !== duljinaCharta) {
         if (chartData.m1.close.length < duljinaCharta) {
             chartData.m1.close.unshift(null);
@@ -177,7 +212,7 @@ function predChartifikacija(kendl1, kendl15) {
             chartData.m1.close.shift();
         }
     }
-    chartData.m1.vrijeme.push(kendl1.datum + ' ' + String(kendl1.sat).padStart(2, "0") + ':' + String(kendl1.minuta).padStart(2, "0"));
+    chartData.m1.vrijeme.push(tripletKendl.k1.datum + ' ' + String(tripletKendl.k1.sat).padStart(2, "0") + ':' + String(tripletKendl.k1.minuta).padStart(2, "0"));
     while (chartData.m1.vrijeme.length !== duljinaCharta) {
         if (chartData.m1.vrijeme.length < duljinaCharta) {
             chartData.m1.vrijeme.unshift(null);
@@ -322,13 +357,13 @@ function predChartifikacija(kendl1, kendl15) {
     }
 
     /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
-    chartData.m15.high.push(kendl1.H);
-    chartData.m15.low.push(kendl1.L);
-    chartData.m15.vrijeme.push(kendl1.datum + ' ' + String(kendl1.sat).padStart(2, "0") + ':' + String(kendl1.minuta).padStart(2, "0"));
-    chartData.m15.pasivnoEUR.push(trenutnoEura(kendl1.C, portfolio).uEUR);
-    chartData.m15.pasETHuEUR.push(trenutnoEura(kendl1.C, portfolio).uETH);
-    chartData.m15.aktLimitiuEUR.push(trenutnoEura(kendl1.C, portfolio).uLimitima);
-    chartData.m15.aktPozicijeuEUR.push(trenutnoEura(kendl1.C, portfolio).uPozicijama);
+    chartData.m15.high.push(tripletKendl.k1.H);
+    chartData.m15.low.push(tripletKendl.k1.L);
+    chartData.m15.vrijeme.push(tripletKendl.k1.datum + ' ' + String(tripletKendl.k1.sat).padStart(2, "0") + ':' + String(tripletKendl.k1.minuta).padStart(2, "0"));
+    chartData.m15.pasivnoEUR.push(trenutnoEura(tripletKendl.k1.C, portfolio).uEUR);
+    chartData.m15.pasETHuEUR.push(trenutnoEura(tripletKendl.k1.C, portfolio).uETH);
+    chartData.m15.aktLimitiuEUR.push(trenutnoEura(tripletKendl.k1.C, portfolio).uLimitima);
+    chartData.m15.aktPozicijeuEUR.push(trenutnoEura(tripletKendl.k1.C, portfolio).uPozicijama);
     for (let c in chartData.m15) {
         while (chartData.m15[c].length !== duljinaCharta) {
             if (chartData.m15[c].length < duljinaCharta) {
@@ -437,85 +472,46 @@ function stvaranjeCharta(chartData) {
     return chartFormatiran;
 }
 
-function inicijalnoFilanjeSubsetova() {
-    /*
-    for (let i = 0; i < 15 * duljinaCharta; i++) {
-        ss1min.push(paketKendlova.arr1min.shift());
-        if (i1 % 5 === 0) {
-            ss5min.push(paketKendlova.arr5min.shift())
-        }
-        if (i1 % 15 === 0) {
-            ss15min.push(paketKendlova.arr15min.shift())
-        }
-        predChartifikacija(ss1min[i1], ss15min[i15]);
-        i1++;
-        if (i1 % 15 === 0) {
-            i15++;
-        }    
-    }*/
+const stratConfig = {
+    iznosZaUlog: 0.5,
+    koefPhi: 1,
+    koefLambda: 1,
+    koefTau: 0.2,
+    koefKappa: 2,
+    ciklusaJahanja: 3
 }
 
-// funkcija koja se vrti sa svakim klikom
-function playPauza(koraka) {
-    for (let i = 0; i < koraka; i++) {
-        /*
-        if (paketKendlova.arr1min.length < 301) {
-            break;
-        } 
-        NEKA VRSTA BREJKA AKO SMO NA KRAJU KENDL-PAKETA.
-        ZASAD NE TREBA, KASNIJE ĆE BIT BITNO.
-        */
-        let dev5 = devijacija(ss5min, 20);
-        let dev15 = devijacija(ss15min, 20);
+function egzekutorStrategije(config, set) {
+    //if (set.ss15.length === duljinaCharta) {
+        let dev5 = devijacija(set.ss5, 20);
+        let dev15 = devijacija(set.ss15, 20);
         
-        let kendlic = ss1min[i1-1];
+        let kendlic = set.ss1[set.ss1.length - 1];
         let cijenaSad = kendlic.C;
-        let iznos = 0.5;
-        let odmakPhi = 1 * dev5;
-        let odmakLambda = 1 * dev5;
-        let odmakTau = 0.2 * dev5;
-        let koefKappa = 2; // koeficijent. ako je 2, znači killOdmak je 2*inicijalniOdmak
-
-        for (let i = 0; i < 5; i++) {
+        let iznos = config.iznosZaUlog;
+        let odmakPhi = config.koefPhi * dev5;
+        let odmakLambda = config.koefLambda * dev5;
+        let odmakTau = config.koefTau * dev5;
+        let koefKappa = config.koefKappa; 
+    
+        for (let i = 0; i < config.ciklusaJahanja; i++) {
             jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa);
         }
-
-        predChartifikacija(ss1min[i1-1], ss15min[i15-1]);
-
-        /*
-        ss1min.push(paketKendlova.arr1min.shift());
-        if (i1 % 5 === 0) {
-            ss5min.push(paketKendlova.arr5min.shift())
-        }
-        if (i1 % 15 === 0) {
-            ss15min.push(paketKendlova.arr15min.shift())
-        }
-
-        i1++;
-        if (i1 % 15 === 0) {
-            i15++;
-        }
-        */
-    }
+    //}
 }
 
 /*-----------------ALGORITAM-------------------*/
 
 // inicijalni krug da se popune subseti dovoljno za chart
-inicijalnoFilanjeSubsetova();
+floodanjeJezerca();
 
 
 // madrfakin server
 http.createServer(function (req, response) {
     response.writeHead(200, { 'Content-Type': 'text/html' });
     response.write(fs.readFileSync(gornjiHTMLPath));
-    
-    response.write('<li>' + tekst + '</li>');
-    response.write('</ul><script>');
-
-
-
-    parsaj(req.url) ? kapaljka(parsaj(req.url)) : null;
+    response.write('<script>');
+    if (parsaj(req.url)) { kapaljka(parsaj(req.url)) } 
     // sastavljamo sendvič od HTML-a, JS-a i JSON-a
     response.write("let ctx1min = document.getElementById('chart1min').getContext('2d');");
     response.write("let ctx15min = document.getElementById('chart15min').getContext('2d');");
@@ -526,40 +522,4 @@ http.createServer(function (req, response) {
 }).listen(1337, '127.0.0.1');
 
 console.log('Testiranje na http://127.0.0.1:1337/ ');
-
-
-
-
-// madrfakin server
-http.createServer(function (req, response) {
-    response.writeHead(200, { 'Content-Type': 'text/html' });
-    // gornji dio HTML-a, do <script>-a
-    response.write(fs.readFileSync(gornjiHTMLPath));
-
-    if (req.url === '/?i=5') {
-        playPauza(5);
-    } else if (req.url === '/?i=15') {
-        playPauza(15);
-    } else if (req.url === '/?i=60') {
-        playPauza(60);
-    } else if (req.url === '/?i=360') {
-        playPauza(360);
-    } else if (req.url === '/?i=1440') {
-        playPauza(1440);
-    } else if (req.url === '/?i=10080') {
-        playPauza(10080);
-    }
-    // sastavljamo sendvič od HTML-a, JS-a i JSON-a
-    response.write("let ctx1min = document.getElementById('chart1min').getContext('2d');");
-    response.write("let ctx15min = document.getElementById('chart15min').getContext('2d');");
-    
-    response.write("let chart1min = new Chart(ctx1min, " + JSON.stringify(stvaranjeCharta(chartData).m1) + ");");
-    response.write("let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta(chartData).m15) + ");");
-
-    // donji dio HTML-a, od </script> nadalje
-    response.write('</script></body></html>');
-    response.end();
-}).listen(1337, '127.0.0.1');
-
-console.log('HTMLburger ti je na adresi http://127.0.0.1:1337/ i pljunuo sam u njega.');
 

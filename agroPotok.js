@@ -237,6 +237,25 @@ function NormalizatorAps(prosirenje) {
     return normalizatorAps;
 }
 
+// konstruktor stream pisača/pisca
+function PisacPotok(duljinaCharta) {
+    const pisacPotok = new zTransform({
+        objectMode: true,
+        transform(chunk, encoding, callback) {
+            if (this.tempArr.length < duljinaCharta) {
+                this.tempArr.push(chunk);
+            } else if (this.tempArr.length === duljinaCharta) {
+                this.tempArr.shift();
+                this.tempArr.push(chunk);
+            } else if (this.tempArr.length > duljinaCharta) {
+                this.tempArr.shift();
+            }
+            callback();
+        }
+    });
+    return pisacPotok;
+}
+
 // zadnji transform u lancu tako da možemo slati u write stream (mora biti string)
 const stringifikator = new zTransform({
     objectMode: true,
@@ -261,7 +280,7 @@ function agro(mod, inputter, rezolucija, inSize, outSize, prosirenje) {
     if (mod === 'simulacija') {
         return objektifikator
         .pipe(kendlizator)
-        .pipe(agregator)
+        //.pipe(agregator)
     } else if (mod === 'trening-aps') {
         let normalizatorAps = new NormalizatorAps(prosirenje);
         return objektifikator
@@ -285,5 +304,7 @@ function agro(mod, inputter, rezolucija, inSize, outSize, prosirenje) {
 
 module.exports = {
     agro: agro,
-    Agregator: Agregator
+    Agregator: Agregator,
+    PisacPotok: PisacPotok,
+    zTransform: zTransform
 }    
