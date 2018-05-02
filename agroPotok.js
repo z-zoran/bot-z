@@ -280,7 +280,7 @@ function agro(mod, inputter, rezolucija, inSize, outSize, prosirenje) {
     if (mod === 'simulacija') {
         return objektifikator
         .pipe(kendlizator)
-        //.pipe(agregator)
+        .pipe(agregator)
     } else if (mod === 'trening-aps') {
         let normalizatorAps = new NormalizatorAps(prosirenje);
         return objektifikator

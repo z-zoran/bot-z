@@ -90,9 +90,9 @@ process.on('unhandledRejection', (err) => {
 
 /*--------------STREAM IMPLEMENTACIJA-----------------*/
 /***
- * dolazni potok  --> kanalizacija() --> set1min
- * (dolazni stream)               -----> set5min
- *                              -------> set15min
+ * dolazni potok  --> jezerce array --> kanalizacija() --> set1min
+ * (dolazni stream)  (privremeni pool)              -----> set5min
+ *                                                -------> set15min
  */
 //
 
@@ -109,40 +109,84 @@ const outSize = 2;
 const prosirenje = 1;
 
 const potok = agroPotok.agro(mod, inputter, rezolucija, inSize, outSize, prosirenje);
-const kanal = {
-    k1: potok.pipe(new agroPotok.Agregator(1)),
-    k5: potok.pipe(new agroPotok.Agregator(5)),
-    k15: potok.pipe(new agroPotok.Agregator(15))
-}
-const set = {
-    ss1: [],
-    ss5: [],
-    ss15: []
-}
 
 /*-----------------FUNKCIJE-------------------*/
 
-function kanalizacija(kendl) {
+function kanalizacijaStaraZaBaciti(jezerce) {
+    const pisac = {
+        p1: new agroPotok.PisacPotok(duljinaCharta),
+        p5: new agroPotok.PisacPotok(duljinaCharta),
+        p15: new agroPotok.PisacPotok(duljinaCharta)
+    }
+    const kanal = {
+        k1: new agroPotok.Agregator(1),
+        k5: new agroPotok.Agregator(5),
+        k15: new agroPotok.Agregator(15)
+    }
+    // cjedimo jezerce u kanale
+    jezerce.forEach((kendl) => {
+        kanal.k1.write(kendl);
+        kanal.k5.write(kendl);
+        kanal.k15.write(kendl);
+    })
     // pajpamo kanale kroz pisce u promise set
-    if (set.ss1.length === duljinaCharta) {
-
+    const set = {
+        ss1: kanal.k1.pipe(pisac.p1).tempArr,
+        ss5: kanal.k5.pipe(pisac.p5).tempArr,
+        ss15: kanal.k15.pipe(pisac.p15).tempArr
     }
     setTimeout(() => {
-        console.log(set.ss15[set.ss15.length - 1].minuta);
-        egzekutorStrategije(stratConfig, set);
-        predChartifikacija(dohvatiTriplet(set));
+        Promise.all([set.ss1, set.ss5, set.ss15])
+        .then(() => {
+            console.log(set.ss15[set.ss15.length - 1].minuta);
+            egzekutorStrategije(stratConfig, set);
+            predChartifikacija(dohvatiTriplet(set));
+        })
     }, 0);
 }
 
-function floodanjeSeta(set, duljinaCharta, potok) {
+function kanalizacija(jezerce) {
+    const pisac = {
+        p1: new agroPotok.PisacPotok(duljinaCharta),
+        p5: new agroPotok.PisacPotok(duljinaCharta),
+        p15: new agroPotok.PisacPotok(duljinaCharta)
+    }
+    const kanal = {
+        k1: new agroPotok.Agregator(1),
+        k5: new agroPotok.Agregator(5),
+        k15: new agroPotok.Agregator(15)
+    }
+    // cjedimo jezerce u kanale
+    jezerce.forEach((kendl) => {
+        kanal.k1.write(kendl);
+        kanal.k5.write(kendl);
+        kanal.k15.write(kendl);
+    })
+    // pajpamo kanale kroz pisce u promise set
+    const set = {
+        ss1: kanal.k1.pipe(pisac.p1).tempArr,
+        ss5: kanal.k5.pipe(pisac.p5).tempArr,
+        ss15: kanal.k15.pipe(pisac.p15).tempArr
+    }
+    setTimeout(() => {
+        Promise.all([set.ss1, set.ss5, set.ss15])
+        .then(() => {
+            console.log(set.ss15[set.ss15.length - 1].minuta);
+            egzekutorStrategije(stratConfig, set);
+            predChartifikacija(dohvatiTriplet(set));
+        })
+    }, 0);
+}
+
+function floodanjeJezerca() {
     setTimeout(function() {
-        while (set.length < (duljinaCharta)) {
+        while (jezerce.length < (duljinaCharta * 15)) {
             let kap = potok.read();
             if (kap) {
-                set.push(kap);
+                jezerce.push(kap);
             }
         }
-    }, 500);
+    }, 1000);
 }
 
 function dohvatiTriplet(set) {
@@ -158,7 +202,9 @@ function kapaljka(br) {
     for (let i = 0; i < br; i++) {
         let kap = potok.read();
         if (kap) {
-            kanalizacija(kap);
+            jezerce.push(kap);
+            jezerce.shift();
+            kanalizacija(jezerce);
         }
     }
 }
@@ -459,15 +505,13 @@ http.createServer(function (req, response) {
     response.write(fs.readFileSync(gornjiHTMLPath));
     response.write('<script>');
     if (parsaj(req.url)) { kapaljka(parsaj(req.url)) } 
-    // sastavljamo sendvič od HTML-a, JS-a i JSON-a, s vremenskim odmakom
-    setTimeout(() => {
-        let chartGeteri = "let ctx1min = document.getElementById('chart1min').getContext('2d');let ctx15min = document.getElementById('chart15min').getContext('2d');";
-        let chart1min = "let chart1min = new Chart(ctx1min, " + JSON.stringify(stvaranjeCharta(chartData).m1) + ");";
-        let chart15min = "let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta(chartData).m15) + ");";
-        response.write(chartGeteri);
-        response.write(chart1min);
-        response.write(chart15min);
-    }, 500);
+    // sastavljamo sendvič od HTML-a, JS-a i JSON-a
+    let chartGeteri = "let ctx1min = document.getElementById('chart1min').getContext('2d');let ctx15min = document.getElementById('chart15min').getContext('2d');";
+    let chart1min = "let chart1min = new Chart(ctx1min, " + JSON.stringify(stvaranjeCharta(chartData).m1) + ");";
+    let chart15min = "let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta(chartData).m15) + ");";
+    response.write(chartGeteri);
+    response.write(chart1min);
+    response.write(chart15min);
     response.write('</script></body></html>');
     response.end();
 }).listen(1337, '127.0.0.1');
