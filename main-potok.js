@@ -108,11 +108,12 @@ const inSize = 15;
 const outSize = 2;
 const prosirenje = 1;
 
+// instanciramo potok i kanale
 const potok = agroPotok.agro(mod, inputter, rezolucija, inSize, outSize, prosirenje);
 const kanal = {
-    k1: potok.pipe(new agroPotok.Agregator(1)),
-    k5: potok.pipe(new agroPotok.Agregator(5)),
-    k15: potok.pipe(new agroPotok.Agregator(15))
+    k1: potok.pipe(agroPotok.Agregator(1)),
+    k5: potok.pipe(agroPotok.Agregator(5)),
+    k15: potok.pipe(agroPotok.Agregator(15))
 }
 const set = {
     ss1: [],
@@ -122,27 +123,64 @@ const set = {
 
 /*-----------------FUNKCIJE-------------------*/
 
-function kanalizacija(kendl) {
-    // pajpamo kanale kroz pisce u promise set
-    if (set.ss1.length === duljinaCharta) {
+/* algoritam */
+// initFloodanje(set,kanal)
 
-    }
-    setTimeout(() => {
-        console.log(set.ss15[set.ss15.length - 1].minuta);
-        egzekutorStrategije(stratConfig, set);
-        predChartifikacija(dohvatiTriplet(set));
-    }, 0);
+async function usisKapi(kanalica) {
+    return new Promise(res => kanalica.on('readable', res(kanalica.read())))
 }
 
-function floodanjeSeta(set, duljinaCharta, potok) {
-    setTimeout(function() {
-        while (set.length < (duljinaCharta)) {
-            let kap = potok.read();
-            if (kap) {
-                set.push(kap);
-            }
+async function kapaljka(kanal) {
+    let kap = {
+        k1:null,
+        k5:null,
+        k15:null 
+    }
+    usisKapi(kanal.k1).then((kaplja) => {
+        kap.k1 = kaplja;
+        console.log(kap.k1);
+        if (kap.k1.minuta % 5 === 0) kap.k5 = kanal.k5.read();
+    })
+        if (kap.k1.minuta % 5 === 0) kap.k5 = kanal.k5.read();
+        if (kap.k1.minuta % 15 === 0) kap.k15 = kanal.k15.read();
+        return kap
+    })
+}
+
+function initFloodanje(set, kanal) {
+    while (set.ss15.length < duljinaCharta) {
+        let kap = kapaljka(kanal);
+        if (kap.k1) {
+            set.ss1.push(kap.k1);
         }
-    }, 500);
+        if (kap.k5) {
+            set.ss5.push(kap.k5);
+        }
+        if (kap.k15) {
+            set.ss15.push(kap.k15);
+        }
+    }
+}
+
+function kanalizacija(set, kanal, br) {
+    for (let i = 0; i < br; i++) {
+        let kap = kapaljka(kanal);
+        console.log(kap);
+        if (kap.k1) {
+            set.ss1.push(kap.k1);
+            set.ss1.shift();
+        }
+        if (kap.k5) {
+            set.ss5.push(kap.k5);
+            set.ss5.shift();
+        }
+        if (kap.k15) {
+            set.ss15.push(kap.k15);
+            set.ss15.shift();
+        }
+        egzekutorStrategije(stratConfig, set);
+        predChartifikacija(dohvatiTriplet(set));
+    }
 }
 
 function dohvatiTriplet(set) {
@@ -152,15 +190,6 @@ function dohvatiTriplet(set) {
         k15: set.ss15[set.ss15.length - 1]
     }
     return triplet;
-}
-
-function kapaljka(br) {
-    for (let i = 0; i < br; i++) {
-        let kap = potok.read();
-        if (kap) {
-            kanalizacija(kap);
-        }
-    }
 }
 
 function parsaj(url) {
@@ -449,25 +478,21 @@ function egzekutorStrategije(config, set) {
 
 /*-----------------ALGORITAM-------------------*/
 
-// inicijalni krug da se popune subseti dovoljno za chart
-floodanjeJezerca();
-
+initFloodanje(set, kanal);
 
 // madrfakin server
 http.createServer(function (req, response) {
     response.writeHead(200, { 'Content-Type': 'text/html' });
     response.write(fs.readFileSync(gornjiHTMLPath));
     response.write('<script>');
-    if (parsaj(req.url)) { kapaljka(parsaj(req.url)) } 
+    if (parsaj(req.url)) kanalizacija(set, kanal, parsaj(req.url));
     // sastavljamo sendvič od HTML-a, JS-a i JSON-a, s vremenskim odmakom
-    setTimeout(() => {
-        let chartGeteri = "let ctx1min = document.getElementById('chart1min').getContext('2d');let ctx15min = document.getElementById('chart15min').getContext('2d');";
-        let chart1min = "let chart1min = new Chart(ctx1min, " + JSON.stringify(stvaranjeCharta(chartData).m1) + ");";
-        let chart15min = "let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta(chartData).m15) + ");";
-        response.write(chartGeteri);
-        response.write(chart1min);
-        response.write(chart15min);
-    }, 500);
+    let chartGeteri = "let ctx1min = document.getElementById('chart1min').getContext('2d');let ctx15min = document.getElementById('chart15min').getContext('2d');";
+    let chart1min = "let chart1min = new Chart(ctx1min, " + JSON.stringify(stvaranjeCharta(chartData).m1) + ");";
+    let chart15min = "let chart15min = new Chart(ctx15min, " + JSON.stringify(stvaranjeCharta(chartData).m15) + ");";
+    response.write(chartGeteri);
+    response.write(chart1min);
+    response.write(chart15min);
     response.write('</script></body></html>');
     response.end();
 }).listen(1337, '127.0.0.1');
