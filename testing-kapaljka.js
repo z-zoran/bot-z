@@ -17,6 +17,12 @@ let br = 2;
 
 let tekst = '<p>';
 
+
+const potok = agro.agro(mod, inputter, rezolucija, inSize, outSize, prosirenje);
+setTimeout(() => {
+    console.log(potok.read());
+}, 100);
+
 function kapanje(br) {
     for (let i = 0; i < br; i++) {
         let jedan = potok.read();
