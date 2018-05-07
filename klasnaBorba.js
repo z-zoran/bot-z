@@ -130,16 +130,17 @@ klas.Portfolio.prototype.ubiLimit = function ubiLimit(koji) {
 
 // METODA ZA REALIZACIJU LIMIT ORDERA, ODNOSNO ZA STVARANJE POZICIJE
 klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
-	let pozData = {};
 	// definiramo pozData za stvaranje nove pozicije.
-	pozData.pfID = this.pfID;
-	pozData.tip = koja;
-	pozData.market = this.limiti[koja].market;
-	pozData.baseTiker = this.limiti[koja].baseTiker;
-	pozData.base = this.limiti[koja].iznos;
-	pozData.quoteTiker = this.limiti[koja].quoteTiker;
-	pozData.quote = this.limiti[koja].umnozak;
-	pozData.cijena = pozData.quote / pozData.base;
+	let pozData = {
+		pfID: this.pfID,
+		tip: koja,
+		market: this.limiti[koja].market,
+		baseTiker: this.limiti[koja].baseTiker,
+		base: this.limiti[koja].iznos,
+		quoteTiker: this.limiti[koja].quoteTiker,
+		quote: this.limiti[koja].umnozak,
+		cijena: pozData.quote / pozData.base
+	};
 	if (koja === 'buy') {
 		pozData.stop = pozData.cijena + odmakPhi;
 	} else if (koja === 'sell') {
@@ -148,8 +149,6 @@ klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 	this.pozCounter += 1; 	// povečavamo counter za id pozicije
 	let pozCounterString = (this.pozCounter.toString()).padStart(4, "0");
 	this.pozicije[pozCounterString] = new klas.Pozicija(pozCounterString, pozData);
-	let poruka = 'LimitOrder ' + this.limiti[koja].id + ' konzumiran. Stvorena ' + koja + ' pozicija id: ' + pozCounterString + ' | iznos: ' + pozData.base.toFixed(6) + ' | cijena: ' + pozData.cijena.toFixed(2) + ' | stop: ' + pozData.stop.toFixed(2);
-	// pisalo.pisi(poruka);
 	delete this.limiti[koja];
 }
 

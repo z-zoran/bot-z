@@ -1,28 +1,21 @@
+"use strict";
 
-async function mozeSe(kanalica) {
-    return new Promise(resolve => kanalica.on('readable', resolve));
+let koliko = 0;
+
+function obecanje() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            koliko++;
+            resolve('tajmer ' + koliko);
+        }, 2000);
+    })
 }
 
-async function citac(kanalica) {
-    let kap = kanalica.read();
-    if (kap) {
-        return new Promise(resolve => resolve(kap));
-    } else {
-        return new Promise(resolve => {
-            this.mozeSe(kanalica).then(() => {
-                this.citac(kanalica).then(kap => resolve(kap));
-            });
-        });
+async function test(br) {
+    for (let i = 0; i < br; i++) {
+        console.log('iteracija: ' + (i + 1));
+        console.log('tester: ' + await obecanje());
     }
 }
 
-async function main() {
-    console.log('begin');
-    console.log((await readBytes(10)).length);
-    console.log((await readBytes(65535)).length);
-    console.log((await readBytes(100000)).length);
-    console.log((await readBytes(10)).length);
-    console.log('end');
-}
-
-main();
+test(3);
