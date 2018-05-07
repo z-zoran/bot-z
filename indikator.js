@@ -8,6 +8,26 @@ console.log("Tulip Indicators version is:");
 console.log(tulind.version);
 */
 
+// EMA
+/**
+ Initial SMA: 10-period sum / 10 
+
+Multiplier: (2 / (Time periods + 1) ) = (2 / (10 + 1) ) = 0.1818 (18.18%)
+
+EMA: {Close - EMA(previous day)} x multiplier + EMA(previous day). 
+ * 
+ */
+function emaProblema(period, set) {
+    let suma = 0;
+    for (let i = 1; i <= period; i++) {
+        suma += set[set.length - i].C
+    }
+    suma /= period;
+    // vratiti iz test3.js
+}
+
+
+
 
 // STANDARDNA to jest Z. DEVIJACIJA
 // input su kendlovi
