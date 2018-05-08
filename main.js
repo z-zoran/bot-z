@@ -217,7 +217,8 @@ function predChartifikacija(kendl1, kendl15) {
             chartData.m1.close.shift();
         }
     }
-    chartData.m1.vrijeme.push(kendl1.datum + ' ' + String(kendl1.sat).padStart(2, "0") + ':' + String(kendl1.minuta).padStart(2, "0"));
+    let vrijeme = `${kendl1.vrijeme.getFullYear()}-${kendl1.vrijeme.getMonth() + 1}-${kendl1.vrijeme.getDate()} ${String(kendl1.vrijeme.getHours()).padStart(2, "0")}:${String(kendl1.vrijeme.getMinutes()).padStart(2, "0")}`;
+    chartData.m1.vrijeme.push(vrijeme);
     while (chartData.m1.vrijeme.length !== duljinaCharta) {
         if (chartData.m1.vrijeme.length < duljinaCharta) {
             chartData.m1.vrijeme.unshift(null);
@@ -364,7 +365,8 @@ function predChartifikacija(kendl1, kendl15) {
     /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
     chartData.m15.high.push(kendl1.H);
     chartData.m15.low.push(kendl1.L);
-    chartData.m15.vrijeme.push(kendl1.datum + ' ' + String(kendl1.sat).padStart(2, "0") + ':' + String(kendl1.minuta).padStart(2, "0"));
+    let vrijeme = `${kendl1.vrijeme.getFullYear()}-${kendl1.vrijeme.getMonth() + 1}-${kendl1.vrijeme.getDate()} ${String(kendl1.vrijeme.getHours()).padStart(2, "0")}:${String(kendl1.vrijeme.getMinutes()).padStart(2, "0")}`;
+    chartData.m15.vrijeme.push(vrijeme);
     chartData.m15.pasivnoEUR.push(trenutnoEura(kendl1.C, portfolio).uEUR);
     chartData.m15.pasETHuEUR.push(trenutnoEura(kendl1.C, portfolio).uETH);
     chartData.m15.aktLimitiuEUR.push(trenutnoEura(kendl1.C, portfolio).uLimitima);
@@ -513,7 +515,6 @@ function playPauza(koraka) {
         let kendlic = ss1min[i1-1];
         let iznos = 0.5;
         let cijenaSad = kendlic.C;
-        let vrijemeSad = kendlic.datum + ' ' + kendlic.sat + ':' + kendlic.minuta;
 
         for (let i = 0; i < 50; i++) {
             jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa);
