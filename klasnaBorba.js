@@ -139,8 +139,8 @@ klas.Portfolio.prototype.postPoziciju = function postPoziciju(koja, odmakPhi) {
 		base: this.limiti[koja].iznos,
 		quoteTiker: this.limiti[koja].quoteTiker,
 		quote: this.limiti[koja].umnozak,
-		cijena: pozData.quote / pozData.base
-	};
+		cijena: this.limiti[koja].umnozak / this.limiti[koja].iznos
+	}
 	if (koja === 'buy') {
 		pozData.stop = pozData.cijena + odmakPhi;
 	} else if (koja === 'sell') {
@@ -185,7 +185,7 @@ klas.Portfolio.prototype.provjeriTrailere = function provjeriTrailere(cijenaSad)
 
 // METODA ZA NAĆI NAJNIŽI STOP
 klas.Portfolio.prototype.najnizaStopCijena = function najnizaStopCijena() {
-	if (!this.imaStopova) {return}
+	if (!this.imaStopova) return;
 	let najnizaStopCijena = 1000000;
 	for (let pozID in this.pozicije) {
 		if (this.pozicije[pozID].stop < najnizaStopCijena) {
@@ -197,7 +197,7 @@ klas.Portfolio.prototype.najnizaStopCijena = function najnizaStopCijena() {
 
 // METODA ZA NAĆI NAJVIŠI STOP
 klas.Portfolio.prototype.najvisaStopCijena = function najvisaStopCijena() {
-	if (!this.imaStopova) {return}
+	if (!this.imaStopova) return;
 	let najvisaStopCijena = 0;
 	for (let pozID in this.pozicije) {
 		if (this.pozicije[pozID].stop > najvisaStopCijena) {
@@ -217,7 +217,7 @@ klas.Portfolio.prototype.provjeriLimite = function provjeriLimite(cijenaSad, izn
 			noviLimitData.limitCijena = cijenaSad - odmakLambda;
 			this.postPoziciju('buy', odmakPhi);
 			this.postLimit(noviLimitData);
-			if (this.limiti.sell) {this.ubiLimit('sell')} // brišemo sell jer pozicija ima stop
+			if (this.limiti.sell) this.ubiLimit('sell'); // brišemo sell jer pozicija ima stop
 		}
 	}
 	if (this.limiti.sell) {
@@ -227,11 +227,12 @@ klas.Portfolio.prototype.provjeriLimite = function provjeriLimite(cijenaSad, izn
 			noviLimitData.limitCijena = cijenaSad + odmakLambda;
 			this.postPoziciju('sell', odmakPhi);
 			this.postLimit(noviLimitData);
-			if (this.limiti.buy) {this.ubiLimit('buy')} // brišemo buy jer pozicija ima stop
+			if (this.limiti.buy) this.ubiLimit('buy'); // brišemo buy jer pozicija ima stop
 		}
 	}
 }
 
+// tu je negdje greška koja poništi portfolio na samom početku jahanja
 // METODA ZA KOREKCIJU LIMITA
 klas.Portfolio.prototype.korigirajLimite = function korigirajLimite(cijenaSad, iznos, odmakLambda) {
 	// provjera i obavljanje korekcije (približavanje limita)
@@ -285,10 +286,11 @@ klas.Portfolio.prototype.korigirajLimite = function korigirajLimite(cijenaSad, i
 
 // METODA ZA TRIGGERANJE STOPA
 klas.Pozicija.prototype.stopTriggeran = function stopTriggeran(odmak) {
-	let trailerData = {};
-	trailerData.pfID = this.pfID;
-	trailerData.id = this.id;
-	trailerData.cijena = this.cijena;
+	let trailerData = {
+		pfID: this.pfID,
+		id: this.id,
+		cijena: this.cijena,
+	}
 	if (this.tip === 'buy') {
 		trailerData.odmak = odmak * (-1);
 	} else if (this.tip === 'sell') {
