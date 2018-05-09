@@ -232,7 +232,6 @@ klas.Portfolio.prototype.provjeriLimite = function provjeriLimite(cijenaSad, izn
 	}
 }
 
-// tu je negdje greška koja poništi portfolio na samom početku jahanja
 // METODA ZA KOREKCIJU LIMITA
 klas.Portfolio.prototype.korigirajLimite = function korigirajLimite(cijenaSad, iznos, odmakLambda) {
 	// provjera i obavljanje korekcije (približavanje limita)
@@ -252,6 +251,7 @@ klas.Portfolio.prototype.korigirajLimite = function korigirajLimite(cijenaSad, i
 			this.postLimit(noviLimitData);
 		}
 	}
+	// tu je negdje greška koja poništi portfolio na samom početku jahanja
 	// dodavanje limita ako neki fali
     let nemaNijedanLimit = (!this.limiti.sell && !this.limiti.buy);
     let imaObaLimita = (this.limiti.sell && this.limiti.buy);
@@ -271,8 +271,8 @@ klas.Portfolio.prototype.korigirajLimite = function korigirajLimite(cijenaSad, i
             limitData.limitCijena = cijenaSad - odmakLambda;
             this.postLimit(limitData);
         } else if (nemaNijedanLimit) {
-            this.postLimit(new limitDataTemplate(this.pfID, 'sell', 'ETH/EUR', iznos, (cijenaSad + odmakLambda)));
-            this.postLimit(new limitDataTemplate(this.pfID, 'buy', 'ETH/EUR', iznos, (cijenaSad - odmakLambda)));
+            this.postLimit(new limitDataTemplate(this.pfID, 'sell', 'ETH/EUR', iznos, Number(cijenaSad + odmakLambda)));
+            this.postLimit(new limitDataTemplate(this.pfID, 'buy', 'ETH/EUR', iznos, Number(cijenaSad - odmakLambda)));
         } else if (imaObaLimita) {
             // sve ok!
         }

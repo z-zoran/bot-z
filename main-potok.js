@@ -98,7 +98,7 @@ let tekst = '123 nešto.';
 const agroPotok = require('./agroPotok.js');
 
 // CONFIGURACIJA ZA GLAVNI POTOK
-let putanja = './exchdata/testdata3.csv';
+let putanja = './exchdata/testdata2.csv';
 const mod = 'simulacija' // ili 'trening-aps' ili 'trening-log'
 const inputter = fs.createReadStream(putanja);
 const rezolucija = 1;
@@ -107,12 +107,19 @@ const outSize = 2;
 const prosirenje = 1;
 
 // instanciramo glavniPotok i kanale
-const glavniPotok = agroPotok.agro(mod, inputter, rezolucija, inSize, outSize, prosirenje);
+//const glavniPotok = agroPotok.agro(mod, inputter, rezolucija, inSize, outSize, prosirenje);
+const kanal = {
+    k1: agroPotok.agro(mod, inputter, 1, inSize, outSize, prosirenje),
+    k5: agroPotok.agro(mod, inputter, 5, inSize, outSize, prosirenje),
+    k15: agroPotok.agro(mod, inputter, 15, inSize, outSize, prosirenje)
+}
+/*
 const kanal = {
     k1: glavniPotok.pipe(agroPotok.Agregator(1)),
     k5: glavniPotok.pipe(agroPotok.Agregator(5)),
     k15: glavniPotok.pipe(agroPotok.Agregator(15))
 }
+*/
 const set = {
     ss1: [],
     ss5: [],
@@ -148,8 +155,9 @@ async function izKanalaKapamo(kanal) {
         k15:null 
     }
     kap.k1 = await kapaljka(kanal.k1);
-    if (kap.k1.minuta % 5 === 0) kap.k5 = await kapaljka(kanal.k5);
-    if (kap.k1.minuta % 15 === 0) kap.k15 = await kapaljka(kanal.k15);
+    //if (kap.k1.minuta % 5 === 0) kap.k5 = await kapaljka(kanal.k5);
+    //if (kap.k1.minuta % 15 === 0) kap.k15 = await kapaljka(kanal.k15);
+    console.log('kap  ' + JSON.stringify(kap.k1));
     return kap;
 }
 
@@ -168,7 +176,6 @@ async function kapPoKap(br, kanal, set) {
 function rafinerijaKapi(set) {
     // sa svakom kapi, vrtimo sve ove funkcije
     egzekutorStrategije(stratConfig, set);
-    console.log('rafinerija ' + ' ' + portfolio.EUR + '€');
     predChartifikacija(dohvatiTriplet(set));
 }
 
@@ -179,6 +186,8 @@ async function initFloodanjeSetova(kanal, set) {
         if (kap.k1) set.ss1.push(kap.k1);
         if (kap.k5) set.ss5.push(kap.k5);
         if (kap.k15) set.ss15.push(kap.k15);
+        predChartifikacija(dohvatiTriplet(set));
+
     }
     // korigiranje duljine setova na duljinuCharta (vjerojatno 60)
     for (let ss in set) shiftUnshift(set[ss], duljinaCharta);
@@ -460,7 +469,7 @@ const stratConfig = {
     koefLambda: 2,
     koefTau: 0.3,
     koefKappa: 2.5,
-    ciklusaJahanja: 3
+    ciklusaJahanja: 1
 }
 
 function egzekutorStrategije(config, set) {
@@ -473,7 +482,7 @@ function egzekutorStrategije(config, set) {
     let odmakLambda = config.koefLambda * dev5;
     let odmakTau = config.koefTau * dev5;
     let koefKappa = config.koefKappa; 
-
+    console.log('egzekutor dev5 ' + dev5);
     for (let i = 0; i < config.ciklusaJahanja; i++) {
         jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa);
     }

@@ -14,17 +14,11 @@ let strat = {};
 /*-----------------------STRATEGIJA: JAHANJE CIJENE-----------------------*/
 // THE strategija
 strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa) {  // strategija za jahanje cijene 
-    console.log('provjeri trailere ' + ' ' + portfolio.EUR + '€');
     portfolio.provjeriTrailere(cijenaSad);
-    console.log('obavi killove ' + ' ' + portfolio.EUR + '€');
     portfolio.obaviKillove(cijenaSad, koefKappa);
-    console.log('provjeri limite ' + ' ' + portfolio.EUR + '€');
     portfolio.provjeriLimite(cijenaSad, iznos, odmakLambda, odmakPhi);
-    console.log('provjeri stopove ' + ' ' + portfolio.EUR + '€');
     portfolio.provjeriStopove(cijenaSad, odmakTau);
-    console.log('korigiraj limite ' + ' ' + portfolio.EUR + '€');
     portfolio.korigirajLimite(cijenaSad, iznos, odmakLambda)
-    console.log('kraj jahanja ' + ' ' + portfolio.EUR + '€');
 
     // sve smo izvadili u klasnaBorba.js
     // ovdje samo zovemo metode

@@ -48,52 +48,52 @@ function emaProblema(period, set) {
 // Čini mi se da takva formula bolje opisuje average jednog kendla. Onda za svaki kendl računamo tako nešto.
 
 function zDevijacija(data, period) {  // inputi su lista kendlova (zadnji najnoviji) i željeni period (recimo 20)
-  let p = 0;
-  let subSet = {};
-  subSet.kendl = [];
-  subSet.sumaMeanova = 0;
-  for (let i = 0; i < period; i++) {
-    p = data.length - i - 1;  // brojimo data unazad od najnovijeg kendla prema starijima
-    subSet.kendl[i] = {};   // za razliku od data, subSetov prvi kendl element je najnoviji, pa prema starijima
+    let p = 0;
+    let subSet = {};
+    subSet.kendl = [];
+    subSet.sumaMeanova = 0;
+    for (let i = 0; i < period; i++) {
+        p = data.length - i - 1;  // brojimo data unazad od najnovijeg kendla prema starijima
+        subSet.kendl[i] = {};   // za razliku od data, subSetov prvi kendl element je najnoviji, pa prema starijima
+        
+        // debug:
+        // console.log(data[p].volBuyeva);
+
+        // prvo treba izračunati mean za svaki kendl
+        subSet.kendl[i].kendlMean = ((data[p].H * data[p].volBuyeva) + (data[p].L * Math.abs(data[p].volSellova))) / (data[p].volBuyeva + Math.abs(data[p].volSellova));
+        // onda, jer će nam kasnije trebat, bilježimo u subSet za svaki kendl H i L
+        subSet.kendl[i].H = data[p].H;
+        subSet.kendl[i].L = data[p].L;
+        // zbrajamo sve meanove
+        subSet.sumaMeanova += subSet.kendl[i].kendlMean;  
+    }
+    // dijelimo s periodom da dobijemo mean cijelog perioda
+    subSet.periodMean = subSet.sumaMeanova / period;
+    subSet.sumaKvadrata = 0;
+    for (let j = 0; j < period; j++) {
+        // računamo udaljenost najudaljenije cijene svakog kendla od meana cijelog perioda
+        let meanDoHigh = Math.abs(subSet.kendl[j].H - subSet.periodMean);
+        let meanDoLow = Math.abs(subSet.kendl[j].L - subSet.periodMean);
+        // tražimo najveću udaljenost i onda ju kvadriramo
+        if (meanDoHigh > meanDoLow) {
+        subSet.kendl[j].kvadratUdaljenostiMeana = meanDoHigh * meanDoHigh;
+        } else {
+        subSet.kendl[j].kvadratUdaljenostiMeana = meanDoLow * meanDoLow;
+        }
+        // zbrajamo sve kvadrate
+        subSet.sumaKvadrata += subSet.kendl[j].kvadratUdaljenostiMeana;
+    }
+    // djelimo sumu kvadrata s periodom
+    let prijeKorjena = subSet.sumaKvadrata / period;
+    // tražimo korjen
+    let stDevijacija = Math.sqrt(prijeKorjena);
+    // vraćamo vrijednost. To je st. devijacija samo za zadnji kendl. Za svaki kendl za koji želimo dobiti stdev,
+    // treba kalkulirati kao da je taj kendl zadnji u periodu.
     
     // debug:
-    // console.log(data[p].volBuyeva);
-
-    // prvo treba izračunati mean za svaki kendl
-    subSet.kendl[i].kendlMean = ((data[p].H * data[p].volBuyeva) + (data[p].L * Math.abs(data[p].volSellova))) / (data[p].volBuyeva + Math.abs(data[p].volSellova));
-    // onda, jer će nam kasnije trebat, bilježimo u subSet za svaki kendl H i L
-    subSet.kendl[i].H = data[p].H;
-    subSet.kendl[i].L = data[p].L;
-    // zbrajamo sve meanove
-    subSet.sumaMeanova += subSet.kendl[i].kendlMean;  
-  }
-  // dijelimo s periodom da dobijemo mean cijelog perioda
-  subSet.periodMean = subSet.sumaMeanova / period;
-  subSet.sumaKvadrata = 0;
-  for (let j = 0; j < period; j++) {
-    // računamo udaljenost najudaljenije cijene svakog kendla od meana cijelog perioda
-    let meanDoHigh = Math.abs(subSet.kendl[j].H - subSet.periodMean);
-    let meanDoLow = Math.abs(subSet.kendl[j].L - subSet.periodMean);
-    // tražimo najveću udaljenost i onda ju kvadriramo
-    if (meanDoHigh > meanDoLow) {
-      subSet.kendl[j].kvadratUdaljenostiMeana = meanDoHigh * meanDoHigh;
-    } else {
-      subSet.kendl[j].kvadratUdaljenostiMeana = meanDoLow * meanDoLow;
-    }
-    // zbrajamo sve kvadrate
-    subSet.sumaKvadrata += subSet.kendl[j].kvadratUdaljenostiMeana;
-  }
-  // djelimo sumu kvadrata s periodom
-  let prijeKorjena = subSet.sumaKvadrata / period;
-  // tražimo korjen
-  let stDevijacija = Math.sqrt(prijeKorjena);
-  // vraćamo vrijednost. To je st. devijacija samo za zadnji kendl. Za svaki kendl za koji želimo dobiti stdev,
-  // treba kalkulirati kao da je taj kendl zadnji u periodu.
-  
-  // debug:
-  // console.log(subSet.kendl[3]);
-  
-  return stDevijacija;
+    // console.log(subSet.kendl[3]);
+    
+    return stDevijacija;
 
 }
 
