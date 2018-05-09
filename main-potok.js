@@ -239,7 +239,8 @@ function predChartifikacija(tripletKendl) {
     chartData.m1.close.push(tripletKendl.k1.C);
     shiftUnshift(chartData.m1.close, duljinaCharta);
 
-    chartData.m1.vrijeme.push(tripletKendl.k1.datum + ' ' + String(tripletKendl.k1.sat).padStart(2, "0") + ':' + String(tripletKendl.k1.minuta).padStart(2, "0"));
+    let vrijeme = `${tripletKendl.k1.vrijeme.getFullYear()}-${tripletKendl.k1.vrijeme.getMonth() + 1}-${tripletKendl.k1.vrijeme.getDate()} ${String(tripletKendl.k1.vrijeme.getHours()).padStart(2, "0")}:${String(tripletKendl.k1.vrijeme.getMinutes()).padStart(2, "0")}`;
+    chartData.m1.vrijeme.push(vrijeme);
     shiftUnshift(chartData.m1.vrijeme, duljinaCharta);
 
     /**** GURANJE BUY LIMITA ****/
@@ -354,13 +355,14 @@ function predChartifikacija(tripletKendl) {
     }
 
     /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
-    chartData.m15.high.push(tripletKendl.k1.H);
-    chartData.m15.low.push(tripletKendl.k1.L);
-    chartData.m15.vrijeme.push(tripletKendl.k1.datum + ' ' + String(tripletKendl.k1.sat).padStart(2, "0") + ':' + String(tripletKendl.k1.minuta).padStart(2, "0"));
-    chartData.m15.pasivnoEUR.push(trenutnoEura(tripletKendl.k1.C, portfolio).uEUR);
-    chartData.m15.pasETHuEUR.push(trenutnoEura(tripletKendl.k1.C, portfolio).uETH);
-    chartData.m15.aktLimitiuEUR.push(trenutnoEura(tripletKendl.k1.C, portfolio).uLimitima);
-    chartData.m15.aktPozicijeuEUR.push(trenutnoEura(tripletKendl.k1.C, portfolio).uPozicijama);
+    chartData.m15.high.push(tripletKendl.k15.H);
+    chartData.m15.low.push(tripletKendl.k15.L);
+    let vrijeme = `${tripletKendl.k15.vrijeme.getFullYear()}-${tripletKendl.k15.vrijeme.getMonth() + 1}-${tripletKendl.k15.vrijeme.getDate()} ${String(tripletKendl.k15.vrijeme.getHours()).padStart(2, "0")}:${String(tripletKendl.k15.vrijeme.getMinutes()).padStart(2, "0")}`;
+    chartData.m15.vrijeme.push(vrijeme);
+    chartData.m15.pasivnoEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uEUR);
+    chartData.m15.pasETHuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uETH);
+    chartData.m15.aktLimitiuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uLimitima);
+    chartData.m15.aktPozicijeuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uPozicijama);
     for (let c in chartData.m15) {
         shiftUnshift(chartData.m15[c], duljinaCharta);
     }
