@@ -5,33 +5,31 @@ const stream = require('stream');
 const fs = require('fs');
 const alatke = require('./alatke.js');
 const ratio = alatke.odnosTriBroja;
+const plusMinuta = alatke.plusMinuta;
+
 
 function kendl1Template(trejd) {
-    let kendl = {};
-    kendl.O = trejd.cijena;
-    kendl.H = trejd.cijena;
-    kendl.L = trejd.cijena;
-    kendl.C = trejd.cijena;
-    kendl.datum = trejd.datum;
-    kendl.sat = trejd.sat;
-    kendl.minuta = trejd.minuta;
-    kendl.volBuyeva = 0;
-    kendl.volSellova = 0;
-    return kendl;
+    return {
+        O: trejd.cijena,
+        H: trejd.cijena,
+        L: trejd.cijena,
+        C: trejd.cijena,
+        vrijeme: trejd.vrijeme,
+        volBuyeva: 0,
+        volSellova: 0
+    }
 }
 
 function kendlAgroTemplate(prvi) {
-    let kendl = {};
-    kendl.O = prvi.O;
-    kendl.H = prvi.H;
-    kendl.L = prvi.L;
-    kendl.C = prvi.C;
-    kendl.datum = prvi.datum;
-    kendl.sat = prvi.sat;
-    kendl.minuta = prvi.minuta;
-    kendl.volBuyeva = 0;
-    kendl.volSellova = 0;
-    return kendl;
+    return {
+        O: prvi.O,
+        H: prvi.H,
+        L: prvi.L,
+        C: prvi.C,
+        vrijeme: prvi.vrijeme,
+        volBuyeva: 0,
+        volSellova: 0
+    }
 }
 
 class zTransform extends stream.Transform {
@@ -51,73 +49,110 @@ const objektifikator = new zTransform({
         // 2017-08-24 11:57:42,-18.7448,324.64
         let sjeckani = chunk.split(',');
         if (sjeckani[0] !== 'timestamp') {
-            let vrijeme = sjeckani[0].split(' ');
-            let hms = vrijeme[1].split(':');
-            let trejd = {};
-            trejd.datum = vrijeme[0];
-            trejd.sat = Number(hms[0]); 
-            trejd.minuta = Number(hms[1]);
-            trejd.sekunda = Number(hms[2]);
-            trejd.volumen = Number(sjeckani[1]);     
-            trejd.cijena = Number(sjeckani[2]);
+            let zaokruzenoVrijeme = new Date(sjeckani[0]);
+            zaokruzenoVrijeme.setSeconds(0, 0);
+            let trejd = {
+                vrijeme: zaokruzenoVrijeme,
+                volumen: Number(sjeckani[1]),     
+                cijena: Number(sjeckani[2])
+            }
             this.push(trejd);
         }
         callback();
     }
 });
 
+// provjera je li minutu udaljen sljedeći kendl.
+// teško debugiranje u tijeku
+function smijesGurati(prosliKendl, ovajKendl) {
+    if (!(ovajKendl.vrijeme instanceof Date)) {
+        console.log(ovajKendl);
+        throw new Error('ovajKendl.vrijeme nije Date');
+    } 
+    if (prosliKendl.vrijeme) {
+        if (!(prosliKendl.vrijeme instanceof Date)) {
+            console.log('šta je ovo');
+            console.log(prosliKendl);
+            throw new Error('prosliKendl.vrijeme nije Date');
+        } 
+        let razlika = ovajKendl.vrijeme.getTime() - prosliKendl.vrijeme.getTime();
+        console.log(razlika);
+        if (razlika === 60000) {
+            return true;
+        } else {
+            console.log(prosliKendl.vrijeme);
+            console.log(ovajKendl.vrijeme);
+            return false;   
+        } 
+    } 
+    return true;
+}
+
 const kendlizator = new zTransform({
     objectMode: true,
     transform(chunk, encoding, callback) {
-        /*
-        this.tempArr.push(chunk);
-        let minuta = chunk.minuta;
-        */
         let zadnjiTrejd = this.tempArr[this.tempArr.length - 1];
         let prazanJeTempArr = !zadnjiTrejd;
-        //let josNijeGotovKendl = ((!prazanJeTempArr) && (zadnjiTrejd.minuta === chunk.minuta));
-        let josNijeGotovKendl = !prazanJeTempArr && (zadnjiTrejd.minuta === chunk.minuta);
+        let josNijeGotovKendl = !prazanJeTempArr && (zadnjiTrejd.vrijeme.getTime() === chunk.vrijeme.getTime());
         let brojilo = 0;
         if (prazanJeTempArr || josNijeGotovKendl) {
             this.tempArr.push(chunk);
-        } else if (chunk.minuta > zadnjiTrejd.minuta) {
-            brojilo = chunk.minuta - zadnjiTrejd.minuta;
-        } else if (chunk.minuta < zadnjiTrejd.minuta) {
-            brojilo = chunk.minuta + (60 - zadnjiTrejd.minuta);
+        } else {
+            let milisek = chunk.vrijeme.getTime() - zadnjiTrejd.vrijeme.getTime();
+            if (milisek % 60000 !== 0) throw new Error('Ne poklapaju se milisekunde.');
+            brojilo = milisek / 60000; // dobijemo broj minuta između novog i zadnjeg trejda
         }
         if (brojilo > 0) {
             // chunk na čekanju dok ne složimo kendl
-            let kendl = kendl1Template(this.tempArr[0])
+            let kendl = kendl1Template(this.tempArr[0]);
+            // iteriramo po trejdovima
             for (let i = 0; i < this.tempArr.length; i++) {
                 let trejd = this.tempArr[i];
-                if (trejd.cijena > kendl.H) {kendl.H = trejd.cijena}
-                if (trejd.cijena < kendl.L) {kendl.L = trejd.cijena}
-                if (trejd.volumen > 0) {kendl.volBuyeva += trejd.volumen}
-                if (trejd.volumen < 0) {kendl.volSellova += trejd.volumen}
+                if (trejd.cijena > kendl.H) kendl.H = trejd.cijena;
+                if (trejd.cijena < kendl.L) kendl.L = trejd.cijena;
+                if (i === this.tempArr.length - 1) kendl.C = trejd.cijena;
+                if (trejd.volumen > 0) kendl.volBuyeva += trejd.volumen;
+                if (trejd.volumen < 0) kendl.volSellova += trejd.volumen;
+                if (trejd.vrijeme.getTime() !== kendl.vrijeme.getTime()) throw new Error('Trejdovi nisu u istoj minuti.');
             }
-            this.zadnjiPushan = kendl;
-            this.push(kendl); // šaljemo gotov 1min kendl dalje
+            // prvo provjera jel su minute ok
+            if (smijesGurati(this.zadnjiPushan, kendl)) {
+                this.zadnjiPushan = kendl;
+                this.push(kendl); // šaljemo gotov 1min kendl dalje
+            }
             // ako je slučajno prošlo više minuta, popunjavamo s praznim kendlovima
-            let fillKendl = JSON.parse(JSON.stringify(kendl));
-            fillKendl.volBuyeva = 0;
-            fillKendl.volSellova = 0;
-            fillKendl.O = fillKendl.H = fillKendl.L = fillKendl.C;
-            for (let i = 1; i < brojilo; i++) {
-                if (fillKendl.minuta === 59) {
-                    fillKendl.minuta = 0;
-                    if (fillKendl.sat === 23) {
-                        throw new Error('Prekardašili smo sate u danu. agroPotok/Kendlizator');
-                    } else {
-                        fillKendl.sat += 1;
+            if (brojilo > 1) {
+                let fillKendl = JSON.parse(JSON.stringify(kendl));
+                fillKendl.vrijeme = kendl.vrijeme;
+                fillKendl.volBuyeva = 0;
+                fillKendl.volSellova = 0;
+                fillKendl.O = fillKendl.H = fillKendl.L = fillKendl.C;
+                console.log('ovo je zadnji pravi ' + kendl.vrijeme);
+                
+                for (let i = 1; i < brojilo; i++) {
+
+                    // debug, obrisati
+                    if (!(fillKendl.vrijeme instanceof Date)) {
+                        console.log(brojilo);
+                        console.log(fillKendl);
+                        console.log(chunk);
+                        throw new Error('Vrijeme nije Date u fillKendlu');
                     }
-                } else {
-                    fillKendl.minuta += 1;
+                    
+                    fillKendl.vrijeme = plusMinuta(fillKendl.vrijeme, 1);
+                    
+                    // provjera prije pušanja dalje
+                    if (smijesGurati(this.zadnjiPushan, fillKendl)) {
+                        this.zadnjiPushan = fillKendl;
+                        this.push(fillKendl);
+                    }
+                    console.log('pušan fill ' + fillKendl.vrijeme);
+
                 }
-                this.zadnjiPushan = fillKendl;
-                this.push(fillKendl);
+                this.tempArr = []; // flushamo temp array
+                this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
+                console.log('ovo je čank ' + chunk.vrijeme);
             }
-            this.tempArr = []; // flushamo temp array
-            this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
         }
         callback();
     }
@@ -128,20 +163,17 @@ function Agregator(rezolucija) {
         objectMode: true,
         rezolucija: rezolucija,
         transform(chunk, encoding, callback) {
-            if ((chunk.minuta % this.rezolucija === 0) && (this.tempArr.length > 0)) {
+            if ((chunk.vrijeme.getMinutes() % this.rezolucija === 0) && (this.tempArr.length > 0)) {
                 let agroKendl = kendlAgroTemplate(this.tempArr[0]);
                 for (let i = 0; i < this.tempArr.length; i++) {
                     let tempKendl = this.tempArr[i];
-                    if (tempKendl.H > agroKendl.H) {agroKendl.H = tempKendl.H}
-                    if (tempKendl.L < agroKendl.L) {agroKendl.L = tempKendl.L}
+                    if (tempKendl.H > agroKendl.H) agroKendl.H = tempKendl.H;
+                    if (tempKendl.L < agroKendl.L) agroKendl.L = tempKendl.L;
+                    if (i === this.tempArr.length - 1) agroKendl.C = tempKendl.C;
                     agroKendl.volBuyeva += tempKendl.volBuyeva;
                     agroKendl.volSellova += tempKendl.volSellova;
                 }
-                let zadnjiTempKendl = this.tempArr[this.tempArr.length - 1];
-                agroKendl.C = zadnjiTempKendl.C;
-                agroKendl.datum = chunk.datum;
-                agroKendl.sat = chunk.sat;
-                agroKendl.minuta = chunk.minuta;
+                agroKendl.vrijeme = plusMinuta(chunk.vrijeme, 0);
                 this.tempArr = []; // flushamo temp array
                 this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
                 this.push(agroKendl); // šaljemo gotov kendl dalje

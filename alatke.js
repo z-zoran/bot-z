@@ -4,6 +4,13 @@
 
 let alatke = {};
 
+// za dodavanje minuta date objektima
+alatke.plusMinuta = function plusMinuta(vrijeme, koliko) {
+    //console.log(vrijeme);
+    
+    return new Date(vrijeme.getTime() + (koliko * 60000));
+}
+
 // funkcija vraća odnos 3 broja kao postotak (na koliko posto je srednji)
 alatke.odnosTriBroja = function odnosTriBroja(gornja, srednja, donja) {
     let cijeliKanal = gornja - donja;

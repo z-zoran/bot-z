@@ -155,9 +155,15 @@ async function izKanalaKapamo(kanal) {
         k15:null 
     }
     kap.k1 = await kapaljka(kanal.k1);
-    //if (kap.k1.minuta % 5 === 0) kap.k5 = await kapaljka(kanal.k5);
-    //if (kap.k1.minuta % 15 === 0) kap.k15 = await kapaljka(kanal.k15);
-    console.log('kap  ' + JSON.stringify(kap.k1));
+    if (kap.k1.vrijeme.getMinutes() % 5 === 0) kap.k5 = await kapaljka(kanal.k5);
+    if (kap.k1.vrijeme.getMinutes() % 15 === 0) kap.k15 = await kapaljka(kanal.k15);
+    
+    // debug logovi, obrisati
+    console.log('kap1 ' + kap.k1.vrijeme.getHours() + ':' + kap.k1.vrijeme.getMinutes());
+    if (kap.k5) console.log('kap5 ' + kap.k5.vrijeme.getHours() + ':' + kap.k5.vrijeme.getMinutes());
+    if (kap.k15) console.log('kap15 ' + kap.k15.vrijeme.getHours() + ':' + kap.k15.vrijeme.getMinutes());
+    console.log();
+
     return kap;
 }
 
@@ -167,6 +173,9 @@ async function kapPoKap(br, kanal, set) {
         if (kap.k1) set.ss1.push(kap.k1);
         if (kap.k5) set.ss5.push(kap.k5);
         if (kap.k15) set.ss15.push(kap.k15);
+        
+        if (!portfolio.EUR) throw new Error('Portfolio se zbrčko');
+        
         console.log('kap po kap ' + i + ' ' + portfolio.EUR + '€');
         rafinerijaKapi(set);
     }
@@ -175,7 +184,13 @@ async function kapPoKap(br, kanal, set) {
 
 function rafinerijaKapi(set) {
     // sa svakom kapi, vrtimo sve ove funkcije
-    egzekutorStrategije(stratConfig, set);
+    try {
+        egzekutorStrategije(stratConfig, set);
+    } catch(e) {
+        console.log(dohvatiTriplet(set).k1.vrijeme);
+        console.log(set.k1);
+        throw new Error('proslijeđujem iz egzekutora: ' + e);
+    } 
     predChartifikacija(dohvatiTriplet(set));
 }
 
@@ -187,7 +202,6 @@ async function initFloodanjeSetova(kanal, set) {
         if (kap.k5) set.ss5.push(kap.k5);
         if (kap.k15) set.ss15.push(kap.k15);
         predChartifikacija(dohvatiTriplet(set));
-
     }
     // korigiranje duljine setova na duljinuCharta (vjerojatno 60)
     for (let ss in set) shiftUnshift(set[ss], duljinaCharta);
@@ -239,8 +253,8 @@ function predChartifikacija(tripletKendl) {
     chartData.m1.close.push(tripletKendl.k1.C);
     shiftUnshift(chartData.m1.close, duljinaCharta);
 
-    let vrijeme = `${tripletKendl.k1.vrijeme.getFullYear()}-${tripletKendl.k1.vrijeme.getMonth() + 1}-${tripletKendl.k1.vrijeme.getDate()} ${String(tripletKendl.k1.vrijeme.getHours()).padStart(2, "0")}:${String(tripletKendl.k1.vrijeme.getMinutes()).padStart(2, "0")}`;
-    chartData.m1.vrijeme.push(vrijeme);
+    let cajt1 = `${tripletKendl.k1.vrijeme.getFullYear()}-${tripletKendl.k1.vrijeme.getMonth() + 1}-${tripletKendl.k1.vrijeme.getDate()} ${String(tripletKendl.k1.vrijeme.getHours()).padStart(2, "0")}:${String(tripletKendl.k1.vrijeme.getMinutes()).padStart(2, "0")}`;
+    chartData.m1.vrijeme.push(cajt1);
     shiftUnshift(chartData.m1.vrijeme, duljinaCharta);
 
     /**** GURANJE BUY LIMITA ****/
@@ -355,16 +369,18 @@ function predChartifikacija(tripletKendl) {
     }
 
     /**** PUNJENJE DRUGOG ČARTA S CIJENOM, VREMENOM I PORTFOLIOM ****/
-    chartData.m15.high.push(tripletKendl.k15.H);
-    chartData.m15.low.push(tripletKendl.k15.L);
-    let vrijeme = `${tripletKendl.k15.vrijeme.getFullYear()}-${tripletKendl.k15.vrijeme.getMonth() + 1}-${tripletKendl.k15.vrijeme.getDate()} ${String(tripletKendl.k15.vrijeme.getHours()).padStart(2, "0")}:${String(tripletKendl.k15.vrijeme.getMinutes()).padStart(2, "0")}`;
-    chartData.m15.vrijeme.push(vrijeme);
-    chartData.m15.pasivnoEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uEUR);
-    chartData.m15.pasETHuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uETH);
-    chartData.m15.aktLimitiuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uLimitima);
-    chartData.m15.aktPozicijeuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uPozicijama);
-    for (let c in chartData.m15) {
-        shiftUnshift(chartData.m15[c], duljinaCharta);
+    if (tripletKendl.k15) {
+        chartData.m15.high.push(tripletKendl.k15.H);
+        chartData.m15.low.push(tripletKendl.k15.L);
+        let cajt15 = `${tripletKendl.k15.vrijeme.getFullYear()}-${tripletKendl.k15.vrijeme.getMonth() + 1}-${tripletKendl.k15.vrijeme.getDate()} ${String(tripletKendl.k15.vrijeme.getHours()).padStart(2, "0")}:${String(tripletKendl.k15.vrijeme.getMinutes()).padStart(2, "0")}`;
+        chartData.m15.vrijeme.push(cajt15);
+        chartData.m15.pasivnoEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uEUR);
+        chartData.m15.pasETHuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uETH);
+        chartData.m15.aktLimitiuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uLimitima);
+        chartData.m15.aktPozicijeuEUR.push(trenutnoEura(tripletKendl.k15.C, portfolio).uPozicijama);
+        for (let c in chartData.m15) {
+            shiftUnshift(chartData.m15[c], duljinaCharta);
+        }
     }
 }
 
@@ -477,6 +493,7 @@ const stratConfig = {
 function egzekutorStrategije(config, set) {
     let dev5 = devijacija(set.ss5, 20);
     let dev15 = devijacija(set.ss15, 20);
+    if (!dev5 || !dev15) throw new Error('Devijacije se zbrčkale');
     let kendlic = set.ss1[set.ss1.length - 1];
     let cijenaSad = kendlic.C;
     let iznos = config.iznosZaUlog;
@@ -484,7 +501,6 @@ function egzekutorStrategije(config, set) {
     let odmakLambda = config.koefLambda * dev5;
     let odmakTau = config.koefTau * dev5;
     let koefKappa = config.koefKappa; 
-    console.log('egzekutor dev5 ' + dev5);
     for (let i = 0; i < config.ciklusaJahanja; i++) {
         jahanje(portfolio, cijenaSad, iznos, odmakPhi, odmakLambda, odmakTau, koefKappa);
     }
@@ -515,7 +531,7 @@ initFloodanjeSetova(kanal, set);
 http.createServer(function (request, response) {
     monterGlave(response);
     let koliko = parsan(request.url);
-    console.log(koliko);
+    console.log('pročitano kapi: ' + koliko);
     if (koliko) {
         kapPoKap(koliko, kanal, set)
             .then(nakalemiteljRepa(response));

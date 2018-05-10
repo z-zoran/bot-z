@@ -1,21 +1,7 @@
 "use strict";
-
-let koliko = 0;
-
-function obecanje() {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            koliko++;
-            resolve('tajmer ' + koliko);
-        }, 2000);
-    })
-}
-
-async function test(br) {
-    for (let i = 0; i < br; i++) {
-        console.log('iteracija: ' + (i + 1));
-        console.log('tester: ' + await obecanje());
-    }
-}
-
-test(3);
+let a = 1;
+let b = a + 10;
+console.log(a);
+a = 100;
+console.log(a);
+console.log(b);
