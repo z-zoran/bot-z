@@ -65,32 +65,26 @@ const objektifikator = new zTransform({
 // provjera je li minutu udaljen sljedeći kendl.
 // teško debugiranje u tijeku
 function smijesGurati(prosliKendl, ovajKendl) {
-    if (!(ovajKendl.vrijeme instanceof Date)) {
-        console.log(ovajKendl);
-        throw new Error('ovajKendl.vrijeme nije Date');
-    } 
+    if (!(ovajKendl.vrijeme instanceof Date)) throw new Error('ovajKendl.vrijeme nije Date');
+
     if (prosliKendl.vrijeme) {
-        if (!(prosliKendl.vrijeme instanceof Date)) {
-            console.log('šta je ovo');
-            console.log(prosliKendl);
-            throw new Error('prosliKendl.vrijeme nije Date');
-        } 
+        if (!(prosliKendl.vrijeme instanceof Date)) throw new Error('prosliKendl.vrijeme nije Date');
         let razlika = ovajKendl.vrijeme.getTime() - prosliKendl.vrijeme.getTime();
-        console.log(razlika);
         if (razlika === 60000) {
             return true;
         } else {
-            console.log(prosliKendl.vrijeme);
-            console.log(ovajKendl.vrijeme);
+            console.log('udaljenost nije dobra');
+            console.log('stari ' + prosliKendl.vrijeme);
+            console.log('novi  ' + ovajKendl.vrijeme);
             return false;   
         } 
-    } 
-    return true;
+    } else return false;
 }
 
 const kendlizator = new zTransform({
     objectMode: true,
     transform(chunk, encoding, callback) {
+        // informativno: chunkovi su objektificirani trejdovi koji dolaze iz objetifikatora
         let zadnjiTrejd = this.tempArr[this.tempArr.length - 1];
         let prazanJeTempArr = !zadnjiTrejd;
         let josNijeGotovKendl = !prazanJeTempArr && (zadnjiTrejd.vrijeme.getTime() === chunk.vrijeme.getTime());
@@ -102,8 +96,7 @@ const kendlizator = new zTransform({
             if (milisek % 60000 !== 0) throw new Error('Ne poklapaju se milisekunde.');
             brojilo = milisek / 60000; // dobijemo broj minuta između novog i zadnjeg trejda
         }
-        if (brojilo > 0) {
-            // chunk na čekanju dok ne složimo kendl
+        if (brojilo > 0) { // ako ovo, znači da chunk ne pripada više ovom kendlu. držimo ga sa strane dok ne složimo kendl.
             let kendl = kendl1Template(this.tempArr[0]);
             // iteriramo po trejdovima
             for (let i = 0; i < this.tempArr.length; i++) {
@@ -127,7 +120,7 @@ const kendlizator = new zTransform({
                 fillKendl.volBuyeva = 0;
                 fillKendl.volSellova = 0;
                 fillKendl.O = fillKendl.H = fillKendl.L = fillKendl.C;
-                console.log('ovo je zadnji pravi ' + kendl.vrijeme);
+                //console.log('ovo je zadnji pravi ' + kendl.vrijeme);
                 
                 for (let i = 1; i < brojilo; i++) {
 
@@ -146,12 +139,12 @@ const kendlizator = new zTransform({
                         this.zadnjiPushan = fillKendl;
                         this.push(fillKendl);
                     }
-                    console.log('pušan fill ' + fillKendl.vrijeme);
+                    //console.log('pušan fill ' + fillKendl.vrijeme);
 
                 }
                 this.tempArr = []; // flushamo temp array
                 this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
-                console.log('ovo je čank ' + chunk.vrijeme);
+                //console.log('ovo je čank ' + chunk.vrijeme);
             }
         }
         callback();
@@ -164,7 +157,10 @@ function Agregator(rezolucija) {
         rezolucija: rezolucija,
         transform(chunk, encoding, callback) {
             if ((chunk.vrijeme.getMinutes() % this.rezolucija === 0) && (this.tempArr.length > 0)) {
+                // instanciramo kendl objekt
                 let agroKendl = kendlAgroTemplate(this.tempArr[0]);
+                // meljemo kroz cijeli tempArr i sastavljamo agroKendl
+                agroKendl.vrijeme = plusMinuta(chunk.vrijeme, 0);
                 for (let i = 0; i < this.tempArr.length; i++) {
                     let tempKendl = this.tempArr[i];
                     if (tempKendl.H > agroKendl.H) agroKendl.H = tempKendl.H;
@@ -173,7 +169,7 @@ function Agregator(rezolucija) {
                     agroKendl.volBuyeva += tempKendl.volBuyeva;
                     agroKendl.volSellova += tempKendl.volSellova;
                 }
-                agroKendl.vrijeme = plusMinuta(chunk.vrijeme, 0);
+                // obavljamo završno čišćenje
                 this.tempArr = []; // flushamo temp array
                 this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
                 this.push(agroKendl); // šaljemo gotov kendl dalje

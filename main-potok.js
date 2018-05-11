@@ -154,6 +154,7 @@ async function izKanalaKapamo(kanal) {
         k5:null,
         k15:null 
     }
+    
     kap.k1 = await kapaljka(kanal.k1);
     if (kap.k1.vrijeme.getMinutes() % 5 === 0) kap.k5 = await kapaljka(kanal.k5);
     if (kap.k1.vrijeme.getMinutes() % 15 === 0) kap.k15 = await kapaljka(kanal.k15);
@@ -169,7 +170,12 @@ async function izKanalaKapamo(kanal) {
 
 async function kapPoKap(br, kanal, set) {
     for (let i = 0; i < br; i++) {
-        let kap = await izKanalaKapamo(kanal);
+        try {
+            let kap = await izKanalaKapamo(kanal);
+        } catch(e) {
+            throw new Error(e);
+        }
+
         if (kap.k1) set.ss1.push(kap.k1);
         if (kap.k5) set.ss5.push(kap.k5);
         if (kap.k15) set.ss15.push(kap.k15);
