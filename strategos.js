@@ -6,7 +6,7 @@
 /*-------------------REQUIRE------------------*/
 
 let memorija = require('./memorija.js');
-let pisalo = require('./pisalo.js');
+// let pisalo = require('./pisalo.js');
 
 // definiramo module.exports objekt "strat" u koji ćemo sve trpati 
 let strat = {};
@@ -23,5 +23,21 @@ strat.stratJahanjeCijene = function stratJahanjeCijene(portfolio, cijenaSad, izn
     // sve smo izvadili u klasnaBorba.js
     // ovdje samo zovemo metode
 } 
+
+/*-----------------------STRATEGIJA: EMA PROBLEMA-------------------------*/
+strat.emaProblema = function emaProblema(portfolio, cijenaSad, iznos) {
+    /*
+        pratimo 6 EMA indikatora: 5, 8, 13, 21, 34, 55 (dobar stari Fibo)
+        ustvari pratimo kanale između susjednih EMA-i (5_8, 8_13, 13_21, 21_34, 34_55)
+            (kanal = manji EMA - veći EMA)
+        svaki put kad kanal promjeni predznak, 
+
+
+    */
+    // provjeri svaki od kanala kako stoji
+        // složiti emaSet koji drži povijest svih kanala duljine duljinaCharta
+    // ako je neki promjenio predznak, aktiviraj order
+    // 
+}
 
 module.exports = strat;

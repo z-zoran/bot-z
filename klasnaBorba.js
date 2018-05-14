@@ -5,7 +5,7 @@
 // Vezana za strategiju. Svaka strategija imati će svoj portfolio (ili više njih).
 
 let memorija = require('./memorija.js');
-let pisalo = require('./pisalo.js');
+// let pisalo = require('./pisalo.js');
 const alatke = require('./alatke.js');
 const odnosTriBroja = alatke.odnosTriBroja;
 const limitDataTemplate = alatke.limitDataTemplate;
