@@ -4,6 +4,27 @@
 
 let alatke = {};
 
+alatke.izmisliBoju = function izmisliBoju() {
+    let r = (Math.floor(Math.random() * 255));
+    let g = (Math.floor(Math.random() * 255));
+    let b = (Math.floor(Math.random() * 255));
+    let a = (0.4 + (Math.random() * 0.3));
+    let boja = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+    return boja;
+}
+
+
+// mini funkcija za produljenje/skraćenje dataseta (popunjava s null-ovima)
+alatke.shiftUnshift = function shiftUnshift(array, duljina) {
+    while (array.length !== duljina) {
+        if (array.length < duljina) {
+            array.unshift(null);
+        } else if (array.length > duljina) {
+            array.shift();
+        }
+    }
+}
+
 // za dodavanje minuta date objektima
 alatke.plusMinuta = function plusMinuta(vrijeme, koliko) {
     //console.log(vrijeme);

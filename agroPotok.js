@@ -64,11 +64,8 @@ const objektifikator = new zTransform({
 
 // provjera je li minutu udaljen sljedeći kendl.
 // teško debugiranje u tijeku
-function smijesGurati(prosliKendl, ovajKendl) {
-    if (!(ovajKendl.vrijeme instanceof Date)) throw new Error('ovajKendl.vrijeme nije Date');
-
+function provjera1min(prosliKendl, ovajKendl) {
     if (prosliKendl.vrijeme) {
-        if (!(prosliKendl.vrijeme instanceof Date)) throw new Error('prosliKendl.vrijeme nije Date');
         let razlika = ovajKendl.vrijeme.getTime() - prosliKendl.vrijeme.getTime();
         if (razlika === 60000) {
             return true;
@@ -78,7 +75,7 @@ function smijesGurati(prosliKendl, ovajKendl) {
             console.log('novi  ' + ovajKendl.vrijeme);
             return false;   
         } 
-    } else return false;
+    } else return true; // prosliKendl će biti false samo u prvom krugu tako da propuštamo da prođe
 }
 
 const kendlizator = new zTransform({
@@ -109,7 +106,7 @@ const kendlizator = new zTransform({
                 if (trejd.vrijeme.getTime() !== kendl.vrijeme.getTime()) throw new Error('Trejdovi nisu u istoj minuti.');
             }
             // prvo provjera jel su minute ok
-            if (smijesGurati(this.zadnjiPushan, kendl)) {
+            if (provjera1min(this.zadnjiPushan, kendl)) {
                 this.zadnjiPushan = kendl;
                 this.push(kendl); // šaljemo gotov 1min kendl dalje
             }
@@ -123,7 +120,6 @@ const kendlizator = new zTransform({
                 //console.log('ovo je zadnji pravi ' + kendl.vrijeme);
                 
                 for (let i = 1; i < brojilo; i++) {
-
                     // debug, obrisati
                     if (!(fillKendl.vrijeme instanceof Date)) {
                         console.log(brojilo);
@@ -135,7 +131,7 @@ const kendlizator = new zTransform({
                     fillKendl.vrijeme = plusMinuta(fillKendl.vrijeme, 1);
                     
                     // provjera prije pušanja dalje
-                    if (smijesGurati(this.zadnjiPushan, fillKendl)) {
+                    if (provjera1min(this.zadnjiPushan, fillKendl)) {
                         this.zadnjiPushan = fillKendl;
                         this.push(fillKendl);
                     }

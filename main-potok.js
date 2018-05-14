@@ -15,13 +15,15 @@ const stream = require('stream');
 
 /*---------------------kastom zoki.js moduli--------------------------*/
 
+const templ = require('./chartTemplejti.js');
 const strat = require('./strategos.js');
 const memorija = require('./memorija.js');
 const klas = require('./klasnaBorba.js');
 const devijacija = require('./indikator.js');
 const alatke = require('./alatke.js');
 const trenutnoEura = alatke.trenutnoEura;
-const templ = require('./chartTemplejti.js');
+const shiftUnshift = alatke.shiftUnshift;
+const izmisliBoju = alatke.izmisliBoju;
 
 /*---------------------VARIJABLE--------------------------*/
 /*
@@ -87,14 +89,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 /*--------------STREAM IMPLEMENTACIJA-----------------*/
-/***
- * glavniPotok  -->   kanalizacija() --> set1min
- * (dolazni stream)               -----> set5min
- *                              -------> set15min
- */
-//
 
-let tekst = '123 nešto.'; 
 const agroPotok = require('./agroPotok.js');
 
 // CONFIGURACIJA ZA GLAVNI POTOK
@@ -106,20 +101,13 @@ const inSize = 15;
 const outSize = 2;
 const prosirenje = 1;
 
-// instanciramo glavniPotok i kanale
-//const glavniPotok = agroPotok.agro(mod, inputter, rezolucija, inSize, outSize, prosirenje);
+// instanciramo kanale
 const kanal = {
     k1: agroPotok.agro(mod, inputter, 1, inSize, outSize, prosirenje),
     k5: agroPotok.agro(mod, inputter, 5, inSize, outSize, prosirenje),
     k15: agroPotok.agro(mod, inputter, 15, inSize, outSize, prosirenje)
 }
-/*
-const kanal = {
-    k1: glavniPotok.pipe(agroPotok.Agregator(1)),
-    k5: glavniPotok.pipe(agroPotok.Agregator(5)),
-    k15: glavniPotok.pipe(agroPotok.Agregator(15))
-}
-*/
+
 const set = {
     ss1: [],
     ss5: [],
@@ -127,9 +115,6 @@ const set = {
 }
 
 /*-----------------FUNKCIJE-------------------*/
-
-/* algoritam */
-// initFloodanje(set,kanal)
 
 async function spremanPotok(potok) {
     return new Promise(resolve => potok.on('readable', resolve));
@@ -154,7 +139,6 @@ async function izKanalaKapamo(kanal) {
         k5:null,
         k15:null 
     }
-    
     kap.k1 = await kapaljka(kanal.k1);
     if (kap.k1.vrijeme.getMinutes() % 5 === 0) kap.k5 = await kapaljka(kanal.k5);
     if (kap.k1.vrijeme.getMinutes() % 15 === 0) kap.k15 = await kapaljka(kanal.k15);
@@ -172,6 +156,7 @@ async function kapPoKap(br, kanal, set) {
     for (let i = 0; i < br; i++) {
         try {
             let kap = await izKanalaKapamo(kanal);
+            
         } catch(e) {
             throw new Error(e);
         }
@@ -227,26 +212,6 @@ function parsan(url) {
         return url.slice(4, url.length);
     } else {
         return null;
-    }
-}
-
-function izmisliBoju() {
-    let r = (Math.floor(Math.random() * 255));
-    let g = (Math.floor(Math.random() * 255));
-    let b = (Math.floor(Math.random() * 255));
-    let a = (0.4 + (Math.random() * 0.3));
-    let boja = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
-    return boja;
-}
-
-// mini funkcija za produljenje/skraćenje dataseta (popunjava s null-ovima)
-function shiftUnshift(array, duljina) {
-    while (array.length !== duljina) {
-        if (array.length < duljina) {
-            array.unshift(null);
-        } else if (array.length > duljina) {
-            array.shift();
-        }
     }
 }
 
