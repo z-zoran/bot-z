@@ -72,7 +72,7 @@ function provjera1min(prosliKendl, ovajKendl) {
         } else {
             console.log('udaljenost nije dobra');
             console.log('stari ' + prosliKendl.vrijeme);
-            console.log('novi  ' + ovajKendl.vrijeme);
+            console.log(razlika);
             return false;   
         } 
     } else return true; // prosliKendl će biti false samo u prvom krugu tako da propuštamo da prođe
@@ -80,22 +80,23 @@ function provjera1min(prosliKendl, ovajKendl) {
 
 const kendlizator = new zTransform({
     objectMode: true,
-    transform(chunk, encoding, callback) {
-        // informativno: chunkovi su objektificirani trejdovi koji dolaze iz objetifikatora
+    transform(chunk, encoding, callback) { // chunk = objektificirani trejd
+        // varijable
         let zadnjiTrejd = this.tempArr[this.tempArr.length - 1];
         let prazanJeTempArr = !zadnjiTrejd;
         let josNijeGotovKendl = !prazanJeTempArr && (zadnjiTrejd.vrijeme.getTime() === chunk.vrijeme.getTime());
         let brojilo = 0;
+        // ako još nije zaključen kendl, punimo tempArr
         if (prazanJeTempArr || josNijeGotovKendl) {
             this.tempArr.push(chunk);
         } else {
+            // TU SMO STALI .... ŠTA JE OVAJ ELSE?!
             let milisek = chunk.vrijeme.getTime() - zadnjiTrejd.vrijeme.getTime();
             if (milisek % 60000 !== 0) throw new Error('Ne poklapaju se milisekunde.');
             brojilo = milisek / 60000; // dobijemo broj minuta između novog i zadnjeg trejda
         }
 
 
-        
         if (brojilo > 0) { // ako ovo, znači da chunk ne pripada više ovom kendlu. držimo ga sa strane dok ne složimo kendl.
             let kendl = kendl1Template(this.tempArr[0]);
             // iteriramo po trejdovima
