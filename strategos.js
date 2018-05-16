@@ -40,4 +40,20 @@ strat.emaProblema = function emaProblema(portfolio, cijenaSad, iznos) {
     // 
 }
 
+/*-----------------------STRATEGIJA: MOZGOVANJE-------------------------*/
+strat.mozgovanje = function mozgovanje(portfolio, cijenaSad, iznos) {
+    /*
+        sa svakim kendlom, pitamo mozak što će se dalje dogoditi.
+        ulažemo prema njegovim odgovorima.
+    */
+}
+
+/*-----------------------STRATEGIJA: ARBITRAŽA-------------------------*/
+strat.arbitrarbi = function arbitrarbi(portfolio, cijenaSad, iznos) {
+    /*
+        konstantno pollamo (s websocketom valjda) cijene svega živoga na binanceu
+        i onda trejdamo arbitražu kad ju nađemo
+    */
+}
+
 module.exports = strat;

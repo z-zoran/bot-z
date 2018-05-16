@@ -93,6 +93,9 @@ const kendlizator = new zTransform({
             if (milisek % 60000 !== 0) throw new Error('Ne poklapaju se milisekunde.');
             brojilo = milisek / 60000; // dobijemo broj minuta između novog i zadnjeg trejda
         }
+
+
+        
         if (brojilo > 0) { // ako ovo, znači da chunk ne pripada više ovom kendlu. držimo ga sa strane dok ne složimo kendl.
             let kendl = kendl1Template(this.tempArr[0]);
             // iteriramo po trejdovima
