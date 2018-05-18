@@ -65,6 +65,9 @@ const objektifikator = new zTransform({
 // provjera je li minutu udaljen sljedeći kendl.
 // teško debugiranje u tijeku
 function provjera1min(prosliKendl, ovajKendl) {
+    console.log('provjera prošli: ' + prosliKendl.vrijeme + ' ' + prosliKendl.vrijeme.getHours());
+    console.log('provjera ovaj:   ' + ovajKendl.vrijeme + ' ' + ovajKendl.vrijeme.getHours());
+    
     if (prosliKendl.vrijeme) {
         let razlika = ovajKendl.vrijeme.getTime() - prosliKendl.vrijeme.getTime();
         if (razlika === 60000) {
@@ -90,16 +93,15 @@ const kendlizator = new zTransform({
         if (prazanJeTempArr || josNijeGotovKendl) {
             this.tempArr.push(chunk);
         } else {
-            // TU SMO STALI .... ŠTA JE OVAJ ELSE?!
+            // tražimo vremensku razliku chunkova u tempArru i trenutnog chunka
             let milisek = chunk.vrijeme.getTime() - zadnjiTrejd.vrijeme.getTime();
             if (milisek % 60000 !== 0) throw new Error('Ne poklapaju se milisekunde.');
             brojilo = milisek / 60000; // dobijemo broj minuta između novog i zadnjeg trejda
         }
-
-
-        if (brojilo > 0) { // ako ovo, znači da chunk ne pripada više ovom kendlu. držimo ga sa strane dok ne složimo kendl.
-            let kendl = kendl1Template(this.tempArr[0]);
-            // iteriramo po trejdovima
+        // ako ovo, znači da chunk ne pripada više ovom kendlu. držimo ga sa strane dok ne složimo ovaj kendl.
+        if (brojilo > 0) { 
+            let kendl = kendl1Template(this.tempArr[0]); // pravimo kendl iz templejta
+            // iteriramo po trejdovima i dopunjavamo template kendl
             for (let i = 0; i < this.tempArr.length; i++) {
                 let trejd = this.tempArr[i];
                 if (trejd.cijena > kendl.H) kendl.H = trejd.cijena;
@@ -109,44 +111,29 @@ const kendlizator = new zTransform({
                 if (trejd.volumen < 0) kendl.volSellova += trejd.volumen;
                 if (trejd.vrijeme.getTime() !== kendl.vrijeme.getTime()) throw new Error('Trejdovi nisu u istoj minuti.');
             }
-            // prvo provjera jel su minute ok
-            if (provjera1min(this.zadnjiPushan, kendl)) {
-                this.zadnjiPushan = kendl;
-                this.push(kendl); // šaljemo gotov 1min kendl dalje
-            }
-            // ako je slučajno prošlo više minuta, popunjavamo s praznim kendlovima
-            if (brojilo > 1) {
-                let fillKendl = JSON.parse(JSON.stringify(kendl));
-                fillKendl.vrijeme = kendl.vrijeme;
-                fillKendl.volBuyeva = 0;
-                fillKendl.volSellova = 0;
-                fillKendl.O = fillKendl.H = fillKendl.L = fillKendl.C;
-                //console.log('ovo je zadnji pravi ' + kendl.vrijeme);
-                
-                for (let i = 1; i < brojilo; i++) {
-                    // debug, obrisati
-                    if (!(fillKendl.vrijeme instanceof Date)) {
-                        console.log(brojilo);
-                        console.log(fillKendl);
-                        console.log(chunk);
-                        throw new Error('Vrijeme nije Date u fillKendlu');
-                    }
-                    
-                    fillKendl.vrijeme = plusMinuta(fillKendl.vrijeme, 1);
-                    
-                    // provjera prije pušanja dalje
-                    if (provjera1min(this.zadnjiPushan, fillKendl)) {
-                        this.zadnjiPushan = fillKendl;
-                        this.push(fillKendl);
-                    }
-                    //console.log('pušan fill ' + fillKendl.vrijeme);
-
-                }
-                this.tempArr = []; // flushamo temp array
-                this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
-                //console.log('ovo je čank ' + chunk.vrijeme);
+            this.zadnjiPushan = kendl;
+            this.push(kendl);
+        }
+        // ako ovo, znači da je chunk više minuta udaljen od prošlog trejda. popunjavamo praznim kendlovima.
+        if (brojilo > 1) {
+            // napravimo fill kendl
+            let fillKendl = JSON.parse(JSON.stringify(this.zadnjiPushan));
+            fillKendl.vrijeme = this.zadnjiPushan.vrijeme;
+            fillKendl.volBuyeva = 0;
+            fillKendl.volSellova = 0;
+            fillKendl.O = fillKendl.H = fillKendl.L = fillKendl.C;
+            // iteriramo koliko je već prošlo praznih minuta
+            for (let i = 1; i < brojilo; i++) {
+                fillKendl.vrijeme = plusMinuta(fillKendl.vrijeme, 1);
+                // provjera jedne minute prije pušanja dalje
+                if (provjera1min(this.zadnjiPushan, fillKendl)) {
+                    this.zadnjiPushan = fillKendl;
+                    this.push(fillKendl);
+                } else throw new Error('Ne prolazi provjeru1min: ' + this.zadnjiPushan);
             }
         }
+        this.tempArr = []; // flushamo temp array
+        this.tempArr.push(chunk); // guramo chunk koji je bio na čekanju
         callback();
     }
 });

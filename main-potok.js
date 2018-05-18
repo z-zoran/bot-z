@@ -144,9 +144,9 @@ async function izKanalaKapamo(kanal) {
     if (kap.k1.vrijeme.getMinutes() % 15 === 0) kap.k15 = await kapaljka(kanal.k15);
     
     // debug logovi, obrisati
-    console.log('kap1 ' + kap.k1.vrijeme.getHours() + ':' + kap.k1.vrijeme.getMinutes());
-    if (kap.k5) console.log('kap5 ' + kap.k5.vrijeme.getHours() + ':' + kap.k5.vrijeme.getMinutes());
-    if (kap.k15) console.log('kap15 ' + kap.k15.vrijeme.getHours() + ':' + kap.k15.vrijeme.getMinutes());
+    console.log('kap1 ' + kap.k1.vrijeme);
+    if (kap.k5) console.log('kap5 ' + kap.k5.vrijeme);
+    if (kap.k15) console.log('kap15 ' + kap.k15.vrijeme);
     console.log();
 
     return kap;
@@ -154,20 +154,19 @@ async function izKanalaKapamo(kanal) {
 
 async function kapPoKap(br, kanal, set) {
     for (let i = 0; i < br; i++) {
-        try {
+        /*try {
             let kap = await izKanalaKapamo(kanal);
-            
         } catch(e) {
-            throw new Error(e);
-        }
-
+            throw new Error('kap po kap ne štima kapaljka');
+        }*/
+        let kap = await izKanalaKapamo(kanal);
         if (kap.k1) set.ss1.push(kap.k1);
         if (kap.k5) set.ss5.push(kap.k5);
         if (kap.k15) set.ss15.push(kap.k15);
         
         if (!portfolio.EUR) throw new Error('Portfolio se zbrčko');
         
-        console.log('kap po kap ' + i + ' ' + portfolio.EUR + '€');
+        console.log('kap po kap ' + i + ' ' + portfolio.EUR.toFixed(2) + '€');
         rafinerijaKapi(set);
     }
     return set;
