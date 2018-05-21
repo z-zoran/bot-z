@@ -105,7 +105,7 @@ const tikeri = {};
 */
 function usporediTrio(ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
 	// INTEGRIRATI AUTOMATSKO ODUZIMANJE FEE-JA
-	// moramo assertirati da su dobri simboli
+	// prvo moramo assertirati da su dobri simboli
 	let ethSePoklapa = baseQuote(ethKrozBtc.symbol).base === baseQuote(nestoKrozEth.symbol).quote;
 	let btcSePoklapa = baseQuote(ethKrozBtc.symbol).quote === baseQuote(nestoKrozBtc.symbol).quote;
 	let nestoSePoklapa = baseQuote(nestoKrozBtc.symbol).base === baseQuote(nestoKrozEth.symbol).base;
@@ -142,15 +142,46 @@ function usporediTrio(ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
 
 let euroCijena = 600;
 let euroUkupno = 0;
+let porez = 0.001
+
+function skiniPorez(broj) {
+	return broj * (1 - porez);
+}
 
 function kupi(kako, ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
 	if (kako === 'posredno') {
+		let prvaNoga, drugaNoga, trecaNoga;
+		// prva noga
+		prvaNoga = ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid; // btc
+		if (nestoKrozBtc.bestAskQnt < prvaNoga) {
+			prvaNoga = skiniPorez(nestoKrozBtc.bestAskQnt); // btc
+		} else {
+			prvaNoga = skiniPorez(ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid); // btc
+		}
+		// druga noga, s povratnom korekcijom ako je potrebno
+		drugaNoga = prvaNoga / nestoKrozBtc.bestAsk; // nešto
+		if (nestoKrozEth.bestBidQnt < drugaNoga) {
+			drugaNoga = skiniPorez(nestoKrozEth.bestBidQnt); // nešto
+			// tu je logika stala
+			prvaNoga = drugaNoga * nestoKrozBtc.bestAsk; // btc
+		} else {
+			drugaNoga = skiniPorez(prvaNoga / nestoKrozBtc.bestAsk)
+		}
+		// treća noga, s korekcijama ako treba
+		trecaNoga = drugaNoga * nestoKrozEth.bestBid; // eth
+		if (nestoKrozBtc.bestAskQnt < ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid) {
+			prvaNoga = skiniPorez(nestoKrozBtc.bestAskQnt);
+		} else {
+			prvaNoga = skiniPorez(ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid);
+		}
+
 		// prodamo eth/btc najboljem bidu
 		let prvaNoga = ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid; // valuta: btc
 		// provjerimo da li treba smanjiti
 		if (nestoKrozBtc.bestAskQnt < prvaNoga) {
 			prvaNoga = nestoKrozBtc.bestAskQnt;		
 		}
+		prvaNoga = skiniPorez(prvaNoga);
 		// kupimo nesto/btc od najboljeg aska
 		let drugaNoga = prvaNoga / nestoKrozBtc.bestAsk; // valuta: nešto
 		// provjerimo da li treba smanjiti
@@ -158,6 +189,7 @@ function kupi(kako, ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
 			drugaNoga = nestoKrozEth.bestBidQnt; // nešto
 			prvaNoga = drugaNoga * nestoKrozBtc.bestAsk; // btc
 		}
+		drugaNoga = skiniPorez(drugaNoga);
 		// prodamo nesto/eth najboljem bidu
 		let trecaNoga = drugaNoga * nestoKrozEth.bestBid; // valuta eth
 		// provjerimo da li treba smanjiti

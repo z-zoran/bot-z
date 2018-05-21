@@ -1,7 +1,9 @@
 "use strict";
-let a = 1;
-let b = a + 10;
-console.log(a);
-a = 100;
-console.log(a);
-console.log(b);
+let a = 13;
+let b = 4;
+let c = 3;
+
+let asd = (a < b * c) ? (
+    
+) : 'ne';
+console.log(asd);
