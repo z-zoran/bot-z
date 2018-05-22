@@ -148,6 +148,24 @@ function skiniFee(broj) {
 	return broj * (1 - porez);
 }
 
+// pokušavamo riješiti trokorak arbitraže
+
+// 1) PRODAJ ETH KUPI BTC
+let prvoGrlo = ethKrozBtc.bestBidQnt; // [eth] za prodati
+let prvaNoga = ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid; // [btc] za kupiti
+
+// 2) KUPI NEŠTO PRODAJ BTC
+let drugoGrlo = nestoKrozBtc.bestAskQnt * nestoKrozBtc.bestAsk; // [btc] za prodati
+let drugaNoga = nestoKrozBtc.bestAskQnt; // [nešto] za kupiti
+
+// 3) PRODAJ NEŠTO KUPI ETH
+let treceGrlo = nestoKrozEth.bestBidQnt; // [nešto] za prodati
+let trecaNoga = nestoKrozEth.bestBidQnt * nestoKrozEth.bestBid; // [eth] za kupiti
+
+switch (Math.max()) {
+
+}
+
 function kupi(kako, ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
 	if (kako === 'posredno') {
 		let prvaNoga, drugaNoga, trecaNoga;
