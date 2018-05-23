@@ -149,22 +149,54 @@ function skiniFee(broj) {
 }
 
 // pokušavamo riješiti trokorak arbitraže
+let trokutPosredno = { // dabl čekirati logiku
+	// 1) PRODAJ ETH KUPI BTC
+	prvoGrlo: ethKrozBtc.bestBidQnt, // [eth] za prodati
+	prvaNoga: ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid, // [btc] za kupiti
 
-// 1) PRODAJ ETH KUPI BTC
-let prvoGrlo = ethKrozBtc.bestBidQnt; // [eth] za prodati
-let prvaNoga = ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid; // [btc] za kupiti
+	// 2) KUPI NEŠTO PRODAJ BTC
+	drugoGrlo: nestoKrozBtc.bestAskQnt * nestoKrozBtc.bestAsk, // [btc] za prodati
+	drugaNoga: nestoKrozBtc.bestAskQnt, // [nešto] za kupiti
 
-// 2) KUPI NEŠTO PRODAJ BTC
-let drugoGrlo = nestoKrozBtc.bestAskQnt * nestoKrozBtc.bestAsk; // [btc] za prodati
-let drugaNoga = nestoKrozBtc.bestAskQnt; // [nešto] za kupiti
-
-// 3) PRODAJ NEŠTO KUPI ETH
-let treceGrlo = nestoKrozEth.bestBidQnt; // [nešto] za prodati
-let trecaNoga = nestoKrozEth.bestBidQnt * nestoKrozEth.bestBid; // [eth] za kupiti
-
-switch (Math.max()) {
-
+	// 3) PRODAJ NEŠTO KUPI ETH
+	treceGrlo: nestoKrozEth.bestBidQnt, // [nešto] za prodati
+	trecaNoga: nestoKrozEth.bestBidQnt * nestoKrozEth.bestBid, // [eth] za kupiti
 }
+
+let trokutDirektno = {
+	// 1) KUPI ETH PRODAJ BTC
+	prvoGrlo: ethKrozBtc.bestAskQnt, // [eth] za kupiti
+	prvaNoga: ethKrozBtc.bestAskQnt * ethKrozBtc.bestAsk, // [btc] za prodati
+
+	// 2) PRODAJ NEŠTO KUPI BTC
+	drugoGrlo: nestoKrozBtc.bestBidQnt * nestoKrozBtc.bestBid, // [btc] za kupiti
+	drugaNoga: nestoKrozBtc.bestBidQnt, // [nešto] za prodati
+
+	// 3) KUPI NEŠTO PRODAJ ETH
+	treceGrlo: nestoKrozEth.bestAskQnt, // [nešto] za kupiti
+	trecaNoga: nestoKrozEth.bestAskQnt * nestoKrozEth.bestAsk, // [eth] za prodati
+}
+
+// provjeravamo ima li usko grlo (da li je ijedna noga veća od slijedećeg grla)
+function odrediKolikoMozeProci(trokut) {
+	if (prvaNoga < drugoGrlo) {
+		if (drugaNoga < treceGrlo) {
+			if (trecaNoga < prvoGrlo) {
+				// prošli smo sva grla
+			} else {
+				// nismo prošli prvo grlo
+				// korigiraj i ponovo provjeri (rekurzivno)
+			}
+		} else {
+			// nismo prošli treće grlo
+				// korigiraj i ponovo provjeri (rekurzivno)
+		}
+	} else {
+		// nismo prošli drugo grlo
+		// korigiraj i ponovo provjeri (rekurzivno)
+	}
+}
+
 
 function kupi(kako, ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
 	if (kako === 'posredno') {
