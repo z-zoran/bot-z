@@ -142,59 +142,95 @@ function usporediTrio(ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
 
 let euroCijena = 600;
 let euroUkupno = 0;
-let porez = 0.001
+let fee = 0.001
 
 function skiniFee(broj) {
-	return broj * (1 - porez);
+	return broj * (1 - fee);
 }
 
-// pokušavamo riješiti trokorak arbitraže
-let trokutPosredno = { // dabl čekirati logiku
-	// 1) PRODAJ ETH KUPI BTC
-	prvoGrlo: ethKrozBtc.bestBidQnt, // [eth] za prodati
-	prvaNoga: ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid, // [btc] za kupiti
-
-	// 2) KUPI NEŠTO PRODAJ BTC
-	drugoGrlo: nestoKrozBtc.bestAskQnt * nestoKrozBtc.bestAsk, // [btc] za prodati
-	drugaNoga: nestoKrozBtc.bestAskQnt, // [nešto] za kupiti
-
-	// 3) PRODAJ NEŠTO KUPI ETH
-	treceGrlo: nestoKrozEth.bestBidQnt, // [nešto] za prodati
-	trecaNoga: nestoKrozEth.bestBidQnt * nestoKrozEth.bestBid, // [eth] za kupiti
+// konstruktor za arbitražni trokut
+function Trokut(tip, ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
+	this.tip = tip;
+	this.ethKrozBtc = ethKrozBtc;
+	this.nestoKrozBtc = nestoKrozBtc;
+	this.nestoKrozEth = nestoKrozEth;
+	if (tip === 'posredno') {
+		// 1) PRODAJ ETH KUPI BTC
+		this.prvoGrlo = ethKrozBtc.bestBidQnt; // [eth] za prodati
+		this.prvaNoga = ethKrozBtc.bestBidQnt * ethKrozBtc.bestBid; // [btc] za kupiti
+		// 2) KUPI NEŠTO PRODAJ BTC
+		this.drugoGrlo = nestoKrozBtc.bestAskQnt * nestoKrozBtc.bestAsk; // [btc] za prodati
+		this.drugaNoga = nestoKrozBtc.bestAskQnt; // [nešto] za kupiti
+		// 3) PRODAJ NEŠTO KUPI ETH
+		this.treceGrlo = nestoKrozEth.bestBidQnt; // [nešto] za prodati
+		this.trecaNoga = nestoKrozEth.bestBidQnt * nestoKrozEth.bestBid; // [eth] za kupiti
+	} else if (tip === 'direktno') {
+		// 1) KUPI NEŠTO PRODAJ ETH
+		this.prvoGrlo = nestoKrozEth.bestAskQnt * nestoKrozEth.bestAsk; // [eth] za prodati
+		this.prvaNoga = nestoKrozEth.bestAskQnt; // [nešto] za kupiti
+		// 2) PRODAJ NEŠTO KUPI BTC
+		this.drugoGrlo = nestoKrozBtc.bestBidQnt; // [nešto] za prodati
+		this.drugaNoga = nestoKrozBtc.bestBidQnt * nestoKrozBtc.bestBid; // [btc] za kupiti
+		// 3) KUPI ETH PRODAJ BTC
+		this.treceGrlo = ethKrozBtc.bestAskQnt * ethKrozBtc.bestAsk; // [btc] za prodati
+		this.trecaNoga = ethKrozBtc.bestAskQnt; // [eth] za kupiti
+	}
 }
 
-let trokutDirektno = {
-	// 1) KUPI NEŠTO PRODAJ ETH
-	prvoGrlo: nestoKrozEth.bestAskQnt, // [nešto] za kupiti
-	prvaNoga: nestoKrozEth.bestAskQnt * nestoKrozEth.bestAsk, // [eth] za prodati
+// METODE
+// koristimo ih ovako:
+if (trokut.provjeraUskoGrlo().provjeraProfitabilnosti()) trokut.obaviKupnju();
 
-	// 2) PRODAJ NEŠTO KUPI BTC
-	drugoGrlo: nestoKrozBtc.bestBidQnt * nestoKrozBtc.bestBid, // [btc] za kupiti
-	drugaNoga: nestoKrozBtc.bestBidQnt, // [nešto] za prodati
+// provjera da li je neki Qnt usko grlo u arbitražnom trokutu
+Trokut.prototype.provjeraUskoGrlo = function provjeraUskoGrlo() {
+	if (trokut.prvaNoga < trokut.drugoGrlo) {
+		if (trokut.drugaNoga < trokut.treceGrlo) {
+			return this;
+		} else {
+			// treće grlo je preusko
+			// korigiraj i ponovo provjeri (rekurzivno)
+			if (this.tip === 'posredno') {
+				this.drugaNoga = this.treceGrlo;
+				this.drugoGrlo = this.drugaNoga * nestoKrozBtc.bestAsk;
+				this.prvaNoga = this.drugoGrlo;
+				this.prvoGrlo = this.prvaNoga / ethKrozBtc.bestBid;
+			} else if (this.tip === 'direktno') {
+				this.drugaNoga = this.treceGrlo;
+				this.drugoGrlo = this.drugaNoga / nestoKrozBtc.bestBid;
+				this.prvaNoga = this.drugoGrlo;
+				this.prvoGrlo = this.prvaNoga * nestoKrozEth.bestAsk;
+			}
+			return this.provjeraUskoGrlo();
+		}
+	} else {
+		// drugo grlo je preusko
+		// korigiraj i ponovo provjeri (rekurzivno)
+		if (this.tip === 'posredno') {
+			this.prvaNoga = this.drugoGrlo;
+			this.prvoGrlo = this.prvaNoga / ethKrozBtc.bestBid;
+		} else if (this.tip === 'direktno') {
+			this.prvaNoga = this.drugoGrlo;
+			this.prvoGrlo = this.prvaNoga * nestoKrozEth.bestAsk;
+		}
+		return this.provjeraUskoGrlo();
+	}
+}
 
-	// 3) KUPI ETH PRODAJ BTC
-	treceGrlo: ethKrozBtc.bestAskQnt, // [eth] za kupiti
-	trecaNoga: ethKrozBtc.bestAskQnt * ethKrozBtc.bestAsk, // [btc] za prodati
+// provjera da li je profitabilno
+Trokut.prototype.provjeraProfitabilnosti = function provjeraProfitabilnosti() {
+	if
+}
+
+Trokut.prototype.obaviKupnju = async function obaviKupnju() {
+	if (tip === 'posredno') {
+		let 
+	} else if (tip === 'direktno') {
+
+	}
 }
 
 // provjeravamo ima li usko grlo (da li je ijedna noga veća od slijedećeg grla)
-function odrediKolikoMozeProci(trokut) {
-	if (prvaNoga < drugoGrlo) {
-		if (drugaNoga < treceGrlo) {
-			if (trecaNoga < prvoGrlo) {
-				// prošli smo sva grla
-			} else {
-				// nismo prošli prvo grlo
-				// korigiraj i ponovo provjeri (rekurzivno)
-			}
-		} else {
-			// nismo prošli treće grlo
-				// korigiraj i ponovo provjeri (rekurzivno)
-		}
-	} else {
-		// nismo prošli drugo grlo
-		// korigiraj i ponovo provjeri (rekurzivno)
-	}
+function provjeraDaLiImaUskoGrlo(trokut) {
 }
 
 
