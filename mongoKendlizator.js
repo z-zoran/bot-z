@@ -65,15 +65,9 @@ binance.websockets.depthCache(whitelista, (symbol, depth) => {
     let bids = binance.sortBids(depth.bids);
     let askovi = srezatiListu(asks);
     let bidovi = srezatiListu(bids);
-    let askoviZbroj = 0;
-    for (let i in askovi) askoviZbroj += askovi[i];
-    let bidoviZbroj = 0;
-    for (let i in bidovi) bidoviZbroj += bidovi[i];
     memorija.tikeri[symbol] = {
         askovi: askovi,
         bidovi: bidovi,
-        askoviZbroj: askoviZbroj,
-        bidoviZbroj: bidoviZbroj,
     }
 });
 
