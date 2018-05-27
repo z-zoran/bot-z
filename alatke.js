@@ -93,4 +93,14 @@ alatke.antiLogisticka = function antiLogisticka(cijenaNormalna, proslaCijena, kK
     return proslaCijena + x;
 }
 
+// util funkcija za vraćanje { base: 'ABC', quote: 'DEF' } objekta
+alatke.baseQuote = function baseQuote(string) {
+	return {
+		base: string.slice(0, string.length - 3), 
+		quote: string.slice(string.length - 3, string.length)
+	}
+}
+
+
+
 module.exports = alatke;

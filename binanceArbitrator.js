@@ -17,80 +17,14 @@ async function rateLimitCheck() {
 	}, 200);
 }
 
-// util funkcija za vraćanje { base: 'ABC', quote: 'DEF' } objekta
-function baseQuote(string) {
-	return {
-		base: string.slice(0, string.length - 3), 
-		quote: string.slice(string.length - 3, string.length)
-	}
-}
+const baseQuote = require('./alatke.js').baseQuote;
 
 // instanciranje klijenta prema binanceu
 const Binance = require('binance-api-node').default;
 const client = new Binance();
 
 // manualno odobreni parovi za trejdanje
-const whitelista = [
-	'ETHBTC',
-	'XRPBTC', 'XRPETH', // Ripple
-	'EOSBTC', 'EOSETH', // EOS
-	'LTCBTC', 'LTCETH', // LiteCoin
-	'ADABTC', 'ADAETH', // Cardano
-	'XLMBTC', 'XLMETH', // Stellar
-	'IOTABTC','IOTAETH',// Iota
-	'NEOBTC', 'NEOETH', // NEO
-	'XMRBTC', 'XMRETH', // Monero
-	'DASHBTC','DASHETH',// Dash
-	'XEMBTC', 'XEMETH', // Nem
-	'VENBTC', 'VENETH', // VeChain
-	'ETCBTC', 'ETCETH', // Ethereum Classic
-	'BNBBTC', 'BNBETH', // Binance Coin
-	'ZECBTC', 'ZECETH', // Zcash
-	'QTUMBTC','QTUMETH',// Qtum
-	'ICXBTC', 'ICXETH', // Icon
-	'OMGBTC', 'OMGETH', // OmiseGO
-	'LSKBTC', 'LSKETH', // Lisk
-	'ZILBTC', 'ZILETH', // Zilliqa
-	'AEBTC',  'AEETH',  // Aeternity
-	'XVGBTC', 'XVGETH', // Verge
-	'STEEMBTC', 'STEEMETH', // Steem
-	'ONTBTC', 'ONTETH', // Ontology
-	'NANOBTC','NANOETH',// Nano
-	'ZRXBTC', 'ZRXETH', // 0x
-	'BTSBTC', 'BTSETH', // BitShares
-	'PPTBTC', 'PPTETH', // Populous
-	'WANBTC', 'WANETH', // Wanchain
-	'WAVESBTC', 'WAVESETH', // Waves
-	'REPBTC', 'REPETH', // Augur
-	'STRATBTC', 'STRATETH', // Stratis
-	'GNTBTC', 'GNTETH', // Golem
-	'IOSTBTC','IOSTETH',// IOStoken
-	'DGDBTC', 'DGDETH', // DigixDAO
-	'HSRBTC', 'HSRETH', // Hshare
-	'AIONBTC','AIONETH',// Aion
-	'WTCBTC', 'WTCETH', // Waltonchain
-	'LRCBTC', 'LRCETH', // Loopring
-	'BATBTC', 'BATETH', // Basic Attention Token
-	'KMDBTC', 'KMDETH', // Komodo
-	'ARKBTC', 'ARKETH', // Ark
-	'ELFBTC', 'ELFETH', // aelf
-	'LOOMBTC','LOOMETH',// Loom Network
-	'PIVXBTC','PIVXETH',// PIVX
-	'BNTBTC', 'BNTETH', // Bancor
-	'FUNBTC', 'FUNETH', // FunFair
-	'KNCBTC', 'KNCETH', // Kyber Network
-	'SYSBTC', 'SYSETH', // Syscoin
-	'GXSBTC', 'GXSETH', // GXchain
-	'SUBBTC', 'SUBETH', // Substratum
-	'CMTBTC', 'CMTETH', // CyberMiles
-	'STORMBTC', 'STORMETH', // Storm
-	'RLCBTC', 'RLCETH', // iExecRLC
-	'ENGBTC', 'ENGETH', // Enigma
-	'NULSBTC','NULSETH',// Nuls
-	'XZCBTC', 'XZCETH', // Zcoin
-	'SALTBTC','SALTETH',// Salt
-	'GTOBTC', 'GTOETH', // Gifto
-];
+const whitelista = require('./memorija.js').whitelista;
 
 let tekst = [];
 let datum = [];
@@ -147,7 +81,18 @@ let fee = 0.001
 function skiniFee(broj) {
 	return broj * (1 - fee);
 }
+/*
 
+			ETH
+		  ..    ..
+	    ..		  ..
+	  ..			..
+	..				  ..
+  ALT	:	:	:	:   BTC
+
+
+
+*/
 // konstruktor za arbitražni trokut
 function Trokut(tip, ethKrozBtc, nestoKrozBtc, nestoKrozEth) {
 	this.tip = tip;

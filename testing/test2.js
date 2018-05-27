@@ -1,9 +1,13 @@
 "use strict";
-let a = 13;
-let b = 4;
-let c = 3;
 
-let asd = (a < b * c) ? (
-    
-) : 'ne';
-console.log(asd);
+
+
+let b = {
+    '123': 1.2,
+    '234': 2.3,
+    '345': 3.4,
+}
+
+let a = Object.keys(b);
+
+console.log(Math.max(...a));
