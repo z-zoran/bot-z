@@ -23,7 +23,6 @@ const baseQuote = require('./alatke.js').baseQuote;
 //minQty = minimum order quantity
 //minNotional = minimum order value (price * quantity)
 binance.exchangeInfo(function(error, data) {
-	let minimums = {};
 	for ( let obj of data.symbols ) {
 		let filters = {status: obj.status};
 		for ( let filter of obj.filters ) {
@@ -34,13 +33,7 @@ binance.exchangeInfo(function(error, data) {
 				filters.minQty = filter.minQty;
 			}
 		}
-		//filters.baseAssetPrecision = obj.baseAssetPrecision;
-		//filters.quoteAssetPrecision = obj.quoteAssetPrecision;
-		filters.orderTypes = obj.orderTypes;
-		filters.icebergAllowed = obj.icebergAllowed;
-		minimums[obj.symbol] = filters;
+		memorija.exchInfo[obj.symbol] = filters;
 	}
-	console.log(minimums);
-	global.filters = minimums;
-	//fs.writeFile("minimums.json", JSON.stringify(minimums, null, 4), function(err){});
+	console.log(memorija.exchInfo.ETHBTC);
 });

@@ -12,7 +12,10 @@ let memorija = {
     }
 }
 */
-const memorija = {};
+const memorija = {
+	tikeri: {},
+	exchInfo: {},
+};
 
 // skraćena whitelista za testiranje
 memorija.whitelista = [
@@ -84,7 +87,7 @@ memorija.whitelista = [
 	'GTOBTC', 'GTOETH', // Gifto
 ];
 */
-memorija.tikeri = {};
+
 
 /*
 memorija.tikeri = [
