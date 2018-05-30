@@ -1,7 +1,11 @@
 {
   "dependencies": {
     "binance-api-node": "^0.7.6",
+    "bip32-utils": "^0.11.1",
+    "bip39": "^2.5.0",
+    "bitcoinjs-lib": "^3.3.2",
     "mongodb": "^3.1.0-beta4",
-    "node-binance-api": "^0.6.0"
+    "node-binance-api": "^0.6.0",
+    "node-gyp": "^3.6.2"
   }
 }
