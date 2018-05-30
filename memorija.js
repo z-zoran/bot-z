@@ -13,8 +13,9 @@ let memorija = {
 }
 */
 const memorija = {
-	tikeri: {},
 	exchInfo: {},
+	tikeri: {},
+	kendlovi: {},
 };
 
 // skraćena whitelista za testiranje
@@ -86,16 +87,22 @@ memorija.whitelista = [
 	'SALTBTC','SALTETH',// Salt
 	'GTOBTC', 'GTOETH', // Gifto
 ];
+
+// SLOŽITI SEGREGIRANE WHITELISTE PO TIPOVIMA COINOVA
+// npr, BTC, ETH, IOTA itd u 1. klasu
+// Drugorazredne u drugu klasu
+// privacy coinove npr
+// shit coinove (mali market cap tipa < 500,000.00$)
 */
 
 
 /*
-memorija.tikeri = [
-	{tiker},	
-	{tiker},	
-	{tiker},
-	...	
-]
+memorija.tikeri = {
+	'ETHBTC': {dubinski tiker (zadnje stanje orderbooka)},
+	'ALTETH': {dubinski tiker (zadnje stanje orderbooka)},
+	'ALTBTC': {dubinski tiker (zadnje stanje orderbooka)},
+	...
+}
 
 memorija.kendlovi = {
 	'ETHBTC': {kendl},
