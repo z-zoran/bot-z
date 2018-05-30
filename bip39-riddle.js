@@ -1,8 +1,7 @@
-let bip39 = require('bip39');
-let bip32 = require('bip32');
-let assert = require('assert');
 
-var bitcoin = require('bitcoinjs-lib')
+let bip39 = require('bip39');
+let bitcoin = require('bitcoinjs-lib');
+
 
 let sveRijeci = [
     'problem',
@@ -21,31 +20,14 @@ let sveRijeci = [
 
 let br = 0;
 let rjesenje = '';
-let svaRjesenja = [];
 const cilj = '37XTVuaWt1zyUPRgDDpsnoo5ioHk2Da6Fs';
-
-function test(rjesenje) {
-    let seed = bip39.mnemonicToSeed(rjesenje);
-    let root = bip32.fromSeed(seed);
-/*
-    // receive addresses
-    assert.strictEqual(getAddress(root.derivePath("m/0'/0/0")), cilj);
-    assert.strictEqual(getAddress(root.derivePath("m/0'/0/1")), cilj);
-*/
-    // change addresses
-    /*
-    assert.strictEqual(getAddress(root.derivePath("m/0'/1/0")), cilj);
-    assert.strictEqual(getAddress(root.derivePath("m/0'/1/1")), cilj);
-    */
-}
-
 
 kombinator(sveRijeci, rjesenje);
 
 function kombinator(lista, rj) {
     if (lista.length === 0) {
         if (bip39.validateMnemonic(rj)) {
-            test(rjesenje);
+            tester(rj);
         }
     } else {
         for (let i = 0; i < lista.length; i++) {
@@ -58,4 +40,20 @@ function kombinator(lista, rj) {
             kombinator(kopija, rjesenje);
         }
     }
+}
+
+function tester(mnemonic) {
+    var seed = bip39.mnemonicToSeed(mnemonic)
+    var bitcoinNetwork = bitcoin.networks.bitcoin
+    let wif = bitcoin.HDNode
+        .fromSeedBuffer(seed, bitcoinNetwork)
+        .derivePath('m/0')
+        .keyPair.toWIF();
+    var keyPair = bitcoin.ECPair.fromWIF(wif);
+    var redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(keyPair.getPublicKeyBuffer()))
+    var scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(redeemScript))
+    var address = bitcoin.address.fromOutputScript(scriptPubKey)
+    if (address === cilj) console.log('Nađena mnemonika!!! ' + mnemonic);
+    br++;
+    if (br % 1000 === 0) console.log(Date.now() + ' Isprobano ' + br + ' kombinacija.');
 }

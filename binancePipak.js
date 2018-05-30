@@ -148,7 +148,23 @@ function pokreniDeepTikerFeed() {
  * @param {string} symbol - valuta koju treba evaluirati prema zadnjem tikeru
  */
 function evaluirajStanje(symbol) {
-
+    if (symbol === 'ETHBTC') {
+        whitelista.forEach(par => { if (par !== 'ETHBTC') evaluirajStanje(par) });
+    } else {
+        let base = baseQuote(symbol).base;
+        let quote = baseQuote(symbol).quote;
+        let trio = {
+            a: 'ETHBTC',
+            b: symbol,
+            c: '',
+        }
+        if (quote === 'BTC') {
+            trio.c = base + 'ETH';
+        } else if (quote === 'ETH') {
+            trio.c = base + 'BTC';
+        }
+        provjeriArbitražniTrokut(trio);
+    }
 }
 
 /**
