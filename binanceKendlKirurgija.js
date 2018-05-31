@@ -17,14 +17,17 @@ function dobarRedoslijed(kendlNovi, kendlStari, rez) {
 }
 
 function krpanjeRupaKendlArraya(kendlArr, noviKendl, rez) {
-    let rezStr = rez === 1 ? '1m' : rez === 5 ? '5m' : rez === 15 ? '15m' : rez === 60 ? '1h' : new Error('Rezolucija');
+    let rezStr = rez === 1 ? '1m' : rez === 5 ? '5m' : rez === 15 ? '15m' : rez === 60 ? '1h' : null;
+    if (!rezStr) new Error('Rezolucija: ' + rez);
     let zadnji = kendlArr[kendlArr.length - 1];
     let korak = rez * 60000; // rezolucija je u min, korak je u milisek
     let razlika = noviKendl.openTime - zadnji.openTime;
+    let koliko = 0;
     if (razlika % korak === 0) {
-        let koliko = (razlika / korak) - 1;
+        koliko = (razlika / korak) - 1;
         if (koliko > 500) throw new Error('Previše kendlova je rupa. ' + noviKendl.openTime);
     } else throw new Error('Čudna razlika između timestampova. ' + noviKendl.openTime);
+    let start = zadnji.openTime;
     dohvatiKendlove(symbol, koliko, rezStr, start)
         .then((error, kendlovi, symbol) => {
             let arr = [];
