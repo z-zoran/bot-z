@@ -28,7 +28,8 @@ function krpanjeRupaKendlArraya(kendlArr, noviKendl, rez) {
     } else throw new Error('Čudna razlika između timestampova. ' + noviKendl.openTime);
     let start = zadnji.openTime;
     dohvatiKendlove(symbol, koliko, rezStr, start)
-    .then(popuniPrazninu(error, kendlovi, symbol))
+    .then(kendlizirajResponse(error, kendlovi, symbol))
+    .then()
 }
 
 function dohvatiKendlove(symbol, koliko, rezStr, start) {
@@ -39,10 +40,8 @@ function dohvatiKendlove(symbol, koliko, rezStr, start) {
 
 if (dobarRedoslijed(noviKendl, zadnji, rez)) kendlArr.push(noviKendl);
 
-function popuniPrazninu(error, kendlovi, symbol) {
-    let arr = [];
-    kendlovi.forEach(kendl => {
-        arr.push(new Kendl({
+function kendlizirajResponse(error, kendlovi, symbol) {
+    return arr = kendlovi.map(kendl => new Kendl({
             openTime: kendl[0],
             open: kendl[1],
             high: kendl[2],
@@ -54,9 +53,7 @@ function popuniPrazninu(error, kendlovi, symbol) {
             trades: kendl[8],
             buyBaseVolume: kendl[9],
             buyQuoteVolume: kendl[10],
-        }));
-        let zadnjiMem = memorija.kendlovi[symbol][rezStr]
-    });
+    }));
 }
 
 function dohvatiJedanKendl(symbol, rezStr, start) {
