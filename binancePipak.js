@@ -193,7 +193,7 @@ function dohvatiExchInfo() {
     });
 }
 
-
+/*
 function Kendl(kendl) {
     this.openTime = kendl.openTime;
     this.closeTime = kendl.closeTime;
@@ -204,7 +204,7 @@ function Kendl(kendl) {
     this.volume = kendl.volume;
     this.trades = kendl.trades;
 }
-
+*/
 
 
 /*
