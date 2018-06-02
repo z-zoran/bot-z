@@ -1,39 +1,101 @@
-
-.App {
+#App {
   text-align: center;
+  width: 1600px;
+  margin: auto;
+  display: grid;
+  grid-template-rows: 60px 800px 100px;
 }
 
-.App-logo {
-  float: left;
-  height: 50px;
-}
-
-.App-container {
-  display: flex;
-}
-
-.App-header {
-  float:none;
+#App-header {
   background-color: #222;
+  height: 60px;
+  color: white;
+  display: grid;
+  grid-template-columns: 60px 100px 1040px 400px;
+}
+
+#Header-logo {
+  float: left;
   height: 50px;
   padding: 5px;
-  color: white;
 }
 
-.App-naslov {
+#Header-title {
   float: left;
+  text-align: left;
+  height: 50px;
+  padding: 5px;
 }
 
-.App-chart {
-  background-color: #0000cc;
-  width: 1200px;
-  flex: none;
+#Header-notif {
   float: left;
-  
+  height: 50px;
+  padding: 5px;
 }
 
-.App-menu {
-  background-color: #660033;
-  flex: auto;
+.Notif-karta {
   float: right;
+  width: 80px;
+  height: 40px;
+  padding: 5px;
+  margin-right: 15px;
+  background-color: #cfcfcf;
 }
+
+div.Notif-karta > p {
+  padding: 0;
+  margin: 0;
+  font-size: 0.6em;
+  color: black;
+}
+
+#Karta-timestamp {
+  text-align: right;
+}
+#Karta-symbol {
+  text-align: right;
+}
+#Karta-strat {
+  float: left;
+  text-align: left;
+  vertical-align: bottom;
+}
+#Karta-profit {
+  float: right;
+  font-size: 0.8em;
+  text-align: right;
+}
+
+#Header-status {
+  height: 60px;
+}
+
+#App-container {
+  display: grid;
+  grid-template-columns: 1200px 400px;
+  grid-template-rows: 800px;
+}
+
+#App-chart {
+  background-color: #bbb9ff;
+  width: 1200px;
+  height: 800
+}
+
+#App-menu {
+  background-color: #f7c9e0;
+  display: grid;
+  grid-template-rows: auto;
+}
+
+.Menu-gumb {
+  margin: 20px;
+  background-color: #16b123;
+  height: 100px;
+
+}
+
+.Gumb-tekst {
+  margin-top: 20px;
+}
+
