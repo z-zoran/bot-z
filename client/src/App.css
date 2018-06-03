@@ -77,7 +77,19 @@ div.Notif-karta > p {
   100% {margin-left: 20px;}
 }
 
-#Header-status {
+#Header-status-online {
+  height: 60px;
+  text-align: start;
+  margin-top: 20px;
+  margin-left: 20px;
+  animation-name: statusAni;
+  animation-delay: 2s;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+#Header-status-offline {
   height: 60px;
   text-align: start;
   margin-top: 20px;

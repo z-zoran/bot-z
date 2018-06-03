@@ -17,20 +17,21 @@ const kartice = [
 ]
 
 const menu = [
-	'Backtest', 'Portfolio', 'Stratovi', 'Live', 'Killswitch'
+	{ ime: 'Backtest', handleClick: hendlerFunkcija }, 
+	{ ime: 'Portfolio', handleClick: hendlerFunkcija }, 
+	{ ime: 'Stratovi', handleClick: hendlerFunkcija }, 
+	{ ime: 'Live', handleClick: hendlerFunkcija }, 
+	{ ime: 'Killswitch', handleClick: hendlerFunkcija },
 ]
+
+function hendlerFunkcija() {
+	alert('Bla bla!')
+}
 
 const stat = 'Ovdje ide status';
 const chart = 'Nešto chart nešto bla bla';
 
 class App extends Component {
-	constructor(props) {
-		super(props)
-		this.state = {
-			prikaz: 'Backtest',
-		}
-	}
-
 	render() {
 		return (
 		<div id="App">
@@ -38,11 +39,11 @@ class App extends Component {
 				<img src={logo} id="Header-logo" alt="logo" />
 				<h1 id="Header-title">Bot Z</h1>
 				<Rolodex cont={kartice} />
-				<Status cont={stat}/>
+				<Status cont={stat} />
 			</header>
 			<div id="App-container">
-				<ChartCont cont={chart}/>
-				<Menu cont={menu}/>
+				<ChartCont cont={chart} />
+				<Menu cont={menu} />
 			</div>
 		</div>
 		);

@@ -23,6 +23,7 @@ const baseQuote = require('./alatke.js').baseQuote;
  * Funkcija za srezavanje predubokog orderbooka
  * @param {object} knjiga - orderbook, ali samo jedna strana (bid ili ask)
  * @param {string} smjer - opcija: bidovi ili askovi (desc ili asc sort)
+ * @returns {object} - srezan orderbook na dubinaKnjige
  */
 function srezatiKnjigu(knjiga, smjer) {
     let sortAsc = (a, b) => {return (Number(a) - Number(b))};
@@ -66,7 +67,7 @@ function napipajDubinu(knjiga, iznos) {
             napipano.zbroj += preostaloZaNapipati;
             return izracunajUmnozak(napipano);
         }
-        i++
+        i++;
         if (i >= keyevi.length) {
             throw new Error('Preplitak orderbook. Povečati globalnu dubinaKnjige varijablu ili smanjiti iznos za napipavanje.');
         }
