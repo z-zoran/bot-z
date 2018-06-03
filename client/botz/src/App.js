@@ -16,7 +16,21 @@ const kartice = [
 	['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
 ]
 
+const menu = [
+	'Backtest', 'Portfolio', 'Stratovi', 'Live', 'Killswitch'
+]
+
+const stat = 'Ovdje ide status';
+const chart = 'Nešto chart nešto bla bla';
+
 class App extends Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			prikaz: 'Backtest',
+		}
+	}
+
 	render() {
 		return (
 		<div id="App">
@@ -24,11 +38,11 @@ class App extends Component {
 				<img src={logo} id="Header-logo" alt="logo" />
 				<h1 id="Header-title">Bot Z</h1>
 				<Rolodex cont={kartice} />
-				<Status />
+				<Status cont={stat}/>
 			</header>
 			<div id="App-container">
-				<ChartCont />
-				<Menu />
+				<ChartCont cont={chart}/>
+				<Menu cont={menu}/>
 			</div>
 		</div>
 		);

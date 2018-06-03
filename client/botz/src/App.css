@@ -42,6 +42,10 @@
   background-color: #cfcfcf;
 }
 
+.Notif-karta:hover {
+  background-color: #aaaaaa;
+}
+
 div.Notif-karta > p {
   padding: 0;
   margin: 0;
@@ -66,8 +70,22 @@ div.Notif-karta > p {
   text-align: right;
 }
 
+/* The animation code */
+@keyframes primjer {
+  0% {margin-left: 20px;}
+  50% {margin-left: 10px;}
+  100% {margin-left: 20px;}
+}
+
 #Header-status {
   height: 60px;
+  text-align: start;
+  margin-top: 20px;
+  margin-left: 20px;
+  animation-name: primjer;
+  animation-delay: 2s;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
 }
 
 #App-container {
@@ -77,25 +95,31 @@ div.Notif-karta > p {
 }
 
 #App-chart {
-  background-color: #bbb9ff;
+  background-color: #eeeeee;
   width: 1200px;
   height: 800
 }
 
 #App-menu {
-  background-color: #f7c9e0;
+  background-color: #cfcfcf;
   display: grid;
   grid-template-rows: auto;
+  padding: 20px;
+  grid-row-gap: 20px;
 }
 
 .Menu-gumb {
-  margin: 20px;
-  background-color: #16b123;
-  height: 100px;
+  background-color: #b4b4b4;
+  height: auto;
+  padding: auto;
+}
 
+.Menu-gumb:hover {
+  background-color: #575757;
 }
 
 .Gumb-tekst {
-  margin-top: 20px;
+  text-align: start;
+  margin-left: 20px;
 }
 

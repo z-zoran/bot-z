@@ -4,7 +4,7 @@ export class Status extends Component {
 	render() {
 		return (
 			<div id="Header-status">
-				{this.props.status}
+				{this.props.cont}
 			</div>
 		)
 	}
