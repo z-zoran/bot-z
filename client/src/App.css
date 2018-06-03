@@ -71,9 +71,9 @@ div.Notif-karta > p {
 }
 
 /* The animation code */
-@keyframes primjer {
+@keyframes statusAni {
   0% {margin-left: 20px;}
-  50% {margin-left: 10px;}
+  50% {margin-left: 0px;}
   100% {margin-left: 20px;}
 }
 
@@ -82,10 +82,11 @@ div.Notif-karta > p {
   text-align: start;
   margin-top: 20px;
   margin-left: 20px;
-  animation-name: primjer;
+  animation-name: statusAni;
   animation-delay: 2s;
   animation-duration: 2s;
   animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
 }
 
 #App-container {
@@ -115,7 +116,7 @@ div.Notif-karta > p {
 }
 
 .Menu-gumb:hover {
-  background-color: #575757;
+  background-color: #a7a7a7;
 }
 
 .Gumb-tekst {
