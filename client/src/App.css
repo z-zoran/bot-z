@@ -73,32 +73,29 @@ div.Notif-karta > p {
 /* The animation code */
 @keyframes statusAni {
   0% {margin-left: 20px;}
-  50% {margin-left: 0px;}
+  50% {margin-left: 10px;}
   100% {margin-left: 20px;}
 }
 
 #Header-status-online {
+  color: rgb(0, 180, 0);
   height: 60px;
   text-align: start;
   margin-top: 20px;
   margin-left: 20px;
   animation-name: statusAni;
-  animation-delay: 2s;
-  animation-duration: 2s;
+  animation-delay: 0.5s;
+  animation-duration: 1s;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
 }
 
 #Header-status-offline {
+  color: rgb(255, 0, 0);
   height: 60px;
   text-align: start;
   margin-top: 20px;
   margin-left: 20px;
-  animation-name: statusAni;
-  animation-delay: 2s;
-  animation-duration: 2s;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
 }
 
 #App-container {

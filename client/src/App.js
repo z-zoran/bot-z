@@ -16,22 +16,46 @@ const kartice = [
 	['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
 ]
 
-const menu = [
-	{ ime: 'Backtest', handleClick: hendlerFunkcija }, 
-	{ ime: 'Portfolio', handleClick: hendlerFunkcija }, 
-	{ ime: 'Stratovi', handleClick: hendlerFunkcija }, 
-	{ ime: 'Live', handleClick: hendlerFunkcija }, 
-	{ ime: 'Killswitch', handleClick: hendlerFunkcija },
-]
-
-function hendlerFunkcija() {
-	alert('Bla bla!')
-}
-
-const stat = 'Ovdje ide status';
-const chart = 'Nešto chart nešto bla bla';
-
 class App extends Component {
+	constructor(props) {
+		super(props)
+		this.menu = [
+			{ ime: 'Backtest', handleClick: this.hendlerBacktest.bind(this) }, 
+			{ ime: 'Portfolio', handleClick: this.hendlerPortfolio.bind(this) }, 
+			{ ime: 'Stratovi', handleClick: this.hendlerStratovi.bind(this) }, 
+			{ ime: 'Live', handleClick: this.hendlerLive.bind(this) }, 
+			{ ime: 'Killswitch', handleClick: this.hendlerKillswitch.bind(this) },
+		]
+		this.state = {
+			view: 'Backtest',
+			stat: 'Status: Offline',
+		}
+		this.hendlerStatus = this.hendlerStatus.bind(this);
+	}
+	/* hendleri klikova na meni */
+	hendlerBacktest() {
+		this.setState({view: 'Backtest'});
+	}
+	hendlerPortfolio() {
+		this.setState({view: 'Portfolio'});
+	}
+	hendlerStratovi() {
+		this.setState({view: 'Stratovi'});
+	}
+	hendlerLive() {
+		this.setState({view: 'Live'});
+	}
+	hendlerKillswitch() {
+		this.setState({view: <h2>Kill sve što se kreće!!!</h2>});
+	}
+	/* status - play/pauza hendler */
+	hendlerStatus() {
+		if (this.state.stat === 'Status: Offline') {
+			this.setState({stat: 'Status: Online'})
+		} else if (this.state.stat === 'Status: Online') {
+			this.setState({stat: 'Status: Offline'})
+		}
+	}
 	render() {
 		return (
 		<div id="App">
@@ -39,11 +63,11 @@ class App extends Component {
 				<img src={logo} id="Header-logo" alt="logo" />
 				<h1 id="Header-title">Bot Z</h1>
 				<Rolodex cont={kartice} />
-				<Status cont={stat} />
+				<Status stat={this.state.stat} handleClick={this.hendlerStatus} />
 			</header>
 			<div id="App-container">
-				<ChartCont cont={chart} />
-				<Menu cont={menu} />
+				<ChartCont cont={this.state.view} />
+				<Menu cont={this.menu} />
 			</div>
 		</div>
 		);
