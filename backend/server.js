@@ -3,14 +3,16 @@ const app = express();
 
 
 /* SERVER API */
-br = ''
+
+br = 0
 // glavni callback za express router
 function masterHendler(request, response) {
-    br += 'bla bla 123 ';
-    response.send(br);
+    br += 1;
+    response.send(JSON.stringify(br));
 }
 
+// express router
+app.use('/', masterHendler);
 
-app.get('/', masterHendler);
-
+// uvo sluša
 app.listen(3001, () => console.log('Example app listening on port 3001!'));

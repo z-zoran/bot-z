@@ -67,8 +67,14 @@ class App extends Component {
 		} else if (this.state.stat === 'Online') {
 			this.setState({stat: 'Offline'})
 		}
-		fetch('/')
-			.then(res => this.setState({view: res.text()}))
+		let odg = '';
+		fetch('/').then(res => {
+			while (res) {
+				odg += res.body.read();
+				// kuja neće radi majku li joj jebem.
+			}
+		})
+		this.setState({ view: odg })
 	}
 	render() {
 		return (
