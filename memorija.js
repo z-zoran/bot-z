@@ -24,6 +24,11 @@ memorija.whitelista = [
 	'XRPBTC', // Ripple
 ];
 
+memorija.config = {
+	dubinaKnjige: 3,
+}
+
+
 /*
 // puna whitelista
 memorija.whitelista = [

@@ -4,7 +4,9 @@ export class Killswitch extends Component {
 	render() {
 		return (
 			<div id="Header-status-killswitch" onClick={this.props.handleClick}>
-				Bla
+				{this.props.stat === 'Online'
+				? 'KILLSWITCH'
+				: 'POKRENI'}
 			</div>
 		)
 	}

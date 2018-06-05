@@ -12,7 +12,7 @@ import ikonaCreative from './svg/010-creative.svg';
 import ikonaBanknote from './svg/015-banknote.svg';
 import ikonaChess from './svg/012-chess-piece.svg';
 import ikonaClock from './svg/001-clock.svg';
-import ikonaNetwork from './svg/014-network.svg';
+import ikonaNetworkOff from './svg/014-network.svg';
 import ikonaNetworkOn from './svg/014-network-on.svg';
 
 class App extends Component {
@@ -38,7 +38,6 @@ class App extends Component {
 		this.state = {
 			view: 'Backtest',
 			stat: 'Offline',
-			statIkona: ikonaNetwork,
 		}
 		this.hendlerKillswitch = this.hendlerKillswitch.bind(this);
 	}
@@ -76,7 +75,7 @@ class App extends Component {
 				<img src={logo} id="Header-logo" alt="logo" />
 				<h1 id="Header-title">Bot Z</h1>
 				<Rolodex karte={this.kartice} />
-				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetwork} stat={this.state.stat} handleClick={this.hendlerKillswitch} />
+				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} handleClick={this.hendlerKillswitch} />
 			</header>
 			<div id="App-container">
 				<ChartCont cont={this.state.view} />

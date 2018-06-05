@@ -7,37 +7,46 @@ const symbol = 'ETHBTC';
 // memorija kendlovi
 if (!memorija.kendlovi[symbol]) memorija.kendlovi[symbol] = [];
 
-function krpanjeRupaKendlArraya(kendlArr, noviKendl, rez) {
+/* PROVJERITI I EVENTUALNO POPRAVITI ASYNC-AWAIT U CIJELOM MODULU */
+
+// ubaciti mogućnost skidanja preko 500 kendlova
+async function krpanjeRupaKendlArraya(stariArr, noviKendl, rez) {
     let rezStr = rez === 1 ? '1m' : rez === 5 ? '5m' : rez === 15 ? '15m' : rez === 60 ? '1h' : null;
     if (!rezStr) throw new Error('Rezolucija: ' + rez);
-    let zadnji = kendlArr[kendlArr.length - 1];
+    let zadnji = stariArr[stariArr.length - 1];
     let korak = rez * 60000; // rezolucija je u min, korak je u milisek
     let razlika = noviKendl.openTime - zadnji.openTime;
     let koliko = 0;
+
     if (razlika % korak === 0) {
         koliko = (razlika / korak) - 1;
-        if (koliko > 500) throw new Error('Previše kendlova je rupa. ' + noviKendl.openTime);
+        if (koliko > 500) {
+
+        } else if (koliko <= 500) {
+
+        }
     } else throw new Error('Čudna razlika između timestampova. ' + noviKendl.openTime);
     let startTime = zadnji.openTime;
-    dohvatiObradiSpremi(kendlArr, symbol, koliko, rezStr, startTime);
+    await dohvatiObradiSpremi(stariArr, symbol, koliko, rezStr, startTime);
+    return 
 }
 
-/**
- * Funkcija za dohvatiti, kendlizirati i spremiti in-place u memoriju kendlove s Binancea.
- * @param {array} kendlArr - array s kendlovima iz memorije
+/** Funkcija za dohvatiti, kendlizirati i spremiti in-place u memoriju kendlove s Binancea.
+ * 
+ * @param {array} stariArr - array s kendlovima iz memorije
  * @param {string} symbol - par koji dohvaćamo
  * @param {number} koliko - koliko kendlova trebamo
  * @param {string} rezStr - rezolucija (string) npr. '1m', '5m' itd.
  * @param {number} startTime - timestamp opentTime prvog kendla
  */
-function dohvatiObradiSpremi(kendlArr, symbol, koliko, rezStr, startTime) {
-    dohvatiKendlove(symbol, koliko, rezStr, startTime)
-    .then(kendlizirajResponse(error, kendlovi, symbol))
-    .then(noviArr => umetniKendlove(kendlArr, noviArr))
+function dohvatiObradiSpremi(stariArr, symbol, koliko, rezStr, startTime) {
+    return dohvatiKendlove(symbol, koliko, rezStr, startTime)
+        .then(kendlizirajResponse(error, kendlovi, symbol))
+        .then(noviArr => umetniKendlove(stariArr, noviArr))
 }
 
-/**
- * Promise za dohvatiti arbitrarni broj kendlova s Binancea.
+/** Promise za dohvatiti arbitrarni broj kendlova s Binancea.
+ * 
  * @param {string} symbol - par koji dohvaćamo
  * @param {number} koliko - koliko kendlova trebamo
  * @param {string} rezStr - rezolucija (string) npr. '1m', '5m' itd.
@@ -50,8 +59,8 @@ function dohvatiKendlove(symbol, koliko, rezStr, startTime) {
     });
 }
 
-/**
- * Funkcija za dohvatiti zadnji kendl za sve parove s whiteliste.
+/** Funkcija za dohvatiti zadnji kendl za sve parove s whiteliste.
+ * 
  * @param {array} whitelista - popis symbola za trejdanje
  * @param {string} rezStr - rezolucija (string) npr. '1m', '5m' itd.
  * @param {number} startTime - timestamp opentTime prvog kendla
@@ -63,8 +72,8 @@ function dohvatiHorizontalnoSveSymbole(whitelista, rezStr, startTime) {
     });
 }
 
-/**
- * Funkcija za pretvoriti payload s Binancea u standardizirane Kendl objekte.
+/** Funkcija za pretvoriti payload s Binancea u standardizirane Kendl objekte.
+ * 
  * @param {*} error - potencijalni error proslijeđen iz dohvatiKendlove
  * @param {array} kendlovi - payload array kendlova u sirovom formatu
  * @param {string} symbol - par koji dohvaćamo
@@ -75,8 +84,8 @@ function kendlizirajResponse(error, kendlovi, symbol) {
     else return kendlovi.map(kendl => new Kendl(kendl));
 }
 
-/**
- * Funkcija za umetnuti Kendl objekte in-place u array (vjerojatno u memorija.kendl[symbol][rezStr]).
+/** Funkcija za umetnuti Kendl objekte in-place u array (vjerojatno u memorija.kendl[symbol][rezStr]).
+ * 
  * @param {array} stariArr - postojeći array iz memorije
  * @param {array} noviArr - novi kendlizirani array kojeg treba umetnuti u stari
  * @returns {array} - nakon in-place umetanja, vraćamo popunjeni array (redundantno jer je in-place)
@@ -93,8 +102,8 @@ function umetniKendlove(stariArr, noviArr) {
     return stariArr;
 }
 
-/**
- * Predikatna funkcija koja provjerava da li se poklapaju timestampovi dva Kendl objekta.
+/** Predikatna funkcija koja provjerava da li se poklapaju timestampovi dva Kendl objekta.
+ * 
  * @param {Kendl} kendlNovi - dolazni Kendl
  * @param {Kendl} kendlStari - stari Kendl
  * @param {number} rez - rezolucija (kao broj minuta)
@@ -108,8 +117,8 @@ function dobarRedoslijedKendla(kendlNovi, kendlStari, rez) {
     } else return false;
 }
 
-/**
- * Standardizirani Kendl objekat.
+/** Standardizirani Kendl objekat.
+ * 
  * Dodati metode na kendl (indikatore i sl.)
  */
 class Kendl {
@@ -125,9 +134,7 @@ class Kendl {
     }
 }
 
-function staniMalo(koliko) {
-    return new Promise((resolve, reject) => {
-        setTimeout(resolve, koliko);
-    })
+module.exports = {
+    krpanjeRupaKendlArraya: krpanjeRupaKendlArraya,
+    dohvatiHorizontalnoSveSymbole: dohvatiHorizontalnoSveSymbole,
 }
-
