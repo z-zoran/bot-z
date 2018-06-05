@@ -67,6 +67,8 @@ class App extends Component {
 		} else if (this.state.stat === 'Online') {
 			this.setState({stat: 'Offline'})
 		}
+		fetch('/')
+			.then(res => this.setState({view: res.text()}))
 	}
 	render() {
 		return (
