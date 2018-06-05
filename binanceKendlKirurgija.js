@@ -13,22 +13,20 @@ if (!memorija.kendlovi[symbol]) memorija.kendlovi[symbol] = [];
 async function krpanjeRupaKendlArraya(stariArr, noviKendl, rez) {
     let rezStr = rez === 1 ? '1m' : rez === 5 ? '5m' : rez === 15 ? '15m' : rez === 60 ? '1h' : null;
     if (!rezStr) throw new Error('Rezolucija: ' + rez);
-    let zadnji = stariArr[stariArr.length - 1];
     let korak = rez * 60000; // rezolucija je u min, korak je u milisek
-    let razlika = noviKendl.openTime - zadnji.openTime;
+    let startTime = stariArr[stariArr.length - 1].openTime + korak; // prvi slijedeći kendl
+    let razlika = noviKendl.openTime - startTime;
     let koliko = 0;
-
     if (razlika % korak === 0) {
         koliko = (razlika / korak) - 1;
         if (koliko > 500) {
-
+            await dohvatiObradiSpremi(stariArr, symbol, koliko, rezStr, startTime);
+            koliko -= 500;
+            return await krpanjeRupaKendlArraya(stariArr, symbol, koliko, rezStr, startTime);
         } else if (koliko <= 500) {
-
+            return await dohvatiObradiSpremi(stariArr, symbol, koliko, rezStr, startTime);
         }
     } else throw new Error('Čudna razlika između timestampova. ' + noviKendl.openTime);
-    let startTime = zadnji.openTime;
-    await dohvatiObradiSpremi(stariArr, symbol, koliko, rezStr, startTime);
-    return 
 }
 
 /** Funkcija za dohvatiti, kendlizirati i spremiti in-place u memoriju kendlove s Binancea.
@@ -112,9 +110,8 @@ function umetniKendlove(stariArr, noviArr) {
 function dobarRedoslijedKendla(kendlNovi, kendlStari, rez) {
     let razlika = kendlNovi.openTime - kendlStari.openTime;
     let korak = rez * 60000; // rezolucija je u min, korak je u milisek
-    if (razlika === korak) {
-        return true;
-    } else return false;
+    if (razlika === korak) return true
+    else return false;
 }
 
 /** Standardizirani Kendl objekat.
