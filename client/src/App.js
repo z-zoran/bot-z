@@ -1,36 +1,46 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { Menu } from './Menu.js';
 import { Rolodex } from './Rolodex.js';
 import { ChartCont } from './ChartCont.js';
 import { Status } from './Status.js';
-
-const kartice = [
-	['Timestamp1', 'Symbol1', 'Strat1', 'Profit1'],
-	['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
-	['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
-	['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
-	['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
-	['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
-	['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
-]
+// ikone za UI
+import logo from './logo.svg';
+import ikonaGears from './svg/008-gears.svg';
+import ikonaSearch from './svg/003-search.svg';
+import ikonaCreative from './svg/010-creative.svg';
+import ikonaBanknote from './svg/015-banknote.svg';
+import ikonaChess from './svg/012-chess-piece.svg';
+import ikonaClock from './svg/001-clock.svg';
+import ikonaNetwork from './svg/014-network.svg';
+import ikonaNetworkOn from './svg/014-network-on.svg';
 
 class App extends Component {
 	constructor(props) {
 		super(props)
+		this.kartice = [
+			['Timestamp1', 'Symbol1', 'Strat1', 'Profit1'],
+			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
+			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
+			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
+			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
+			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
+			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
+		]
 		this.menu = [
-			{ ime: 'Backtest', handleClick: this.hendlerBacktest.bind(this) }, 
-			{ ime: 'Portfolio', handleClick: this.hendlerPortfolio.bind(this) }, 
-			{ ime: 'Stratovi', handleClick: this.hendlerStratovi.bind(this) }, 
-			{ ime: 'Live', handleClick: this.hendlerLive.bind(this) }, 
-			{ ime: 'Killswitch', handleClick: this.hendlerKillswitch.bind(this) },
+			{ ime: 'Backtest', handleClick: this.hendlerBacktest.bind(this), ikona: ikonaClock }, 
+			{ ime: 'Portfolio', handleClick: this.hendlerPortfolio.bind(this), ikona: ikonaBanknote }, 
+			{ ime: 'Stratovi', handleClick: this.hendlerStratovi.bind(this), ikona: ikonaChess }, 
+			{ ime: 'Postavke', handleClick: this.hendlerPostavke.bind(this), ikona: ikonaGears }, 
+			{ ime: 'Notes', handleClick: this.hendlerNotes.bind(this), ikona: ikonaCreative }, 
+			{ ime: 'Baza', handleClick: this.hendlerBaza.bind(this), ikona: ikonaSearch },
 		]
 		this.state = {
 			view: 'Backtest',
-			stat: 'Status: Offline',
+			stat: 'Offline',
+			statIkona: ikonaNetwork,
 		}
-		this.hendlerStatus = this.hendlerStatus.bind(this);
+		this.hendlerKillswitch = this.hendlerKillswitch.bind(this);
 	}
 	/* hendleri klikova na meni */
 	hendlerBacktest() {
@@ -42,18 +52,21 @@ class App extends Component {
 	hendlerStratovi() {
 		this.setState({view: 'Stratovi'});
 	}
-	hendlerLive() {
-		this.setState({view: 'Live'});
+	hendlerPostavke() {
+		this.setState({view: 'Postavke'});
 	}
+	hendlerNotes() {
+		this.setState({view: 'Notes'});
+	}
+	hendlerBaza() {
+		this.setState({view: 'Baza podataka'});
+	}
+	/* play/pauza hendler */
 	hendlerKillswitch() {
-		this.setState({view: <h2>Kill sve što se kreće!!!</h2>});
-	}
-	/* status - play/pauza hendler */
-	hendlerStatus() {
-		if (this.state.stat === 'Status: Offline') {
-			this.setState({stat: 'Status: Online'})
-		} else if (this.state.stat === 'Status: Online') {
-			this.setState({stat: 'Status: Offline'})
+		if (this.state.stat === 'Offline') {
+			this.setState({stat: 'Online'})
+		} else if (this.state.stat === 'Online') {
+			this.setState({stat: 'Offline'})
 		}
 	}
 	render() {
@@ -62,8 +75,8 @@ class App extends Component {
 			<header id="App-header">
 				<img src={logo} id="Header-logo" alt="logo" />
 				<h1 id="Header-title">Bot Z</h1>
-				<Rolodex cont={kartice} />
-				<Status stat={this.state.stat} handleClick={this.hendlerStatus} />
+				<Rolodex karte={this.kartice} />
+				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetwork} stat={this.state.stat} handleClick={this.hendlerKillswitch} />
 			</header>
 			<div id="App-container">
 				<ChartCont cont={this.state.view} />

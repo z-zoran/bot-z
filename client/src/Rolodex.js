@@ -5,7 +5,7 @@ export class Rolodex extends Component {
 	render() {
 		return (
 			<div id="Header-notif">
-				{this.props.cont.map(kartica => <Karta cont={kartica} handleClick={this.props.handleClick}/>)}
+				{this.props.karte.map(kartica => <Karta cont={kartica} handleClick={this.props.handleClick}/>)}
 			</div>
 		)
 	}

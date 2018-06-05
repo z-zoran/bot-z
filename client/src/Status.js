@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
+import { Killswitch } from './Killswitch';
 
 export class Status extends Component {
 	render() {
-		let statId = this.props.stat === 'Status: Online' ? "Header-status-online" : "Header-status-offline";
+		let statId = this.props.stat === 'Online' ? "Header-status-online" : "Header-status-offline";
 		return (
-			<h3 id={statId} onClick={this.props.handleClick}>
-				{this.props.stat}
-			</h3>
+			<div id="Header-status">
+				<img src={this.props.ikona} id="Header-status-ikona" alt="Status" />
+				<span id="Header-status-status">STATUS</span>
+				<span id={statId}>
+					{this.props.stat.toUpperCase()}
+				</span>
+				<Killswitch onClick={this.props.handleClick} />
+			</div>
 		)
 	}
 }

@@ -4,7 +4,8 @@ export class Gumb extends Component {
 	render() {
 		return (
 			<div className="Menu-gumb" onClick={this.props.handleClick}>
-				<h3 className="Gumb-tekst">{this.props.ime}</h3>
+				<img src={this.props.ikona} className="Gumb-ikona" alt={this.props.ime} />
+				<h4 className="Gumb-tekst">{this.props.ime}</h4>
 			</div>
 		);
 	}
