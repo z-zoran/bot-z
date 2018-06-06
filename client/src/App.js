@@ -19,7 +19,7 @@ class App extends Component {
 	constructor(props) {
 		super(props)
 		this.kartice = [
-			['Timestamp1', 'Symbol1', 'Strat1', 'Profit1'],
+			['S desna dolaze obavljeni roundtripovi', '', '', ''],
 			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
 			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
 			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
@@ -28,63 +28,41 @@ class App extends Component {
 			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
 		]
 		this.menu = [
-			{ ime: 'Backtest', handleClick: this.hendlerBacktest.bind(this), ikona: ikonaClock }, 
-			{ ime: 'Portfolio', handleClick: this.hendlerPortfolio.bind(this), ikona: ikonaBanknote }, 
-			{ ime: 'Stratovi', handleClick: this.hendlerStratovi.bind(this), ikona: ikonaChess }, 
-			{ ime: 'Postavke', handleClick: this.hendlerPostavke.bind(this), ikona: ikonaGears }, 
-			{ ime: 'Notes', handleClick: this.hendlerNotes.bind(this), ikona: ikonaCreative }, 
-			{ ime: 'Baza', handleClick: this.hendlerBaza.bind(this), ikona: ikonaSearch },
+			{ ime: 'Backtest', handleClick: () => this.hendlerClient('Backtest'), ikona: ikonaClock }, 
+			{ ime: 'Portfolio', handleClick: () => this.hendlerClient('Portfolio'), ikona: ikonaBanknote }, 
+			{ ime: 'Stratovi', handleClick: () => this.hendlerClient('Stratovi'), ikona: ikonaChess }, 
+			{ ime: 'Postavke', handleClick: () => this.hendlerClient('Postavke'), ikona: ikonaGears }, 
+			{ ime: 'Notes', handleClick: () => this.hendlerClient('Notes'), ikona: ikonaCreative }, 
+			{ ime: 'Baza', handleClick: () => this.hendlerClient('Baza'), ikona: ikonaSearch },
 		]
 		this.state = {
 			view: 'Backtest',
 			stat: 'Offline',
 		}
-		this.hendlerKillswitch = this.hendlerKillswitch.bind(this);
+		this.hendlerClient = this.hendlerClient.bind(this);
+		this.hendlerServer = this.hendlerServer.bind(this);
 	}
-	/* hendleri klikova na meni */
-	hendlerBacktest() {
-		this.setState({view: 'Backtest'});
+	/* hendler za viewove */
+	hendlerClient(koji) {
+		this.setState({ view: koji })
 	}
-	hendlerPortfolio() {
-		this.setState({view: 'Portfolio'});
-	}
-	hendlerStratovi() {
-		this.setState({view: 'Stratovi'});
-	}
-	hendlerPostavke() {
-		this.setState({view: 'Postavke'});
-	}
-	hendlerNotes() {
-		this.setState({view: 'Notes'});
-	}
-	hendlerBaza() {
-		this.setState({view: 'Baza podataka'});
-	}
-	/* play/pauza hendler */
-	// napraviti da budu ukupno 2 hendlera:
-	// hendlerClient (za viewove) i hendlerServer (za fetchanje)
-	hendlerKillswitch() {
+	/* server hendler */
+	hendlerServer() {
 		if (this.state.stat === 'Offline') {
 			this.setState({stat: 'Online'})
 		} else if (this.state.stat === 'Online') {
 			this.setState({stat: 'Offline'})
 		}
 		this.setState({view: 'Pričekaj'})
-		postData('/', {ime: 'Mirko Filipović'})
-			.then(response => response.json())	
-			.then(json => { this.setState({view: json.ime}) })
-		
-		function postData(url, data) {
-			// Default options are marked with *
-			return fetch(url, {
-				method: 'POST', // *GET, POST, PUT, DELETE, etc.
-				body: JSON.stringify(data), // must match 'Content-Type' header
-				headers: {
-					'User-agent': 'Mozilla/4.0',
-					'Content-type': 'application/json',
-				},
-			}) 
-		}
+		let data = this.kartice;
+		fetch('/', {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			body: JSON.stringify(data), // must match 'Content-Type' header
+			headers: {
+				'User-agent': 'Mozilla/4.0',
+				'Content-type': 'application/json',
+			},
+		}).then(response => response.json()).then(json => { this.setState({view: json[0]}) })
 	}
 	render() {
 		return (
@@ -93,7 +71,7 @@ class App extends Component {
 				<img src={logo} id="Header-logo" alt="logo" />
 				<h1 id="Header-title">Bot Z</h1>
 				<Rolodex karte={this.kartice} />
-				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} handleClick={this.hendlerKillswitch} />
+				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} handleClick={this.hendlerServer} />
 			</header>
 			<div id="App-container">
 				<ChartCont cont={this.state.view} />

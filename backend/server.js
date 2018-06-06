@@ -8,10 +8,13 @@ const bodyParser = require('body-parser');
 // middleware za parsanje bodyja
 app.use(bodyParser.json());
 
-// express router
-app.post('/', function (request, response) {
+// master hendler
+function masterHendler(request, response) {
     response.json(request.body);
-});
+}
+
+// express router
+app.post('/', masterHendler);
 
 // uvo sluša
 app.listen(3001, () => console.log('Example app listening on port 3001!'));

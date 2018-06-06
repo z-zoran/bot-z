@@ -41,11 +41,11 @@
   height: 40px;
   padding: 5px;
   margin-left: 15px;
-  background-color: #cfcfcf;
+  background: linear-gradient(rgb(255, 255, 255), rgb(156, 156, 156));
 }
 
 .Notif-karta:hover {
-  background-color: #aaaaaa;
+  background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
 }
 
 div.Notif-karta > p {
@@ -152,39 +152,54 @@ div.Notif-karta > p {
 #App-menu {
   background-color: #aaaaaa;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 155px 155px 155px;
-  padding: 30px;
-  grid-row-gap: 30px;
-  grid-column-gap: 30px;
+  grid-template-areas:
+    " a a a "
+    " 0 1 2 "
+    " 3 4 5 ";
+  grid-template-rows: 508px 106px 106px;
+  padding: 20px;
+  grid-row-gap: 20px;
+  grid-column-gap: 20px;
 }
 
-.Menu-gumb {
-  background-color: #eeeeee;
+#App-menu > div {
   border-style: double;
   border-color: #222;
   border-width: thin;
-  height: auto;
-  padding: auto;
 }
 
-.Menu-gumb:hover {
-  background-color: #dddddd;
+#Menu-konzola {
+  background-color: #eeeeee;
+  grid-area: a;
+}
+
+/* The animation code */
+@keyframes hoverGumbOn {
+  0% {width: 75px; margin-top: 15px;}
+  100% {width: 65px; margin-top: 20px;}
+}
+@keyframes hoverGumbOff {
+  0% {width: 65px; margin-top: 20px;}
+  100% {width: 75px; margin-top: 15px;}
+}
+
+.Menu-gumb:hover .Gumb-ikona {
+  animation: hoverGumbOn 0.04s ease-in-out;
+  animation-fill-mode: forwards;
 }
 
 .Gumb-ikona {
-  margin-top: 22px;
+  background-color: #eeeeee;
+  width: 75px;
+  margin-top: 15px;
   float: center;
-  width: 110px;
+  animation: hoverGumbOff 0.04s ease-in-out;
 }
 
-.Gumb-tekst {
-  text-align: start;
-  margin-left: 20px;
-}
 
 /* Tooltip container */
 .Menu-gumb {
+    background-color: #eeeeee;
     position: relative;
     display: inline-block;
 }
@@ -192,16 +207,16 @@ div.Notif-karta > p {
 /* Tooltip text */
 .Menu-gumb .Gumb-tekst {
     visibility: hidden;
-    width: 120px;
+    width: 106.66px;
     background-color: black;
     color: #fff;
     text-align: center;
-    padding: 5px 0;
-    border-radius: 6px;
-    bottom: -30px;
-    right: 105%; 
-
- 
+    /*padding: 5px 0;*/
+    border-radius: 6px 6px 0px 0px;
+    bottom: -22px;
+    left: -1px;
+    opacity: 0;
+    transition: opacity 0.5s;
     /* Position the tooltip text - see examples below! */
     position: absolute;
     z-index: 1;
@@ -210,24 +225,6 @@ div.Notif-karta > p {
 /* Show the tooltip text when you mouse over the tooltip container */
 .Menu-gumb:hover .Gumb-tekst {
     visibility: visible;
+    opacity: 1;
 }
 
-.Menu-gumb .Gumb-tekst::after {
-  content: " ";
-  position: absolute;
-  top: 50%;
-  left: 100%; /* To the right of the tooltip */
-  margin-top: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent transparent transparent black;
-}
-
-.Menu-gumb .Gumb-tekst {
-  opacity: 0;
-  transition: opacity 1s;
-}
-
-.Menu-gumb:hover .Gumb-tekst {
-  opacity: 1;
-}
