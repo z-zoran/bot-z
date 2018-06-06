@@ -68,13 +68,21 @@ class App extends Component {
 			this.setState({stat: 'Offline'})
 		}
 		let odg = '';
-		fetch('/').then(res => {
-			while (res) {
-				odg += res.body.read();
-				// kuja neće radi majku li joj jebem.
-			}
-		})
+		postData('/', {broj: 42})
+			.then(br => {odg = br})
+			.catch(error => {console.log(error)});
 		this.setState({ view: odg })
+		async function postData(url, data) {
+			// Default options are marked with *
+			return await fetch(url, {
+				method: 'POST', // *GET, POST, PUT, DELETE, etc.
+				body: JSON.stringify(data), // must match 'Content-Type' header
+				headers: {
+					'user-agent': 'Mozilla/4.0',
+					'content-type': 'application/json'
+				},
+			}).then(response => response.json()) // parses response to JSON
+		}
 	}
 	render() {
 		return (
