@@ -61,27 +61,29 @@ class App extends Component {
 		this.setState({view: 'Baza podataka'});
 	}
 	/* play/pauza hendler */
+	// napraviti da budu ukupno 2 hendlera:
+	// hendlerClient (za viewove) i hendlerServer (za fetchanje)
 	hendlerKillswitch() {
 		if (this.state.stat === 'Offline') {
 			this.setState({stat: 'Online'})
 		} else if (this.state.stat === 'Online') {
 			this.setState({stat: 'Offline'})
 		}
-		let odg = '';
-		postData('/', {broj: 42})
-			.then(br => {odg = br})
-			.catch(error => {console.log(error)});
-		this.setState({ view: odg })
-		async function postData(url, data) {
+		this.setState({view: 'Pričekaj'})
+		postData('/', {ime: 'Mirko Filipović'})
+			.then(response => response.json())	
+			.then(json => { this.setState({view: json.ime}) })
+		
+		function postData(url, data) {
 			// Default options are marked with *
-			return await fetch(url, {
+			return fetch(url, {
 				method: 'POST', // *GET, POST, PUT, DELETE, etc.
 				body: JSON.stringify(data), // must match 'Content-Type' header
 				headers: {
-					'user-agent': 'Mozilla/4.0',
-					'content-type': 'application/json'
+					'User-agent': 'Mozilla/4.0',
+					'Content-type': 'application/json',
 				},
-			}).then(response => response.json()) // parses response to JSON
+			}) 
 		}
 	}
 	render() {
