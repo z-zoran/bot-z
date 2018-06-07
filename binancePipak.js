@@ -11,6 +11,7 @@ const whitelista = memorija.whitelista;
 // util funkcija za ekstrahiranje base/quote iz symbola
 const baseQuote = require('./alatke.js').baseQuote;
 
+/* --------POMOĆNE FUNKCIJE------- */
 
 /** Funkcija za srezavanje predubokog orderbooka
  * 
@@ -85,6 +86,8 @@ function izracunajUmnozak(napipano) {
     }
     return napipano;
 }
+
+/* --------GLAVNE FUNKCIJE------- */
 
 /** Glavni feed za sve tikere u memoriji
  * 

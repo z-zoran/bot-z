@@ -26,7 +26,7 @@ export class Backtest extends Component {
 		return (
 			<div id="Chart-backtest">
 				<BacktestChart content={this.state.content} />
-				<BacktestPlay handleClick={this.hendlerZaChart} rez={this.state.rez} handleChange={rez => this.handleChange(rez)} />
+				<BacktestPlay handleClick={this.hendlerZaChart} rez={this.state.rez} handleChange={this.handleChange} />
 				<BacktestPortfolio />
 			</div>
 		);

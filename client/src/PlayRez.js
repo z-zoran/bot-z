@@ -3,19 +3,18 @@ import React, { Component } from 'react';
 export class PlayRez extends Component {
 	constructor(props) {
 		super(props);
-	}
-	hendlerPromjene() {
-		this.props.handleChange
+		this.rezolucije = [ 'min1', 'min5', 'min15', 'min60' ];
 	}
 	render() {
 		return (
 			<div id="Play-rez">
-				<form value={this.props.rez} onChange={this.hendlerPromjene}>
-					<input type="radio" name="rez" value="min1" /><span>1min</span>
-					<input type="radio" name="rez" value="min5" /><span>5min</span>
-					<input type="radio" name="rez" value="min15" /><span>15min</span>
-					<input type="radio" name="rez" value="min60" /><span>60min</span>
-				</form>			
+				{this.rezolucije.map(rez => 
+					<label className="Play-rez-cont" defaultChecked={this.props.rez} >
+						<input className="Play-rez-radio" type="radio" name="rez" value={rez} onClick={() => this.props.handleChange(rez)} checked={this.props.rez === rez} />
+						<span className="Play-rez-tekst">{rez.slice(3, rez.length) + 'min'}</span>
+					</label>
+				)}
+				{'Rezolucija: ' + this.props.rez.slice(3, this.props.rez.length) + 'min'}
 			</div>
 		);
 	}

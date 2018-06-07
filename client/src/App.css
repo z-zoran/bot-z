@@ -164,6 +164,23 @@ div.Notif-karta > p {
 }
 #Backtest-play { /* Play kontroler u glavnom containeru */ 
   background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
+  display: grid;
+  grid-template-columns: 600px 300px 300px;
+}
+#Backtest-play > div {
+  padding-top: 15px; 
+  text-align: left;
+}
+#Play-rez {
+  display: grid;
+  grid-template-columns: 100px 100px 100px 100px 400px;
+  padding-left: 30px;
+}
+#Play-play {
+
+}
+#Play-FF {
+  
 }
 #Backtest-portfolio { /* Portfolio chart u glavnom containeru */ 
   background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
@@ -247,7 +264,6 @@ div.Notif-karta > p {
   float: center;
   animation: hoverGumbOff 0.04s ease-in-out;
 }
-
 
 /* Tooltip container */
 .Menu-gumb {

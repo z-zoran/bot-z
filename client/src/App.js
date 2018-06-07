@@ -54,15 +54,18 @@ class App extends Component {
 			this.setState({stat: 'Offline'})
 		}
 		this.setState({view: 'Pričekaj'})
-		let data = this.kartice;
+		let data = this.kartice[0];
+		let zahtjev = 'Ubaci tip zahtjeva'
 		fetch('/', {
 			method: 'POST', // *GET, POST, PUT, DELETE, etc.
 			body: JSON.stringify(data), // must match 'Content-Type' header
 			headers: {
 				'User-agent': 'Mozilla/4.0',
 				'Content-type': 'application/json',
+				'Timestamp': Date.now(),
+				'Zahtjev': zahtjev,
 			},
-		}).then(response => response.json()).then(json => { this.setState({view: json[0]}) })
+		}).then(response => response.json()).then(json => { this.setState({view: 'Backtest'}) })
 	}
 
 	render() {
