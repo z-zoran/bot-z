@@ -22,10 +22,10 @@ class App extends Component {
 			['S desna dolaze obavljeni roundtripovi', '', '', ''],
 			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
 			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
-			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
-			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
-			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
-			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
+			['Timestamp4', 'Symbol4', 'Strat4', 'Profit4'],
+			['Timestamp5', 'Symbol5', 'Strat5', 'Profit5'],
+			['Timestamp6', 'Symbol6', 'Strat6', 'Profit6'],
+			['Timestamp7', 'Symbol7', 'Strat7', 'Profit7'],
 		]
 		this.menu = [
 			{ ime: 'Backtest', handleClick: () => this.hendlerClient('Backtest'), ikona: ikonaClock }, 
@@ -64,6 +64,7 @@ class App extends Component {
 			},
 		}).then(response => response.json()).then(json => { this.setState({view: json[0]}) })
 	}
+
 	render() {
 		return (
 		<div id="App">

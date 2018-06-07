@@ -146,7 +146,59 @@ div.Notif-karta > p {
 #App-chart {
   background-color: #eeeeee;
   width: 1200px;
-  height: 800
+  height: 800px;
+}
+#App-chart > div {
+  float: left;
+  background-color: #eeeeee;
+  width: 1200px;
+  height: 800px;
+}
+
+#Chart-backtest { /* Glavni container */
+  display: grid;
+  grid-template-rows: 550px 50px 200px;
+}
+#Backtest-chart { /* Chart u glavnom containeru */ 
+  background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
+}
+#Backtest-play { /* Play kontroler u glavnom containeru */ 
+  background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
+}
+#Backtest-portfolio { /* Portfolio chart u glavnom containeru */ 
+  background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
+}
+
+#Chart-portfolio {
+  background-color: #eeeeee;
+  width: 1200px;
+  height: 800px;
+}
+
+#Chart-stratovi {
+  background-color: #eeeeee;
+  width: 1200px;
+  height: 800px;
+}
+#Chart-postavke {
+  background-color: #eeeeee;
+  width: 1200px;
+  height: 800px;
+}
+#Chart-notes {
+  background-color: #eeeeee;
+  width: 1200px;
+  height: 800px;
+}
+#Chart-baza {
+  background-color: #eeeeee;
+  width: 1200px;
+  height: 800px;
+}
+#Chart-difolt {
+  background-color: #eeeeee;
+  width: 1200px;
+  height: 800px;
 }
 
 #App-menu {
@@ -176,10 +228,10 @@ div.Notif-karta > p {
 /* The animation code */
 @keyframes hoverGumbOn {
   0% {width: 75px; margin-top: 15px;}
-  100% {width: 65px; margin-top: 20px;}
+  100% {width: 65px; margin-top: 15px;}
 }
 @keyframes hoverGumbOff {
-  0% {width: 65px; margin-top: 20px;}
+  0% {width: 65px; margin-top: 15px;}
   100% {width: 75px; margin-top: 15px;}
 }
 
