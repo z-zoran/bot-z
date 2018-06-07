@@ -18,8 +18,10 @@ registerServiceWorker();
  * |    |    |__...
  * |    |__Status
  * |__App-container
- *      |__ChartCont
+ *      |__MainContainer
+ *      |    |__Livechart/Portfolio/Notes/Stratovi/Postavke/Baza
  *      |__Menu
+ *           |__Konzola
  *           |__Gumb
  *           |__Gumb
  *           |__...

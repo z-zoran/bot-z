@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { BacktestChart } from './BacktestChart.js';
-import { BacktestPlay } from './BacktestPlay.js';
-import { BacktestPortfolio } from './BacktestPortfolio.js';
+import { LivechartChart } from './LivechartChart.js';
+import { LivechartPlay } from './LivechartPlay.js';
+import { LivechartPortfolio } from './LivechartPortfolio.js';
 
-export class Backtest extends Component {
+export class Livechart extends Component {
 	constructor(props) {
 		super(props);
 		this.hendlerZaChart = this.hendlerZaChart.bind(this);
@@ -24,10 +24,10 @@ export class Backtest extends Component {
 	}
 	render() {
 		return (
-			<div id="Chart-backtest">
-				<BacktestChart content={this.state.content} />
-				<BacktestPlay handleClick={this.hendlerZaChart} rez={this.state.rez} handleChange={this.handleChange} />
-				<BacktestPortfolio />
+			<div id="Chart-livechart">
+				<LivechartChart content={this.state.content} />
+				<LivechartPlay handleClick={this.hendlerZaChart} rez={this.state.rez} handleChange={this.handleChange} />
+				<LivechartPortfolio />
 			</div>
 		);
 	}

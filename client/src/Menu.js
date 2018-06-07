@@ -7,7 +7,7 @@ export class Menu extends Component {
 		return (
 			<div id="App-menu">
 				<Konzola />
-				{this.props.cont.map(gumb => <Gumb key={gumb.ime} ikona={gumb.ikona} handleClick={gumb.handleClick} ime={gumb.ime} />)}
+				{this.props.menu.map(gumb => <Gumb key={gumb.ime} ikona={gumb.ikona} handleClick={gumb.handleClick} ime={gumb.ime} />)}
 			</div>
 		);
 	}

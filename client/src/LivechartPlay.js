@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
-import { PlayPlay } from './PlayPlay.js'
-import { PlayFF } from './PlayFF.js'
 import { PlayRez } from './PlayRez.js'
 
-export class BacktestPlay extends Component {
+export class LivechartPlay extends Component {
 	render() {
 		return (
-			<div id="Backtest-play">
+			<div id="Livechart-play">
 				<PlayRez rez={this.props.rez} handleChange={this.props.handleChange} />
-				<PlayPlay />
-				<PlayFF />
 			</div>
 		);
 	}

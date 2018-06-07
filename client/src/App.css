@@ -155,19 +155,19 @@ div.Notif-karta > p {
   height: 800px;
 }
 
-#Chart-backtest { /* Glavni container */
+#Chart-livechart { /* Glavni container */
   display: grid;
   grid-template-rows: 550px 50px 200px;
 }
-#Backtest-chart { /* Chart u glavnom containeru */ 
+#Livechart-chart { /* Chart u glavnom containeru */ 
   background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
 }
-#Backtest-play { /* Play kontroler u glavnom containeru */ 
+#Livechart-play { /* Play kontroler u glavnom containeru */ 
   background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
   display: grid;
   grid-template-columns: 600px 300px 300px;
 }
-#Backtest-play > div {
+#Livechart-play > div {
   padding-top: 15px; 
   text-align: left;
 }
@@ -176,13 +176,8 @@ div.Notif-karta > p {
   grid-template-columns: 100px 100px 100px 100px 400px;
   padding-left: 30px;
 }
-#Play-play {
 
-}
-#Play-FF {
-  
-}
-#Backtest-portfolio { /* Portfolio chart u glavnom containeru */ 
+#Livechart-portfolio { /* Portfolio chart u glavnom containeru */ 
   background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
 }
 

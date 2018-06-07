@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import { Menu } from './Menu.js';
 import { Rolodex } from './Rolodex.js';
-import { ChartCont } from './ChartCont.js';
+import { MainContainer } from './MainContainer.js';
 import { Status } from './Status.js';
 // ikone za UI
 import logo from './logo.svg';
@@ -11,9 +11,9 @@ import ikonaSearch from './svg/003-search.svg';
 import ikonaCreative from './svg/010-creative.svg';
 import ikonaBanknote from './svg/015-banknote.svg';
 import ikonaChess from './svg/012-chess-piece.svg';
-import ikonaClock from './svg/001-clock.svg';
 import ikonaNetworkOff from './svg/014-network.svg';
 import ikonaNetworkOn from './svg/014-network-on.svg';
+import ikonaChart from './svg/011-computer.svg';
 
 class App extends Component {
 	constructor(props) {
@@ -28,15 +28,15 @@ class App extends Component {
 			['Timestamp7', 'Symbol7', 'Strat7', 'Profit7'],
 		]
 		this.menu = [
-			{ ime: 'Backtest', handleClick: () => this.hendlerClient('Backtest'), ikona: ikonaClock }, 
+			{ ime: 'Livechart', handleClick: () => this.hendlerClient('Livechart'), ikona: ikonaChart }, 
 			{ ime: 'Portfolio', handleClick: () => this.hendlerClient('Portfolio'), ikona: ikonaBanknote }, 
+			{ ime: 'Notes', handleClick: () => this.hendlerClient('Notes'), ikona: ikonaCreative }, 
 			{ ime: 'Stratovi', handleClick: () => this.hendlerClient('Stratovi'), ikona: ikonaChess }, 
 			{ ime: 'Postavke', handleClick: () => this.hendlerClient('Postavke'), ikona: ikonaGears }, 
-			{ ime: 'Notes', handleClick: () => this.hendlerClient('Notes'), ikona: ikonaCreative }, 
 			{ ime: 'Baza', handleClick: () => this.hendlerClient('Baza'), ikona: ikonaSearch },
 		]
 		this.state = {
-			view: 'Backtest',
+			view: 'Livechart',
 			stat: 'Offline',
 		}
 		this.hendlerClient = this.hendlerClient.bind(this);
@@ -65,7 +65,7 @@ class App extends Component {
 				'Timestamp': Date.now(),
 				'Zahtjev': zahtjev,
 			},
-		}).then(response => response.json()).then(json => { this.setState({view: 'Backtest'}) })
+		}).then(response => response.json()).then(json => { this.setState({view: 'Livechart'}) })
 	}
 
 	render() {
@@ -78,8 +78,8 @@ class App extends Component {
 				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} handleClick={this.hendlerServer} />
 			</header>
 			<div id="App-container">
-				<ChartCont cont={this.state.view} />
-				<Menu cont={this.menu} />
+				<MainContainer cont={this.state.view} />
+				<Menu menu={this.menu} />
 			</div>
 		</div>
 		);
