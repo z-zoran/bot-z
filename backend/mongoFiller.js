@@ -1,5 +1,4 @@
-const express = require('express');
-const app = express();
+"use strict";
 // puna whitelista
 const whitelista = [
 	'ETHBTC',

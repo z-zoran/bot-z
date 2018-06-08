@@ -166,6 +166,12 @@ Trokut.prototype.provjeraProfitabilnosti = function provjeraProfitabilnosti() {
 	// napisati
 }
 
+/* uvjeti za prolazak ordera:
+quantity >= minQty
+quantity <= maxQty
+(quantity-minQty) % stepSize == 0
+*/
+
 Trokut.prototype.obaviKupnju = async function obaviKupnju() {
 	if (tip === 'posredno') {
 		// napisati 
