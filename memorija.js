@@ -121,4 +121,45 @@ memorija.kendlovi = {
 // memorija.001.limitCounter
 // itd...
 
+
+/* MONGO DB id kendlova će biti:
+<timestamp>-<rezStr>-<symbol>
+	npr: 1514764800-m1-ETHBTC
+	tako da za svaki slučaj ako sortiramo po id-u,
+	obzirom da je timestamp prvi slog, sortirat će prema njemu.
+	Ali inače uvijek sortirati prema timestampu.
+id stanja će biti:
+<timestamp>-<portfolio>-<symbol>
+*/
+
+/* STRUKTURA MONGO BAZE PODATAKA:
+horizontalne kolekcije kendlova. dakle nema nestanja.
+> db:
+	> ETHBTC-m1:
+		> ... (kendlovi)
+	> ETHBTC-m5:
+		> ... (kendlovi)
+	> ETHBTC-m15:
+		> ... (kendlovi)
+	> ETHBTC-m60:
+		> ... (kendlovi)
+	> XRPETH-m1:
+		> ... (kendlovi)
+	> XRPETH-m5:
+		> ... (kendlovi)
+	> ... (kolekcije se nastavljaju)
+*/
+
+/* MONGO BAZA KOLEKCIJE: 
+> db:
+	> ETHBTC-m1
+	> ETHBTC-m5
+	> ETHBTC-m15
+	> ....
+	> BNBBTC-m15
+	> BNBBTC-m60
+	> stanje (tu spašavamo dokumente sa snimkama stanja svaki put kad se nešto događa)
+
+*/
+
 module.exports = memorija;
