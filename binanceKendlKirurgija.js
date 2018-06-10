@@ -20,7 +20,7 @@ async function krpanjeRupaKendlArraya(stariArr, noviKendl, rez) {
     if (razlika % korak === 0) {
         koliko = (razlika / korak) - 1;
         if (koliko > 500) {
-            await dohvatiObradiSpremi(stariArr, symbol, koliko, rezStr, startTime);
+            await dohvatiObradiSpremi(stariArr, symbol, 500, rezStr, startTime);
             koliko -= 500;
             return await krpanjeRupaKendlArraya(stariArr, symbol, koliko, rezStr, startTime);
         } else if (koliko <= 500) {

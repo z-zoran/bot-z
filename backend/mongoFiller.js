@@ -1,4 +1,9 @@
 "use strict";
+
+const MongoClient = require('mongodb').MongoClient;
+const mongoUrl = 'mongodb://localhost:27017/baza';
+
+
 // puna whitelista
 const whitelista = [
 	'ETHBTC',
@@ -84,6 +89,10 @@ function skini(startTime, symbol, rez) {
     if (globBrojilo % 10000 === 0) console.log('Iteracija br '+ globBrojilo);
     // console.log('StartTime: ' + startTime + ' Symbol: ' + symbol + ' Rezolucija: ' + rez.str + ' Brojač iteracija: ' + globBrojilo);
 }
+
+async function pohrani(MongoClient, mongoUrl, array) {
+	
+} 
 
 async function staniPaSkini(pauza, startTime, symbol, rez) {
     await staniTren(pauza);
