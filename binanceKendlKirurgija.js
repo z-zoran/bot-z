@@ -82,13 +82,31 @@ function kendlizirajResponse(error, kendlovi, symbol) {
     else return kendlovi.map(kendl => new Kendl(kendl));
 }
 
-/** Funkcija za umetnuti Kendl objekte in-place u array (vjerojatno u memorija.kendl[symbol][rezStr]).
+/** Stara funkcija za umetnuti Kendl objekte in-place u array (vjerojatno u memorija.kendl[symbol][rezStr]). Ipak treba prvo u mongo. Obrisati ovo.
  * 
  * @param {array} stariArr - postojeći array iz memorije
  * @param {array} noviArr - novi kendlizirani array kojeg treba umetnuti u stari
  * @returns {array} - nakon in-place umetanja, vraćamo popunjeni array (redundantno jer je in-place)
  */
 function umetniKendlove(stariArr, noviArr) {
+    while (noviArr) {
+        // rez treba u minutama, pa dijelimo razliku milisekundi s 60k
+        let rez = (stariArr[stariArr.length - 1].openTime - stariArr[stariArr.length - 2].openTime) / 60000;
+        let zadnji = stariArr[stariArr.length - 1]; // zadnji iz postojećeg arraya kendlova
+        let novi = noviArr[0];  // prvi u payloadu kendlova
+        if (dobarRedoslijedKendla(novi, zadnji, rez)) stariArr.push(noviArr.shift())
+        else throw new Error('Nije dobar redoslijed kendlova pri samom umetanju.');
+    }
+    return stariArr;
+}
+
+/** Funkcija za umetnuti Kendl objekte u mongo.
+ * 
+ * @param {array} stariArr - postojeći array iz memorije
+ * @param {array} noviArr - novi kendlizirani array kojeg treba umetnuti u stari
+ * @returns {array} - nakon in-place umetanja, vraćamo popunjeni array (redundantno jer je in-place)
+ */
+function umetniKendloveBazi(stariArr, noviArr) {
     while (noviArr) {
         // rez treba u minutama, pa dijelimo razliku milisekundi s 60k
         let rez = (stariArr[stariArr.length - 1].openTime - stariArr[stariArr.length - 2].openTime) / 60000;

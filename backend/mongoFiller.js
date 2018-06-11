@@ -4,7 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 const mongoUrl = 'mongodb://localhost:27017/baza';
 
 
-// puna whitelista
+// puna whitelista - obrisati ovdje i povezati s memorija.js
 const whitelista = [
 	'ETHBTC',
 	'XRPBTC', 'XRPETH', // Ripple
@@ -66,7 +66,7 @@ const whitelista = [
 	'SALTBTC','SALTETH',// Salt
 	'GTOBTC', 'GTOETH', // Gifto
 ];
-const startTime = 1514764800;
+const startTime = 1514764800; //01.01.2018. 00:00
 const pauza = 0;
 const rezolucije = {
     m1: {ms: 60000, str: '1m'},
