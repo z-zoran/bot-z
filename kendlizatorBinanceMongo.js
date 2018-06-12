@@ -80,14 +80,45 @@ const mongo = {
 }
 
 let koliko = 59;
-iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije);
+// iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije);
+let testArr = [
+    {
+        a: 123,
+        aaads: 'asd',
+    },
+    {
+        a: 323,
+        adsss: 'dsadas',
+    },
+    {
+        a: 444,
+        axyxcds: 'aasdd',
+    },
+]
+
+testKonektor(mongo, testArr);
+
+async function testKonektor(mongo, noviArr) {
+    let client;
+    try {
+        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
+        const db = client.db(mongo.dbName);
+        let r = await db.collection('test-kolekcija').insertMany(noviArr);
+        assert.equal(noviArr.length, r.insertedCount);
+    } catch (err) {
+        throw new Error(err);
+    }
+    client.close();
+}
+
+
 
 async function vidiKolekcije(mongo) {
     let client;
     try {
         client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
         const db = client.db(mongo.dbName);
-        const info = await db.getCollectionNames();
+        const info = await db.listCollections();
         console.clear();
         info.forEach(kolekcija => console.log(kolekcija));
     } catch(err) {
