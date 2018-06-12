@@ -3,9 +3,61 @@
 // instanciranje klijenta prema binanceu
 const binance = require('node-binance-api');
 const memorija = require('./memorija.js');
+const assert = require('assert');
 const symbol = 'ETHBTC';
 // memorija kendlovi
 if (!memorija.kendlovi[symbol]) memorija.kendlovi[symbol] = [];
+
+// MONGO
+const mongo = {
+    Client: require('mongodb').MongoClient,
+    dbUrl: 'mongodb://localhost:27017',
+    dbName: 'baza',
+}
+
+/** Funkcija za umetnuti Kendl objekte u mongo.
+ * 
+ * @param {object} mongo - setinzi za mongo bazu
+ * @param {array} inputArr - kendlizirani array kojeg treba umetnuti u mongo
+ * @param {string} kolekcija - ime kolekcije u koju ubacujemo kendlove
+ */
+async function umetniKendloveBazi(mongo, inputArr, kolekcija) {
+    let client;
+    try {
+        client = await mongo.Client.connect(mongo.dbUrl);
+        const db = client.db(mongo.dbName);
+        // Insert multiple documents
+        let r = await db.collection(kolekcija).insertMany(inputArr);
+        assert.equal(inputArr.length, r.insertedCount);
+    } catch (err) {
+        throw new Error(err);
+    }
+    // Close connection
+    client.close();
+}
+
+async function napipajDohvati(mongo, kolekcija, rez) {
+    let client;
+    try {
+        // spoji se
+        client = await mongo.Client.connect(mongo.dbUrl);
+        const db = client.db(mongo.dbName);
+        // iščupati prvi element (sortiran po timestampu)
+        let kursor = await db.collection(kolekcija).find().sort({timestamp: 1}).limit(1);
+        if (kursor.count() > 0) {
+            // ako postoji taj prvi element, premotamo za 500 kendlova unazad
+            let josStariji = kursor.toArray()[0] - (500 * rez.ms);
+            // malo razložiti koje sve funkcije imamo dosada, pa napisati slijedeće:
+                // povlačimo s binancea 500 kendlova sa startTime = josStariji
+                // pretvaramo ih u kendlove
+                // umetnemo ih u bazu
+        }
+    } catch (err) {
+        throw new Error(err);
+    }
+}
+
+
 
 /* PROVJERITI I EVENTUALNO POPRAVITI ASYNC-AWAIT U CIJELOM MODULU */
 
@@ -82,31 +134,13 @@ function kendlizirajResponse(error, kendlovi, symbol) {
     else return kendlovi.map(kendl => new Kendl(kendl));
 }
 
-/** Stara funkcija za umetnuti Kendl objekte in-place u array (vjerojatno u memorija.kendl[symbol][rezStr]). Ipak treba prvo u mongo. Obrisati ovo.
+/** OBRISATI Stara funkcija za umetnuti Kendl objekte in-place u array (vjerojatno u memorija.kendl[symbol][rezStr]). Ipak treba prvo u mongo. Obrisati ovo.
  * 
  * @param {array} stariArr - postojeći array iz memorije
  * @param {array} noviArr - novi kendlizirani array kojeg treba umetnuti u stari
  * @returns {array} - nakon in-place umetanja, vraćamo popunjeni array (redundantno jer je in-place)
  */
 function umetniKendlove(stariArr, noviArr) {
-    while (noviArr) {
-        // rez treba u minutama, pa dijelimo razliku milisekundi s 60k
-        let rez = (stariArr[stariArr.length - 1].openTime - stariArr[stariArr.length - 2].openTime) / 60000;
-        let zadnji = stariArr[stariArr.length - 1]; // zadnji iz postojećeg arraya kendlova
-        let novi = noviArr[0];  // prvi u payloadu kendlova
-        if (dobarRedoslijedKendla(novi, zadnji, rez)) stariArr.push(noviArr.shift())
-        else throw new Error('Nije dobar redoslijed kendlova pri samom umetanju.');
-    }
-    return stariArr;
-}
-
-/** Funkcija za umetnuti Kendl objekte u mongo.
- * 
- * @param {array} stariArr - postojeći array iz memorije
- * @param {array} noviArr - novi kendlizirani array kojeg treba umetnuti u stari
- * @returns {array} - nakon in-place umetanja, vraćamo popunjeni array (redundantno jer je in-place)
- */
-function umetniKendloveBazi(stariArr, noviArr) {
     while (noviArr) {
         // rez treba u minutama, pa dijelimo razliku milisekundi s 60k
         let rez = (stariArr[stariArr.length - 1].openTime - stariArr[stariArr.length - 2].openTime) / 60000;
