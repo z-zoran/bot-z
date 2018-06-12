@@ -82,6 +82,20 @@ const mongo = {
 let koliko = 59;
 iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije);
 
+async function vidiKolekcije(mongo) {
+    let client;
+    try {
+        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
+        const db = client.db(mongo.dbName);
+        const info = await db.getCollectionNames();
+        console.clear();
+        info.forEach(kolekcija => console.log(kolekcija));
+    } catch(err) {
+        throw new Error(err);
+    }
+    client.close();
+}
+
 async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) {
     for (let br = 0; br < koliko; br++) {
         for (let i = 0; i < whitelista.length; i++) {
@@ -120,6 +134,7 @@ async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) 
  * @param {object} rez - rezolucija (string i milisekunde)
  */
 async function staniPaSkini(mongo, pauza, symbol, rez) {
+    await vidiKolekcije(mongo);
     await staniTren(pauza);
     let info = {
         symbol: symbol,
@@ -146,7 +161,7 @@ async function napipajDohvati(mongo, info) {
     let client;
     try {
         // spoji se
-        client = await mongo.Client.connect(mongo.dbUrl);
+        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
         const db = client.db(mongo.dbName);
         // iščupati prvi element (sortiran po timestampu)
         let kursor = await db.collection(info.kolekcija).find().sort({openTime: 1}).limit(1);
@@ -177,6 +192,7 @@ async function napipajDohvati(mongo, info) {
 function dohvatiObradi(symbol, koliko, rezStr, startTime) {
     return dohvatiKendlove(symbol, koliko, rezStr, startTime)
         .then(kendlizirajResponse(error, kendlovi))
+        .catch(err => { throw new Error(err) });
 }
 
 /** Promise za dohvatiti arbitrarni broj kendlova s Binancea.
