@@ -276,10 +276,54 @@ class Kendl {
         this.H = kendl[2];
         this.L = kendl[3];
         this.C = kendl[4];
-        this.volume = kendl[5];
+        this.sellVolume = kendl[5] - kendl[9];
         this.buyVolume = kendl[9];
         this.trades = kendl[8];
     }
+}
+
+let input = {
+    array,
+    duljinaCharta,
+    zadnjiOpenTime,
+    rezolucija,
+    symbol,
+}
+
+// Chart klasa drži bruto array Kendl objekata
+// pastArr su kendlovi u prošlosti, futurArr su nadolazeći kendlovi (nepostojeće kod live trejdanja)
+// viewArr su kendlovi koje trenutno prikazujemo (kao neka vrsta kursora)
+// ovako možemo premotavati čartove napred nazad
+// ps. trebamo posebnu funkciju koja konstruira Chart jer je konstrukcija async (povlačenje kendlova iz monga), a constructor() ne može biti async
+class Chart {
+    constructor(input) {
+        this.pastArr;
+        this.viewArr = input.array;
+        this.futurArr;
+        this.duljina = input.duljinaCharta;
+        this.kursor = input.zadnjiOpenTime;
+        this.rez = input.rezolucija;
+    }
+    async odiNaprijed(koliko) {
+        // povuci koliko kendlova iz monga
+    }
+    async odiNazad(koliko) {
+        // povuci koliko kendlova iz monga
+    }
+    ema() {
+
+    }
+    rsi() {
+
+    }
+    macd() {
+
+    }
+}
+
+async function konstruktorCharta() {
+    // let asyncDohvaceniPodaci = await dohvati šta treba iz monga
+    return new Chart(asyncDohvaceniPodaci)
 }
 
 
