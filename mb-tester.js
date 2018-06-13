@@ -100,31 +100,85 @@ let testArr = [
     },
 ]
 
-//testKonektor(mongo, testArr);
-testReader(mongo);
-
-async function mongoKonektor(mongo, funk, funkArg) {
+/*
+let argZaSpremanje = {
+	array, // array s kendlovima
+	kolekcija, // string ime kolekcije (npr. ETHBTC-m5)
+} 
+*/
+async function spremiuMongo(mongo, arg) {
     let client, db;
     try {
         client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
-        db = client.db(mongo.dbName);
-        await funk(db, funkArg);
+		db = client.db(mongo.dbName);
+		let r = await db.collection(arg.kolekcija).insertMany(arg.array);
+		assert.equal(arg.array.length, r.insertedCount);
     } catch (err) {
         throw new Error(err);
     }
-    client.close();
+	client.close();
+}
+/*
+let argZaPovlacenje = {
+	kolekcija, // string ime kolekcije (npr. ETHBTC-m5)
+	startTime, // number timestamp prvog traženog kendla
+	koliko, // number koliko kendlova
+}
+*/
+async function povuciIzMonga(mongo, arg) {
+    let client, db, array;
+    try {
+        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
+        db = client.db(mongo.dbName);
+		array = await db
+			.collection(arg.kolekcija)
+			.find({openTime: {$gte: arg.startTime}}, {_id: 0})
+			.sort({openTime: 1})
+			.limit(arg.koliko)
+			.toArray();
+    } catch (err) {
+        throw new Error(err);
+    }
+	client.close();
+	return array;
 }
 
-async function spremiuMongo() {
-    mongoKonektor(mongo, function(jedan) {
-        
-    })
+/** Promise za dohvatiti arbitrarni broj kendlova s Binancea.
+ * 
+ * @param {string} symbol - par koji dohvaćamo
+ * @param {number} koliko - koliko kendlova trebamo
+ * @param {string} rezStr - rezolucija (string) npr. '1m', '5m' itd.
+ * @param {number} startTime - timestamp opentTime prvog kendla
+ * @returns {Promise} - vraća Promise dok nas Binance ne resolva
+ */
+function dohvatiKendlove(symbol, koliko, rezStr, startTime) {
+    return new Promise(function(resolve, reject) {
+		console.log('prije egzekutora');
+        binance.candlesticks(symbol, rezStr, resolve, {limit: koliko, startTime: startTime});
+		console.log('poslje egzekutora');
+    });
 }
 
-async function povuciIzMonga() {
+console.log('prije');
 
-}
+/*
+// Intervals: 1m,3m,5m,15m,30m,1h,2h,4h,6h,8h,12h,1d,3d,1w,1M
+binance.candlesticks("BNBBTC", "5m", (error, array, symbol) => {
+	console.log("candlesticks()", array);
+}, {limit: 3, endTime: 1514764800000});
+console.log('poslje');
+*/
 
+dohvatiKendlove('BNBBTC', 3, '5m', startTime).then((error, array, symbol) => {
+	console.log('poslje');
+	console.log(error);
+	console.log(array);
+	console.log(symbol);
+});
+console.log('nakon');
+
+
+// OBRISATI
 async function testKonektor(mongo, noviArr) {
     let client;
     try {
@@ -143,6 +197,7 @@ async function testKonektor(mongo, noviArr) {
     client.close();
 }
 
+// OBRISATI
 async function testReader(mongo) {
     let client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
     let db = client.db(mongo.dbName);
