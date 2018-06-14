@@ -150,17 +150,36 @@ async function povuciIzMonga(mongo, arg) {
  * @param {string} symbol - par koji dohvaćamo
  * @param {number} koliko - koliko kendlova trebamo
  * @param {string} rezStr - rezolucija (string) npr. '1m', '5m' itd.
- * @param {number} startTime - timestamp opentTime prvog kendla
+ * @param {number} startTime - timestamp openTime prvog kendla
  * @returns {Promise} - vraća Promise dok nas Binance ne resolva
  */
 async function dohvatiKendlove(symbol, koliko, rezStr, startTime) {
 	let apiUrl = `https://api.binance.com/api/v1/klines?symbol=${symbol}&interval=${rezStr}&limit=${koliko}&startTime=${startTime}`;
 	return fetch(apiUrl, {method: 'GET'})
 		.then(response => response.json())
-		.catch(err => console.log('ERROR: ' + err))
+		.catch(err => console.log('ERROR pri dohvaćanju s Binancea: ' + err))
+}
+
+/** Standardizirani Kendl objekat.
+ * Dodati metode na kendl (indikatore i sl.)
+ */
+class Kendl {
+    constructor(kendl) {
+        this.openTime = kendl[0];
+        this.O = Number(kendl[1]);
+        this.H = Number(kendl[2]);
+        this.L = Number(kendl[3]);
+        this.C = Number(kendl[4]);
+        this.sellVolume = Number(kendl[5] - kendl[9]);
+        this.buyVolume = Number(kendl[9]);
+        this.trades = kendl[8];
+    }
 }
 
 (async () => {
-	let kendlovi = await dohvatiKendlove('ETHBTC', 3, '15m', startTime);
-	console.log(kendlovi[1]);
-})()
+	dohvatiKendlove('ETHBTC', 2, '15m', startTime)
+		.then(arr => arr.forEach(el => {
+			let kendlo = new Kendl(el);
+			console.log(kendlo);
+		}))
+})();

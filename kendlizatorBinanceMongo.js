@@ -96,37 +96,6 @@ let testArr = [
     },
 ]
 
-testKonektor(mongo, testArr);
-
-async function testKonektor(mongo, noviArr) {
-    let client;
-    try {
-        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
-        const db = client.db(mongo.dbName);
-        let r = await db.collection('test-kolekcija').insertMany(noviArr);
-        assert.equal(noviArr.length, r.insertedCount);
-    } catch (err) {
-        throw new Error(err);
-    }
-    client.close();
-}
-
-
-
-async function vidiKolekcije(mongo) {
-    let client;
-    try {
-        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
-        const db = client.db(mongo.dbName);
-        const info = await db.listCollections();
-        console.clear();
-        info.forEach(kolekcija => console.log(kolekcija));
-    } catch(err) {
-        throw new Error(err);
-    }
-    client.close();
-}
-
 async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) {
     for (let br = 0; br < koliko; br++) {
         for (let i = 0; i < whitelista.length; i++) {
@@ -158,6 +127,7 @@ async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) 
     }
 }
 
+
 /** Funkcija za pauzirati pa dohvatiti kendlove.
  * @param {object} mongo - setinzi za mongo bazu
  * @param {number} pauza - broj milisekundi za pauzirati prije dohvaćanja
@@ -165,7 +135,6 @@ async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) 
  * @param {object} rez - rezolucija (string i milisekunde)
  */
 async function staniPaSkini(mongo, pauza, symbol, rez) {
-    await vidiKolekcije(mongo);
     await staniTren(pauza);
     let info = {
         symbol: symbol,
@@ -282,6 +251,7 @@ class Kendl {
     }
 }
 
+// input za chart konstruktor
 let input = {
     array,
     duljinaCharta,
@@ -325,11 +295,3 @@ async function konstruktorCharta() {
     // let asyncDohvaceniPodaci = await dohvati šta treba iz monga
     return new Chart(asyncDohvaceniPodaci)
 }
-
-
-/*
-module.exports = {
-    krpanjeRupaKendlArraya: krpanjeRupaKendlArraya,
-    dohvatiHorizontalnoSveSymbole: dohvatiHorizontalnoSveSymbole,
-}
-*/
