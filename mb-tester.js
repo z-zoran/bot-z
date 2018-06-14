@@ -2,6 +2,8 @@
 
 // instanciranje klijenta prema binanceu
 const binance = require('node-binance-api');
+require('isomorphic-fetch');
+
 const assert = require('assert');
 const whitelista = [
 	'ETHBTC',
@@ -151,56 +153,14 @@ async function povuciIzMonga(mongo, arg) {
  * @param {number} startTime - timestamp opentTime prvog kendla
  * @returns {Promise} - vraća Promise dok nas Binance ne resolva
  */
-function dohvatiKendlove(symbol, koliko, rezStr, startTime) {
-    return new Promise(function(resolve, reject) {
-		console.log('prije egzekutora');
-        binance.candlesticks(symbol, rezStr, resolve, {limit: koliko, startTime: startTime});
-		console.log('poslje egzekutora');
-    });
+async function dohvatiKendlove(symbol, koliko, rezStr, startTime) {
+	let apiUrl = `https://api.binance.com/api/v1/klines?symbol=${symbol}&interval=${rezStr}&limit=${koliko}&startTime=${startTime}`;
+	return fetch(apiUrl, {method: 'GET'})
+		.then(response => response.json())
+		.catch(err => console.log('ERROR: ' + err))
 }
 
-console.log('prije');
-
-/*
-// Intervals: 1m,3m,5m,15m,30m,1h,2h,4h,6h,8h,12h,1d,3d,1w,1M
-binance.candlesticks("BNBBTC", "5m", (error, array, symbol) => {
-	console.log("candlesticks()", array);
-}, {limit: 3, endTime: 1514764800000});
-console.log('poslje');
-*/
-
-dohvatiKendlove('BNBBTC', 3, '5m', startTime).then((error, array, symbol) => {
-	console.log('poslje');
-	console.log(error);
-	console.log(array);
-	console.log(symbol);
-});
-console.log('nakon');
-
-
-// OBRISATI
-async function testKonektor(mongo, noviArr) {
-    let client;
-    try {
-        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
-        const db = client.db(mongo.dbName);
-        let kolekcija = await db.collection('test-kolekcija').find().sort({a: -1}).toArray();
-        let kopija = noviArr.slice(0, noviArr.length);
-        noviArr.forEach(obj => {
-            if (kolekcija.includes(obj)) kopija = kopija.filter(el => el !== obj);
-        })
-        let r = await db.collection('test-kolekcija').insertMany(kopija);
-        assert.equal(noviArr.length, r.insertedCount);
-    } catch (err) {
-        throw new Error(err);
-    }
-    client.close();
-}
-
-// OBRISATI
-async function testReader(mongo) {
-    let client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
-    let db = client.db(mongo.dbName);
-    let arr = await db.collection('test-kolekcija').find().sort({a: -1}).toArray();
-    arr.forEach(element => console.log(element));
-}
+(async () => {
+	let kendlovi = await dohvatiKendlove('ETHBTC', 3, '15m', startTime);
+	console.log(kendlovi[1]);
+})()
