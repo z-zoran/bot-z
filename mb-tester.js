@@ -102,12 +102,14 @@ let testArr = [
     },
 ]
 
-/*
+
 let argZaSpremanje = {
-	array, // array s kendlovima
-	kolekcija, // string ime kolekcije (npr. ETHBTC-m5)
+	array: testArr, // array s kendlovima
+	kolekcija: 'test-kolekcija', // string ime kolekcije (npr. ETHBTC-m5)
 } 
-*/
+
+// spremiuMongo(mongo, argZaSpremanje);
+
 async function spremiuMongo(mongo, arg) {
     let client, db;
     try {
@@ -120,13 +122,15 @@ async function spremiuMongo(mongo, arg) {
     }
 	client.close();
 }
-/*
+
 let argZaPovlacenje = {
-	kolekcija, // string ime kolekcije (npr. ETHBTC-m5)
-	startTime, // number timestamp prvog traženog kendla
-	koliko, // number koliko kendlova
+	kolekcija: 'ETHBTC-m1', // string ime kolekcije (npr. ETHBTC-m5)
+	// startTime, // number timestamp prvog traženog kendla
+	koliko: 5, // number koliko kendlova
 }
-*/
+
+povuciIzMonga(mongo, argZaPovlacenje);
+
 async function povuciIzMonga(mongo, arg) {
     let client, db, array;
     try {
@@ -134,10 +138,11 @@ async function povuciIzMonga(mongo, arg) {
         db = client.db(mongo.dbName);
 		array = await db
 			.collection(arg.kolekcija)
-			.find({openTime: {$gte: arg.startTime}}, {_id: 0})
+			.find(/*{openTime: {$gte: arg.startTime}}, {_id: 0}*/)
 			.sort({openTime: 1})
-			.limit(arg.koliko)
+			//.limit(arg.koliko)
 			.toArray();
+		console.log(array.length);
     } catch (err) {
         throw new Error(err);
     }
@@ -176,6 +181,7 @@ class Kendl {
     }
 }
 
+/*
 (async () => {
 	dohvatiKendlove('ETHBTC', 2, '15m', startTime)
 		.then(arr => arr.forEach(el => {
@@ -183,3 +189,20 @@ class Kendl {
 			console.log(kendlo);
 		}))
 })();
+*/
+
+// izlistajKolekcije(mongo);
+
+
+async function izlistajKolekcije(mongo) {
+    let client, db;
+    try {
+        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
+		db = client.db(mongo.dbName);
+		let arr = await db.listCollections().toArray();
+		console.log(arr);
+	} catch (err) {
+        throw new Error(err);
+    }
+	client.close();
+}

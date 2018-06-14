@@ -2,6 +2,7 @@
 
 // instanciranje klijenta prema binanceu
 const binance = require('node-binance-api');
+require('isomorphic-fetch');
 const assert = require('assert');
 const whitelista = [
 	'ETHBTC',
@@ -80,7 +81,7 @@ const mongo = {
 }
 
 let koliko = 59;
-// iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije);
+iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije);
 let testArr = [
     {
         a: 123,
@@ -102,12 +103,14 @@ async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) 
             let rez = rezolucije.m1;
             let symbol = whitelista[i];
             await staniPaSkini(mongo, pauza, symbol, rez);
+            console.log(`Iteracija ${br} ${rez.str} ${symbol}`)
         }
         if (br % 5 === 0) {
             for (let i = 0; i < whitelista.length; i++) {
                 let rez = rezolucije.m5;
                 let symbol = whitelista[i];
                 await staniPaSkini(mongo, pauza, symbol, rez);
+                console.log(`Iteracija ${br} ${rez.str} ${symbol}`)
             }
         }
         if (br % 15 === 0) {
@@ -115,6 +118,7 @@ async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) 
                 let rez = rezolucije.m15;
                 let symbol = whitelista[i];
                 await staniPaSkini(mongo, pauza, symbol, rez);
+                console.log(`Iteracija ${br} ${rez.str} ${symbol}`)
             }
         }
         if (br % 60 === 0) {
@@ -122,11 +126,12 @@ async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) 
                 let rez = rezolucije.m60;
                 let symbol = whitelista[i];
                 await staniPaSkini(mongo, pauza, symbol, rez);
+                console.log(`Iteracija ${br} ${rez.str} ${symbol}`)
             }
         }
     }
+    console.log('Gotovo!!!')
 }
-
 
 /** Funkcija za pauzirati pa dohvatiti kendlove.
  * @param {object} mongo - setinzi za mongo bazu
@@ -138,7 +143,7 @@ async function staniPaSkini(mongo, pauza, symbol, rez) {
     await staniTren(pauza);
     let info = {
         symbol: symbol,
-        kolekcija: symbol + '-' + rez.str,
+        kolekcija: `${symbol}-${rez.str}`,
         rez: rez,
     }
     await napipajDohvati(mongo, info);
@@ -164,10 +169,10 @@ async function napipajDohvati(mongo, info) {
         client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
         const db = client.db(mongo.dbName);
         // iščupati prvi element (sortiran po timestampu)
-        let kursor = await db.collection(info.kolekcija).find().sort({openTime: 1}).limit(1);
-        if (kursor.count() > 0) {
+        let kursor = await db.collection(info.kolekcija).find().sort({openTime: 1}).limit(1).toArray();
+        if (kursor.length > 0) {
             // ako postoji taj prvi element, premotamo za 500 kendlova unazad
-            let premotaniTimestamp = kursor.toArray()[0].openTime - (500 * info.rez.ms);
+            let premotaniTimestamp = kursor[0].openTime - (500 * info.rez.ms);
             let noviArr = await dohvatiObradi(info.symbol, 500, info.rez.str, premotaniTimestamp);
             let r = await db.collection(info.kolekcija).insertMany(noviArr);
             assert.equal(noviArr.length, r.insertedCount);
@@ -189,11 +194,13 @@ async function napipajDohvati(mongo, info) {
  * @param {string} rezStr - rezolucija (string) npr. '1m', '5m' itd.
  * @param {number} startTime - timestamp opentTime prvog kendla
  */
-function dohvatiObradi(symbol, koliko, rezStr, startTime) {
-    return dohvatiKendlove(symbol, koliko, rezStr, startTime)
-        .then(kendlizirajResponse(error, kendlovi))
+async function dohvatiObradi(symbol, koliko, rezStr, startTime) {
+    return await dohvatiKendlove(symbol, koliko, rezStr, startTime)
+        .then(kendlArr => kendlizirajResponse(kendlArr))
         .catch(err => { throw new Error(err) });
 }
+
+// dohvatiObradi('ETHBTC', 2, '15m').then(console.log);
 
 /** Promise za dohvatiti arbitrarni broj kendlova s Binancea.
  * 
@@ -203,21 +210,22 @@ function dohvatiObradi(symbol, koliko, rezStr, startTime) {
  * @param {number} startTime - timestamp opentTime prvog kendla
  * @returns {Promise} - vraća Promise dok nas Binance ne resolva
  */
-function dohvatiKendlove(symbol, koliko, rezStr, startTime) {
-    return new Promise(function(resolve, reject) {
-        binance.candlesticks(symbol, rezStr, resolve, {limit: koliko, startTime: startTime});
-    });
+async function dohvatiKendlove(symbol, koliko, rezStr, startTime) {
+    let apiUrl = `https://api.binance.com/api/v1/klines?symbol=${symbol}&interval=${rezStr}&limit=${koliko}`;
+    if (startTime) apiUrl += `&startTime=${startTime}`;
+	return fetch(apiUrl, {method: 'GET'})
+		.then(response => response.json())
+		.catch(err => { throw new Error(err) })
 }
 
+
+
 /** Funkcija za pretvoriti payload s Binancea u standardizirane Kendl objekte.
- * 
- * @param {*} error - potencijalni error proslijeđen iz dohvatiKendlove
  * @param {array} kendlovi - payload array kendlova u sirovom formatu
  * @returns {array} - vraća array standardnih Kendl objekata
  */
-function kendlizirajResponse(error, kendlovi) {
-    if (error) throw new Error('Problem u kendlizaciji payloada. ' + error)
-    else return kendlovi.map(kendl => new Kendl(kendl));
+function kendlizirajResponse(kendlovi) {
+    return kendlovi.map(kendl => new Kendl(kendl));
 }
 
 // REFORMIRATI
@@ -240,17 +248,19 @@ function dohvatiHorizontalnoSveSymbole(whitelista, rezStr, startTime) {
  */
 class Kendl {
     constructor(kendl) {
-        this.openTime = kendl[0];
-        this.O = kendl[1];
-        this.H = kendl[2];
-        this.L = kendl[3];
-        this.C = kendl[4];
-        this.sellVolume = kendl[5] - kendl[9];
-        this.buyVolume = kendl[9];
-        this.trades = kendl[8];
+        this.openTime = Number(kendl[0]);
+        this.O = Number(kendl[1]);
+        this.H = Number(kendl[2]);
+        this.L = Number(kendl[3]);
+        this.C = Number(kendl[4]);
+        this.sellVolume = Number(kendl[5] - kendl[9]);
+        this.buyVolume = Number(kendl[9]);
+        this.trades = Number(kendl[8]);
     }
 }
 
+/*
+// IZVUĆI OVO U DRUGI MODUL...
 // input za chart konstruktor
 let input = {
     array,
@@ -295,3 +305,4 @@ async function konstruktorCharta() {
     // let asyncDohvaceniPodaci = await dohvati šta treba iz monga
     return new Chart(asyncDohvaceniPodaci)
 }
+*/
