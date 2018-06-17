@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 
 // master hendler
 function masterHendler(request, response) {
-    
+    console.log(request.body);
     response.json(request.body);
 }
 

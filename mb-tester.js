@@ -124,7 +124,7 @@ async function spremiuMongo(mongo, arg) {
 }
 
 let argZaPovlacenje = {
-	kolekcija: 'ETHBTC-m1', // string ime kolekcije (npr. ETHBTC-m5)
+	kolekcija: 'ETHBTC-1h', // string ime kolekcije (npr. ETHBTC-5m)
 	// startTime, // number timestamp prvog traženog kendla
 	koliko: 5, // number koliko kendlova
 }
@@ -142,7 +142,12 @@ async function povuciIzMonga(mongo, arg) {
 			.sort({openTime: 1})
 			//.limit(arg.koliko)
 			.toArray();
-		console.log(array.length);
+		for (let i = 0; i < (array.length - 1); i++) {
+			if (array[i].openTime === array[i + 1].openTime) {
+				console.log(array[i] + array[i+1]);
+			}
+		}
+		// console.log(array.length);
     } catch (err) {
         throw new Error(err);
     }

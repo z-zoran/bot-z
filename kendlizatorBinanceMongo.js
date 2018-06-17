@@ -80,22 +80,8 @@ const mongo = {
     dbName: 'baza',
 }
 
-let koliko = 59;
+let koliko = 120;
 iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije);
-let testArr = [
-    {
-        a: 123,
-        aaads: 'asd',
-    },
-    {
-        a: 323,
-        adsss: 'dsadas',
-    },
-    {
-        a: 444,
-        axyxcds: 'aasdd',
-    },
-]
 
 async function iteratorWhiteliste(koliko, mongo, pauza, whitelista, rezolucije) {
     for (let br = 0; br < koliko; br++) {
@@ -217,8 +203,6 @@ async function dohvatiKendlove(symbol, koliko, rezStr, startTime) {
 		.then(response => response.json())
 		.catch(err => { throw new Error(err) })
 }
-
-
 
 /** Funkcija za pretvoriti payload s Binancea u standardizirane Kendl objekte.
  * @param {array} kendlovi - payload array kendlova u sirovom formatu

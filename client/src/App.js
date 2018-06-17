@@ -18,15 +18,6 @@ import ikonaChart from './svg/011-computer.svg';
 class App extends Component {
 	constructor(props) {
 		super(props)
-		this.kartice = [
-			['S desna dolaze obavljeni roundtripovi', '', '', ''],
-			['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
-			['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
-			['Timestamp4', 'Symbol4', 'Strat4', 'Profit4'],
-			['Timestamp5', 'Symbol5', 'Strat5', 'Profit5'],
-			['Timestamp6', 'Symbol6', 'Strat6', 'Profit6'],
-			['Timestamp7', 'Symbol7', 'Strat7', 'Profit7'],
-		]
 		this.menu = [
 			{ ime: 'Livechart', handleClick: () => this.hendlerClient('Livechart'), ikona: ikonaChart }, 
 			{ ime: 'Portfolio', handleClick: () => this.hendlerClient('Portfolio'), ikona: ikonaBanknote }, 
@@ -36,8 +27,19 @@ class App extends Component {
 			{ ime: 'Baza', handleClick: () => this.hendlerClient('Baza'), ikona: ikonaSearch },
 		]
 		this.state = {
-			view: 'Livechart',
 			stat: 'Offline',
+			view: 'Livechart',
+			mainCont: {},
+			sideCont: {},
+			topCont: [
+				['S desna dolaze obavljeni roundtripovi', '', '', ''],
+				['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
+				['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
+				['Timestamp4', 'Symbol4', 'Strat4', 'Profit4'],
+				['Timestamp5', 'Symbol5', 'Strat5', 'Profit5'],
+				['Timestamp6', 'Symbol6', 'Strat6', 'Profit6'],
+				['Timestamp7', 'Symbol7', 'Strat7', 'Profit7'],
+			],
 		}
 		this.hendlerClient = this.hendlerClient.bind(this);
 		this.hendlerServer = this.hendlerServer.bind(this);
@@ -54,18 +56,22 @@ class App extends Component {
 			this.setState({stat: 'Offline'})
 		}
 		this.setState({view: 'Pričekaj'})
-		let data = this.kartice[0];
-		let zahtjev = 'Ubaci tip zahtjeva'
+		let data = {
+			zahtjev: 'Tip zahtjeva',
+			timestamp: Date.now(),
+			view: this.state.view,
+			stat: this.state.stat,
+		};
 		fetch('/', {
 			method: 'POST', // *GET, POST, PUT, DELETE, etc.
 			body: JSON.stringify(data), // must match 'Content-Type' header
 			headers: {
 				'User-agent': 'Mozilla/4.0',
 				'Content-type': 'application/json',
-				'Timestamp': Date.now(),
-				'Zahtjev': zahtjev,
 			},
-		}).then(response => response.json()).then(json => { this.setState({view: 'Livechart'}) })
+		}).then(response => response.json())
+			.then(JSON.parse)
+			.then(obj => this.setState({view: 'Livechart'}))
 	}
 
 	render() {
@@ -74,7 +80,7 @@ class App extends Component {
 			<header id="App-header">
 				<img src={logo} id="Header-logo" alt="logo" />
 				<h1 id="Header-title">Bot Z</h1>
-				<Rolodex karte={this.kartice} />
+				<Rolodex karte={this.state.topCont} />
 				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} handleClick={this.hendlerServer} />
 			</header>
 			<div id="App-container">
