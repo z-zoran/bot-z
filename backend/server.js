@@ -20,6 +20,8 @@ async function masterHendler(request, response) {
             let kendlovi = await dajKendloveHendler(mongo, request.body);
             response.json(kendlovi);
             break;
+        default:
+            response.json('Nije dobar zahtjev ili nešto: ' + JSON.stringify(request.body))
     }
 }
 

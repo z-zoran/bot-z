@@ -13,7 +13,7 @@ export class Livechart extends Component {
 			chartData: {}, 
 			chartOptions: {},
 			symbol: 'ETHBTC',
-			rez: rez,
+			rez: 'min1',
 			kolekcija: 'ETHBTC-1m', // ubaciti varijable da se dinamički izračunava ime kolekcije
 		}
 	}
