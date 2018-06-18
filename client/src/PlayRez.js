@@ -14,7 +14,7 @@ export class PlayRez extends Component {
 						<span className="Play-rez-tekst">{rez.slice(3, rez.length) + 'min'}</span>
 					</label>
 				)}
-				{'Rezolucija: ' + this.props.rez.slice(3, this.props.rez.length) + 'min'}
+				<span>{'Rezolucija: ' + this.props.rez.slice(3, this.props.rez.length) + 'min'}</span>
 			</div>
 		);
 	}

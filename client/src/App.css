@@ -158,9 +158,20 @@ div.Notif-karta > p {
 #Chart-livechart { /* Glavni container */
   display: grid;
   grid-template-rows: 550px 50px 200px;
+  grid-template-columns: 1200px;
 }
 #Livechart-chart { /* Chart u glavnom containeru */ 
   background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
+  display: grid;
+  grid-template-areas: 
+    ". . ."
+    ". chart ."
+    ". . .";
+  grid-template-rows: 20px 510px 20px;
+  grid-template-columns: 20px 1160px 20px;
+}
+#ChartCanvasDiv {
+  grid-area: chart;
 }
 #Livechart-play { /* Play kontroler u glavnom containeru */ 
   background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
@@ -173,7 +184,7 @@ div.Notif-karta > p {
 }
 #Play-rez {
   display: grid;
-  grid-template-columns: 100px 100px 100px 100px 400px;
+  grid-template-columns: 100px 100px 100px 100px 150px;
   padding-left: 30px;
 }
 

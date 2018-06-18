@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Line } from 'react-chartjs-2';
 
+/*
 const data = {
 	labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
 	datasets: [
@@ -27,22 +28,23 @@ const data = {
 		}
 	]
 };
-
+*/
 
 export class LivechartChart extends Component {
 	render() {
 		return (
 			<div id="Livechart-chart">
-				<Line 
-					data={data}
-					width={200}
-					height={100}
-					options={{
-						maintainAspectRatio: false
-					}}
-				/>
-				<p>Livechart chart, mothafuckas</p>
-				{this.props.content}
+				<div id="ChartCanvasDiv">
+					<Line 
+						data={this.props.chartData}
+						options={this.props.chartOptions}
+						/*
+						options={{
+							maintainAspectRatio: false
+						}}
+						*/
+					/>
+				</div>
 			</div>
 		);
 	}
