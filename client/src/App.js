@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import './App.css';
 import { Menu } from './Menu.js';
-import { Rolodex } from './Rolodex.js';
-import { MainContainer } from './MainContainer.js';
+import { Rolodex } from './rolodex/Rolodex';
+import { MainContainer } from './mainCont/MainContainer';
 import { Status } from './Status.js';
 // ikone za UI
-import logo from './logo.svg';
+import logo from './svg/logo.svg';
 import ikonaGears from './svg/008-gears.svg';
 import ikonaSearch from './svg/003-search.svg';
 import ikonaCreative from './svg/010-creative.svg';
