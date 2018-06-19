@@ -1,3 +1,5 @@
+"use strict";
+
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
@@ -7,6 +9,9 @@ const mongo = {
     dbUrl: 'mongodb://localhost:27017',
     dbName: 'baza',
 }
+// import hendleri
+const dajKendloveHendler = require('./hendleri/dajKendloveHendler.js');
+const napraviBektest = require('./hendleri/napraviBektest.js');
 
 /* SERVER API */
 
@@ -20,27 +25,18 @@ async function masterHendler(request, response) {
             let kendlovi = await dajKendloveHendler(mongo, request.body);
             response.json(kendlovi);
             break;
+        case 'napraviBektest':
+            let rezultati = await napraviBektest(mongo, request.body);
+            response.json(rezultati);
+        case 'notesView':
+            let notes = await dohvatiNotes(mongo, request.body);
+            response.json(notes);
+        case 'notesPost':
+            let notes = await postajNotes(mongo, request.body);
+            response.json(notes);
         default:
             response.json('Nije dobar zahtjev ili nešto: ' + JSON.stringify(request.body))
     }
-}
-
-async function dajKendloveHendler(mongo, arg) {
-    let client, db, array;
-    try {
-        client = await mongo.Client.connect(mongo.dbUrl, { useNewUrlParser: true });
-        db = client.db(mongo.dbName);
-		array = await db
-			.collection(arg.kolekcija)
-			.find({openTime: {$gte: arg.start}}, {_id: 0})
-			.sort({openTime: 1})
-			.limit(arg.koliko)
-			.toArray();
-    } catch (err) {
-        throw new Error(err);
-    }
-	client.close();
-	return array;
 }
 
 // express router

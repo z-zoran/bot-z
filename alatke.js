@@ -4,6 +4,7 @@
 
 let alatke = {};
 
+
 alatke.izmisliBoju = function izmisliBoju() {
     let r = (Math.floor(Math.random() * 255));
     let g = (Math.floor(Math.random() * 255));

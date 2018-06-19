@@ -18,18 +18,11 @@ const memorija = {
 	kendlovi: {},
 };
 
-// skraćena whitelista za testiranje
-memorija.whitelista = [
-	'ETHBTC',
-	'XRPBTC', // Ripple
-];
-
 memorija.config = {
-	dubinaKnjige: 3,
+	dubinaKnjige: 5,
 }
 
 
-/*
 // puna whitelista
 memorija.whitelista = [
 	'ETHBTC',
@@ -93,6 +86,7 @@ memorija.whitelista = [
 	'GTOBTC', 'GTOETH', // Gifto
 ];
 
+/*
 // SLOŽITI SEGREGIRANE WHITELISTE PO TIPOVIMA COINOVA
 // npr, BTC, ETH, IOTA itd u 1. klasu
 // Drugorazredne u drugu klasu
@@ -135,29 +129,29 @@ id stanja će biti:
 /* STRUKTURA MONGO BAZE PODATAKA:
 horizontalne kolekcije kendlova. dakle nema nestanja.
 > db:
-	> ETHBTC-m1:
+	> ETHBTC-1m:
 		> ... (kendlovi)
-	> ETHBTC-m5:
+	> ETHBTC-5m:
 		> ... (kendlovi)
-	> ETHBTC-m15:
+	> ETHBTC-15m:
 		> ... (kendlovi)
-	> ETHBTC-m60:
+	> ETHBTC-1h:
 		> ... (kendlovi)
-	> XRPETH-m1:
+	> XRPETH-1m:
 		> ... (kendlovi)
-	> XRPETH-m5:
+	> XRPETH-5m:
 		> ... (kendlovi)
 	> ... (kolekcije se nastavljaju)
 */
 
 /* MONGO BAZA KOLEKCIJE: 
 > db:
-	> ETHBTC-m1
-	> ETHBTC-m5
-	> ETHBTC-m15
+	> ETHBTC-1m
+	> ETHBTC-5m
+	> ETHBTC-15m
 	> ....
-	> BNBBTC-m15
-	> BNBBTC-m60
+	> BNBBTC-15m
+	> BNBBTC-1h
 	> stanje (tu spašavamo dokumente sa snimkama stanja svaki put kad se nešto događa)
 
 */
