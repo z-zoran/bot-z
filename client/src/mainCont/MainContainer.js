@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Livechart } from './Livechart.js';
+import { Simchart } from './Simchart.js';
+import { Backtest } from './Backtest.js';
 import { Portfolio } from './Portfolio.js';
-import { Stratovi } from './Stratovi.js';
-import { Postavke } from './Postavke.js';
 import { Notes } from './Notes.js';
 import { Baza } from './Baza.js';
 
@@ -11,15 +11,15 @@ export class MainContainer extends Component {
 	render() {
 		let difolt = 
 			<div id="Chart-difolt">
-				<p>difolt, mothafuckas</p>
+				<p>Čekaj malo</p>
 			</div>;
 		let displej = 
-			this.props.cont === 'Livechart' ? <Livechart /> :
-			this.props.cont === 'Portfolio' ? <Portfolio /> :
-			this.props.cont === 'Stratovi' ? <Stratovi /> :
-			this.props.cont === 'Postavke' ? <Postavke /> :
-			this.props.cont === 'Notes' ? <Notes /> :
-			this.props.cont === 'Baza' ? <Baza /> : difolt;
+			this.props.cont === 'Livechart' ? <Livechart hendleri={this.props.hendleri} /> :
+			this.props.cont === 'Simchart' ? <Simchart hendleri={this.props.hendleri} /> :
+			this.props.cont === 'Backtest' ? <Backtest hendleri={this.props.hendleri} /> :
+			this.props.cont === 'Portfolio' ? <Portfolio hendleri={this.props.hendleri} /> :
+			this.props.cont === 'Notes' ? <Notes hendleri={this.props.hendleri} /> :
+			this.props.cont === 'Baza' ? <Baza hendleri={this.props.hendleri} /> : difolt;
 		return (
 			<div id="App-chart">
 				{displej}

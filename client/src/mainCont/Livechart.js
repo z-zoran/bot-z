@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { LivechartChart } from './LivechartChart.js';
 import { LivechartPlay } from './LivechartPlay.js';
 import { LivechartPortfolio } from './LivechartPortfolio.js';
-import { kendlFetcher } from './kendlFetcher.js';
 
 export class Livechart extends Component {
 	constructor(props) {
@@ -10,15 +9,12 @@ export class Livechart extends Component {
 		this.hendlerZaChart = this.hendlerZaChart.bind(this);
 		this.hendlerRezolucije = this.hendlerRezolucije.bind(this);
 		this.state = {
-			chartData: {}, 
-			chartOptions: {},
 			symbol: 'ETHBTC',
 			rez: 'min1',
 			kolekcija: 'ETHBTC-1m', // ubaciti varijable da se dinamički izračunava ime kolekcije
 		}
 	}
 	hendlerZaChart(start, rez) {
-		kendlFetcher(); // tu ubaciti kod za kendl fetchanje
 		this.setState({ content: 'Nešto nešto blaaaa'});
 		// napisati hendler koji dohvaća chartData od servera
 		// integrirati sa react-chartjs libraryjem ili tako nešto
@@ -31,8 +27,8 @@ export class Livechart extends Component {
 	render() {
 		return (
 			<div id="Chart-livechart">
-				<LivechartChart chartData={this.state.chartData} chartOptions={this.state.chartOptions} />
-				<LivechartPlay handleClick={this.hendlerZaChart} rez={this.state.rez} handleChange={this.hendlerRezolucije} />
+				<LivechartChart chartData={this.props.chartData} chartOptions={this.props.chartOptions} />
+				<LivechartPlay handlePlay={this.props.hendleri.handlePlay} rez={this.state.rez} handleRez={this.props.hendleri.handleRez} />
 				<LivechartPortfolio />
 			</div>
 		);

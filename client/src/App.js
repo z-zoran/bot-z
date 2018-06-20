@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Menu } from './Menu.js';
+import { SideContainer } from './sideCont/SideContainer';
 import { Rolodex } from './rolodex/Rolodex';
 import { MainContainer } from './mainCont/MainContainer';
-import { Status } from './Status.js';
+import { Status } from './status/Status.js';
 // ikone za UI
 import logo from './svg/logo.svg';
 import ikonaGears from './svg/008-gears.svg';
@@ -14,6 +14,9 @@ import ikonaChess from './svg/012-chess-piece.svg';
 import ikonaNetworkOff from './svg/014-network.svg';
 import ikonaNetworkOn from './svg/014-network-on.svg';
 import ikonaChart from './svg/011-computer.svg';
+
+// import { kendlFetcher } from './hendleri/kendlFetcher.js';
+
 
 class App extends Component {
 	constructor(props) {
@@ -31,18 +34,37 @@ class App extends Component {
 			view: 'Livechart',
 			mainCont: {},
 			sideCont: {},
-			topCont: [
-				['S desna dolaze obavljeni roundtripovi', '', '', ''],
-				['Timestamp2', 'Symbol2', 'Strat2', 'Profit2'],
-				['Timestamp3', 'Symbol3', 'Strat3', 'Profit3'],
-				['Timestamp4', 'Symbol4', 'Strat4', 'Profit4'],
-				['Timestamp5', 'Symbol5', 'Strat5', 'Profit5'],
-				['Timestamp6', 'Symbol6', 'Strat6', 'Profit6'],
-				['Timestamp7', 'Symbol7', 'Strat7', 'Profit7'],
+			rolodex: [
+				{
+					id: 'testid0',
+					timestamp: 1234,
+					symbol: 'BLABLA',
+					strat: 'Ultra strategija',
+					profit: 100000,
+				},
+				{
+					id: 'testid1',
+					timestamp: 3214,
+					symbol: 'MAMBO',
+					strat: 'Mega strategija',
+					profit: 100000,
+				},
+				{
+					id: 'testid2',
+					timestamp: 66663,
+					symbol: 'DŽAMBO',
+					strat: 'Super strategija',
+					profit: 100000,
+				},
 			],
 		}
 		this.hendlerClient = this.hendlerClient.bind(this);
 		this.hendlerServer = this.hendlerServer.bind(this);
+		this.hendleri = {
+			handlePlay: {},
+			handleRez: {},
+			handleRolodex: {},
+		}
 	}
 	/* hendler za viewove */
 	hendlerClient(koji) {
@@ -80,12 +102,12 @@ class App extends Component {
 			<header id="App-header">
 				<img src={logo} id="Header-logo" alt="logo" />
 				<h1 id="Header-title">Bot Z</h1>
-				<Rolodex karte={this.state.topCont} />
+				<Rolodex karte={this.state.rolodex} hendleri={this.hendleri} />
 				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} handleClick={this.hendlerServer} />
 			</header>
 			<div id="App-container">
-				<MainContainer cont={this.state.view} />
-				<Menu menu={this.menu} />
+				<MainContainer cont={this.state.view} hendleri={this.hendleri} />
+				<SideContainer cont={this.state.sideCont} menu={this.menu} />
 			</div>
 		</div>
 		);
