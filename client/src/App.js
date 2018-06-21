@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import './App.css';
-import { SideContainer } from './sideCont/SideContainer';
-import { Rolodex } from './rolodex/Rolodex';
-import { MainContainer } from './mainCont/MainContainer';
-import { Status } from './status/Status.js';
+// react komponente
+import { Title } from './header/title/Title.js';
+import { SideContainer } from './main/sideCont/SideContainer';
+import { Rolodex } from './header/rolodex/Rolodex';
+import { MainContainer } from './main/mainCont/MainContainer';
+import { Status } from './header/status/Status.js';
 // ikone za UI
 import logo from './svg/logo.svg';
 import ikonaGears from './svg/008-gears.svg';
@@ -14,21 +16,27 @@ import ikonaChess from './svg/012-chess-piece.svg';
 import ikonaNetworkOff from './svg/014-network.svg';
 import ikonaNetworkOn from './svg/014-network-on.svg';
 import ikonaChart from './svg/011-computer.svg';
+// hendleri akcija
+import { handlePlay } from './hendleri/handlePlay.js';
+import { handleRez } from './hendleri/handleRez.js';
+import { handleRolodex } from './hendleri/handleRolodex.js';
+import { handleView } from './hendleri/handleView.js';
+import { handleRunLive } from './hendleri/handleRunLive.js';
+import { handleRunSim } from './hendleri/handleRunSim.js';
 
-// import { kendlFetcher } from './hendleri/kendlFetcher.js';
-
+const menu = [
+	{ ime: 'Livechart', handleClick: () => this.hendleri.handleView('Livechart'), ikona: ikonaChart }, 
+	{ ime: 'Simchart', handleClick: () => this.hendleri.handleView('Simchart'), ikona: ikonaBanknote }, 
+	{ ime: 'Backtest', handleClick: () => this.hendleri.handleView('Backtest'), ikona: ikonaCreative }, 
+	{ ime: 'Portfolio', handleClick: () => this.hendleri.handleView('Portfolio'), ikona: ikonaChess }, 
+	{ ime: 'Notes', handleClick: () => this.hendleri.handleView('Notes'), ikona: ikonaGears }, 
+	{ ime: 'Baza', handleClick: () => this.hendleri.handleView('Baza'), ikona: ikonaSearch },
+]
 
 class App extends Component {
 	constructor(props) {
 		super(props)
-		this.menu = [
-			{ ime: 'Livechart', handleClick: () => this.hendlerClient('Livechart'), ikona: ikonaChart }, 
-			{ ime: 'Portfolio', handleClick: () => this.hendlerClient('Portfolio'), ikona: ikonaBanknote }, 
-			{ ime: 'Notes', handleClick: () => this.hendlerClient('Notes'), ikona: ikonaCreative }, 
-			{ ime: 'Stratovi', handleClick: () => this.hendlerClient('Stratovi'), ikona: ikonaChess }, 
-			{ ime: 'Postavke', handleClick: () => this.hendlerClient('Postavke'), ikona: ikonaGears }, 
-			{ ime: 'Baza', handleClick: () => this.hendlerClient('Baza'), ikona: ikonaSearch },
-		]
+		this.menu = menu;
 		this.state = {
 			stat: 'Offline',
 			view: 'Livechart',
@@ -58,56 +66,27 @@ class App extends Component {
 				},
 			],
 		}
-		this.hendlerClient = this.hendlerClient.bind(this);
-		this.hendlerServer = this.hendlerServer.bind(this);
 		this.hendleri = {
-			handlePlay: {},
-			handleRez: {},
-			handleRolodex: {},
+			handlePlay: handlePlay.bind(this),
+			handleRez: handleRez.bind(this),
+			handleRolodex: handleRolodex.bind(this),
+			handleView: handleView.bind(this),
+			handleRunSim: handleRunSim.bind(this),
+			handleRunLive: handleRunLive.bind(this),
 		}
-	}
-	/* hendler za viewove */
-	hendlerClient(koji) {
-		this.setState({ view: koji })
-	}
-	/* server hendler */
-	hendlerServer() {
-		if (this.state.stat === 'Offline') {
-			this.setState({stat: 'Online'})
-		} else if (this.state.stat === 'Online') {
-			this.setState({stat: 'Offline'})
-		}
-		this.setState({view: 'Pričekaj'})
-		let data = {
-			zahtjev: 'Tip zahtjeva',
-			timestamp: Date.now(),
-			view: this.state.view,
-			stat: this.state.stat,
-		};
-		fetch('/', {
-			method: 'POST', // *GET, POST, PUT, DELETE, etc.
-			body: JSON.stringify(data), // must match 'Content-Type' header
-			headers: {
-				'User-agent': 'Mozilla/4.0',
-				'Content-type': 'application/json',
-			},
-		}).then(response => response.json())
-			.then(JSON.parse)
-			.then(obj => this.setState({view: 'Livechart'}))
 	}
 
 	render() {
 		return (
 		<div id="App">
 			<header id="App-header">
-				<img src={logo} id="Header-logo" alt="logo" />
-				<h1 id="Header-title">Bot Z</h1>
+				<Title logo={logo} />
 				<Rolodex karte={this.state.rolodex} hendleri={this.hendleri} />
-				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} handleClick={this.hendlerServer} />
+				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} hendleri={this.hendleri} />
 			</header>
-			<div id="App-container">
-				<MainContainer cont={this.state.view} hendleri={this.hendleri} />
-				<SideContainer cont={this.state.sideCont} menu={this.menu} />
+			<div id="App-main">
+				<MainContainer view={this.state.view} cont={this.state.mainCont} hendleri={this.hendleri} />
+				<SideContainer view={this.state.view} cont={this.state.sideCont} menu={this.menu} />
 			</div>
 		</div>
 		);
