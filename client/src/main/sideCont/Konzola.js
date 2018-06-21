@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 export class Konzola extends Component {
 	render() {
 		return (
-			<div id="Menu-konzola">
+			<div id="Side-konzola">
 			</div>
 		);
 	}

@@ -44,25 +44,22 @@ class App extends Component {
 			sideCont: {},
 			rolodex: [
 				{
-					id: 'testid0',
 					timestamp: 1234,
 					symbol: 'BLABLA',
 					strat: 'Ultra strategija',
-					profit: 100000,
+					profit: 112000,
 				},
 				{
-					id: 'testid1',
 					timestamp: 3214,
 					symbol: 'MAMBO',
 					strat: 'Mega strategija',
-					profit: 100000,
+					profit: 432000,
 				},
 				{
-					id: 'testid2',
 					timestamp: 66663,
 					symbol: 'DŽAMBO',
 					strat: 'Super strategija',
-					profit: 100000,
+					profit: 14,
 				},
 			],
 		}
@@ -86,7 +83,7 @@ class App extends Component {
 			</header>
 			<div id="App-main">
 				<MainContainer view={this.state.view} cont={this.state.mainCont} hendleri={this.hendleri} />
-				<SideContainer view={this.state.view} cont={this.state.sideCont} menu={this.menu} />
+				<SideContainer view={this.state.view} cont={this.state.sideCont} menu={this.menu} hendleri={this.hendleri} />
 			</div>
 		</div>
 		);

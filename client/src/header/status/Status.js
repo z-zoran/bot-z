@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Killswitch } from './Killswitch';
+import './Status.css';
 
 export class Status extends Component {
 	render() {

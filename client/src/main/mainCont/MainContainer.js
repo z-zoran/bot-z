@@ -10,18 +10,18 @@ import { Baza } from './Baza.js';
 export class MainContainer extends Component {
 	render() {
 		let difolt = 
-			<div id="Chart-difolt">
+			<div id="Main-difolt">
 				<p>Čekaj malo</p>
 			</div>;
 		let displej = 
-			this.props.cont === 'Livechart' ? <Livechart hendleri={this.props.hendleri} /> :
-			this.props.cont === 'Simchart' ? <Simchart hendleri={this.props.hendleri} /> :
-			this.props.cont === 'Backtest' ? <Backtest hendleri={this.props.hendleri} /> :
-			this.props.cont === 'Portfolio' ? <Portfolio hendleri={this.props.hendleri} /> :
-			this.props.cont === 'Notes' ? <Notes hendleri={this.props.hendleri} /> :
-			this.props.cont === 'Baza' ? <Baza hendleri={this.props.hendleri} /> : difolt;
+			this.props.view === 'Livechart' ? <Livechart hendleri={this.props.hendleri} /> :
+			this.props.view === 'Simchart' ? <Simchart hendleri={this.props.hendleri} /> :
+			this.props.view === 'Backtest' ? <Backtest hendleri={this.props.hendleri} /> :
+			this.props.view === 'Portfolio' ? <Portfolio hendleri={this.props.hendleri} /> :
+			this.props.view === 'Notes' ? <Notes hendleri={this.props.hendleri} /> :
+			this.props.view === 'Baza' ? <Baza hendleri={this.props.hendleri} /> : difolt;
 		return (
-			<div id="App-chart">
+			<div id="Main">
 				{displej}
 			</div>
 		);

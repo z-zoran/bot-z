@@ -8,12 +8,11 @@
 
 #App-header {
   background-color: #222;
-  height: 60px;
   color: white;
   display: grid;
-  grid-template-columns: 60px 100px 1040px 400px;
+  grid-template-columns: 160px 1040px 400px;
+  grid-template-rows: 60px;
 }
-
 
 #App-main {
   display: grid;

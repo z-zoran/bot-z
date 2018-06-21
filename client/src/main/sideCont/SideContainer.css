@@ -1,251 +1,37 @@
-#App {
-  text-align: center;
-  width: 1600px;
-  margin: auto;
-  display: grid;
-  grid-template-rows: 60px 800px;
-}
-
-#App-header {
-  background-color: #222;
-  height: 60px;
-  color: white;
-  display: grid;
-  grid-template-columns: 60px 100px 1040px 400px;
-}
-
-#Header-logo {
-  float: left;
-  height: 50px;
-  padding: 5px;
-}
-
-#Header-title {
-  float: left;
-  text-align: left;
-  height: 50px;
-  padding: 5px;
-  margin-bottom: 20px;
-}
-
-#Header-notif {
-  float: left;
-  height: 50px;
-  padding: 5px;
-  padding-right: 0px;
-}
-
-.Notif-karta {
-  float: right;
-  width: 80px;
-  height: 40px;
-  padding: 5px;
-  margin-left: 15px;
-  background: linear-gradient(rgb(255, 255, 255), rgb(156, 156, 156));
-}
-
-.Notif-karta:hover {
-  background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
-}
-
-div.Notif-karta > p {
-  padding: 0;
-  margin: 0;
-  font-size: 0.6em;
-  color: black;
-  user-select: none;
-}
-
-#Karta-timestamp {
-  text-align: right;
-}
-#Karta-symbol {
-  text-align: right;
-}
-#Karta-strat {
-  float: left;
-  text-align: left;
-  vertical-align: bottom;
-}
-#Karta-profit {
-  float: right;
-  font-size: 0.8em;
-  text-align: right;
-}
-
-/* The animation code */
-@keyframes statusAni {
-  0% {width: 60px;}
-  50% {width: 56px; margin-top:2px; margin-left: 32px;}
-  100% {width: 60px;}
-}
-
-#Header-status-ikona-on {
-  width: 60px;
-  float: left;
-  margin-left: 30px;
-  animation: statusAni 0.5s ease-in-out 0.5s infinite;
-}
-
-#Header-status-ikona-off {
-  width: 60px;
-  float: left;
-  margin-left: 30px;
-}
-
-#Header-status-online {
-  float: right;
-  margin-right: 30px;
-  color: #33ff00;
-  height: 60px;
-  margin-top: 0px;
-  user-select: none;
-}
-
-#Header-status-offline {
-  float: right;
-  margin-right: 30px;
-  color: rgb(255, 0, 0);
-  height: 60px;
-  margin-top: 0px;
-  user-select: none;
-}
-
-#Header-status-status {
-  float: right;
-  margin-right: 28px;
-  margin-top: 15px;
-  width: 50px;
-  font-size: 75%;
-  user-select: none;
-}
-
-#Header-status-killswitch {
-  float: right;
-  border-style: outset;
-  border-width: thick;
-  width: 145px;
-  height: 28px;
-  margin-top: 5px;
-  margin-right: 30px;
-  background-color: rgb(99, 99, 99);
-  padding-top: 12px;
-  user-select: none;
-}
-
-#Header-status-killswitch:hover {
-  background-color: rgb(99, 99, 99)
-}
-
-#App-container {
-  display: grid;
-  grid-template-columns: 1200px 400px;
-  grid-template-rows: 800px;
-}
-
-#App-chart {
-  background-color: #eeeeee;
-  width: 1200px;
-  height: 800px;
-}
-#App-chart > div {
-  float: left;
-  background-color: #eeeeee;
-  width: 1200px;
-  height: 800px;
-}
-
-#Chart-livechart { /* Glavni container */
-  display: grid;
-  grid-template-rows: 550px 50px 200px;
-  grid-template-columns: 1200px;
-}
-#Livechart-chart { /* Chart u glavnom containeru */ 
-  background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
-  display: grid;
-  grid-template-areas: 
-    ". . ."
-    ". chart ."
-    ". . .";
-  grid-template-rows: 20px 510px 20px;
-  grid-template-columns: 20px 1160px 20px;
-}
-#ChartCanvasDiv {
-  grid-area: chart;
-}
-#Livechart-play { /* Play kontroler u glavnom containeru */ 
-  background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
-  display: grid;
-  grid-template-columns: 600px 300px 300px;
-}
-#Livechart-play > div {
-  padding-top: 15px; 
-  text-align: left;
-}
-#Play-rez {
-  display: grid;
-  grid-template-columns: 100px 100px 100px 100px 150px;
-  padding-left: 30px;
-}
-
-#Livechart-portfolio { /* Portfolio chart u glavnom containeru */ 
-  background: linear-gradient(rgb(214, 214, 214), rgb(156, 156, 156));
-}
-
-#Chart-portfolio {
-  background-color: #eeeeee;
-  width: 1200px;
-  height: 800px;
-}
-
-#Chart-stratovi {
-  background-color: #eeeeee;
-  width: 1200px;
-  height: 800px;
-}
-#Chart-postavke {
-  background-color: #eeeeee;
-  width: 1200px;
-  height: 800px;
-}
-#Chart-notes {
-  background-color: #eeeeee;
-  width: 1200px;
-  height: 800px;
-}
-#Chart-baza {
-  background-color: #eeeeee;
-  width: 1200px;
-  height: 800px;
-}
-#Chart-difolt {
-  background-color: #eeeeee;
-  width: 1200px;
-  height: 800px;
-}
-
-#App-menu {
+#Side {
   background-color: #aaaaaa;
   display: grid;
   grid-template-areas:
     " a a a "
-    " 0 1 2 "
-    " 3 4 5 ";
+    " b b b "
+    " b b b ";
   grid-template-rows: 508px 106px 106px;
   padding: 20px;
   grid-row-gap: 20px;
   grid-column-gap: 20px;
 }
 
-#App-menu > div {
+#Side-konzola {
   border-style: double;
   border-color: #222;
   border-width: thin;
-}
-
-#Menu-konzola {
   background-color: #eeeeee;
   grid-area: a;
+}
+
+#Side-menu {
+  grid-area: b;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 15px;
+}
+
+.Menu-gumb {
+  background-color: #eeeeee;
+  border-style: double;
+  border-color: #222;
+  border-width: thin;
 }
 
 /* The animation code */
@@ -281,14 +67,14 @@ div.Notif-karta > p {
 /* Tooltip text */
 .Menu-gumb .Gumb-tekst {
     visibility: hidden;
-    width: 106.66px;
+    width: 100%;
     background-color: black;
     color: #fff;
     text-align: center;
     /*padding: 5px 0;*/
     border-radius: 6px 6px 0px 0px;
     bottom: -22px;
-    left: -1px;
+    left: 0px;
     opacity: 0;
     transition: opacity 0.5s;
     /* Position the tooltip text - see examples below! */
