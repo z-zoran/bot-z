@@ -1,7 +1,9 @@
 
-export function handleRolodex(/*kolekcija, start, koliko*/) {
-
-    // UBACITI LOGIKU
+export function handleRolodex(timestamp) {
+    alert(timestamp);
+    // UBACITI LOGIKU:
+        // prebaci view na bazu
+        // prikaži high-lightanu kliknutu karticu u kontekstu
 
     /*
     let data = {

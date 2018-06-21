@@ -31,11 +31,21 @@ const menu = [
 	{ ime: 'Portfolio', handleClick: () => this.hendleri.handleView('Portfolio'), ikona: ikonaChess }, 
 	{ ime: 'Notes', handleClick: () => this.hendleri.handleView('Notes'), ikona: ikonaGears }, 
 	{ ime: 'Baza', handleClick: () => this.hendleri.handleView('Baza'), ikona: ikonaSearch },
-]
+]		
+
 
 class App extends Component {
 	constructor(props) {
-		super(props)
+		super(props);
+		// bajndamo hendlere
+		this.hendleri = {
+			handlePlay: handlePlay.bind(this),
+			handleRez: handleRez.bind(this),
+			handleRolodex: handleRolodex.bind(this),
+			handleView: handleView.bind(this),
+			handleRunSim: handleRunSim.bind(this),
+			handleRunLive: handleRunLive.bind(this),
+		};
 		this.menu = menu;
 		this.state = {
 			stat: 'Offline',
@@ -62,16 +72,8 @@ class App extends Component {
 					profit: 14,
 				},
 			],
-		}
-		this.hendleri = {
-			handlePlay: handlePlay.bind(this),
-			handleRez: handleRez.bind(this),
-			handleRolodex: handleRolodex.bind(this),
-			handleView: handleView.bind(this),
-			handleRunSim: handleRunSim.bind(this),
-			handleRunLive: handleRunLive.bind(this),
-		}
-	}
+		};
+	};
 
 	render() {
 		return (
@@ -82,8 +84,8 @@ class App extends Component {
 				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} hendleri={this.hendleri} />
 			</header>
 			<div id="App-main">
-				<MainContainer view={this.state.view} cont={this.state.mainCont} hendleri={this.hendleri} />
-				<SideContainer view={this.state.view} cont={this.state.sideCont} menu={this.menu} hendleri={this.hendleri} />
+				<MainContainer view={this.state.view} content={this.state.mainCont} hendleri={this.hendleri} />
+				<SideContainer view={this.state.view} content={this.state.sideCont} menu={this.menu} hendleri={this.hendleri} />
 			</div>
 		</div>
 		);
