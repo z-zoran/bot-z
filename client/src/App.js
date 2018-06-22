@@ -24,16 +24,6 @@ import { handleView } from './hendleri/handleView.js';
 import { handleRunLive } from './hendleri/handleRunLive.js';
 import { handleRunSim } from './hendleri/handleRunSim.js';
 
-const menu = [
-	{ ime: 'Livechart', handleClick: () => this.hendleri.handleView('Livechart'), ikona: ikonaChart }, 
-	{ ime: 'Simchart', handleClick: () => this.hendleri.handleView('Simchart'), ikona: ikonaBanknote }, 
-	{ ime: 'Backtest', handleClick: () => this.hendleri.handleView('Backtest'), ikona: ikonaCreative }, 
-	{ ime: 'Portfolio', handleClick: () => this.hendleri.handleView('Portfolio'), ikona: ikonaChess }, 
-	{ ime: 'Notes', handleClick: () => this.hendleri.handleView('Notes'), ikona: ikonaGears }, 
-	{ ime: 'Baza', handleClick: () => this.hendleri.handleView('Baza'), ikona: ikonaSearch },
-]		
-
-
 class App extends Component {
 	constructor(props) {
 		super(props);
@@ -45,8 +35,15 @@ class App extends Component {
 			handleView: handleView.bind(this),
 			handleRunSim: handleRunSim.bind(this),
 			handleRunLive: handleRunLive.bind(this),
-		};
-		this.menu = menu;
+		}
+		this.menu = [
+			{ ime: 'Livechart', handleClick: () => this.hendleri.handleView('Livechart'), ikona: ikonaChart }, 
+			{ ime: 'Simchart', handleClick: () => this.hendleri.handleView('Simchart'), ikona: ikonaBanknote }, 
+			{ ime: 'Backtest', handleClick: () => this.hendleri.handleView('Backtest'), ikona: ikonaCreative }, 
+			{ ime: 'Portfolio', handleClick: () => this.hendleri.handleView('Portfolio'), ikona: ikonaChess }, 
+			{ ime: 'Notes', handleClick: () => this.hendleri.handleView('Notes'), ikona: ikonaGears }, 
+			{ ime: 'Baza', handleClick: () => this.hendleri.handleView('Baza'), ikona: ikonaSearch },
+		]
 		this.state = {
 			stat: 'Offline',
 			view: 'Livechart',

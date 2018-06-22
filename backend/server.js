@@ -26,18 +26,62 @@ async function masterHendler(request, response) {
             response.json(kendlovi);
             break;
         case 'napraviBektest':
-            let rezultati = await napraviBektest(mongo, request.body);
+            let rezultati = await napraviBektestHendler(mongo, request.body);
             response.json(rezultati);
-        case 'notesView':
-            let notes = await dohvatiNotes(mongo, request.body);
+        case 'viewNotes':
+            let notes = await dohvatiNotesHendler(mongo, request.body);
             response.json(notes);
-        case 'notesPost':
-            let notes = await postajNotes(mongo, request.body);
+        case 'postNotes':
+            let notes = await postajNotesHendler(mongo, request.body);
             response.json(notes);
         default:
             response.json('Nije dobar zahtjev ili nešto: ' + JSON.stringify(request.body))
     }
 }
+/**** API ****
+
+report:
+    reportHandler(mongo, {}) => {callbackovi}
+    // frontend ima setInterval koji svaku sekundu zove report
+    // server provjerava treba li frontend išta zatražiti
+    // vraća frontendu popis stvari koje treba zatražiti
+    // frontend dohvaća potrebne updateove
+dajKendlove: 
+    dajKendloveHendler(mongo, {kolekcija, start, koliko}) => [kendlovi]
+    // radi što bi i očekivao
+napraviBektest: 
+    napraviBektestHendler(mongo, {bektest}) => {rezultati}
+        bektest: {btID, [kolekcije], start, period, strategija}
+            strategija: {ime, postavke}
+        rezultati: {ovisno o strategiji}
+    // obavi podešenu strategiju na zadanoj kolekciji i periodu
+
+viewNotes: 
+    dohvatiNotesHendler(mongo, {opcije}) => {notes}
+        opcije: {sortBy, sortAsc, subselektor}
+            subselektor: [kategorije]
+    // dohvaća cijeli notes
+postNotes: 
+    postajNotesHendler(mongo, {nota}) => {notes}
+        nota: {timestamp, prioritet, kategorija, naslov, tekst}
+            kategorija: "strat ideja" / "app ideja" / "opservacija" / ...
+    // sprema notu u notes, vraća notes
+viewArhiv:
+    dohvatiArhivHendler(mongo, {}) => {arhiv}
+    // dohvaća arhivirane note
+putArhiv:
+    arhivirajNotuHendler(mongo, {nota}) => {arhiv/notes}
+    // briše iz notesa i stavlja u arhiv ili obratno
+    // vraća notes ako arhiviramo iz notesa, a arhiv ako vraćamo iz arhiva
+
+pokreniSimulaciju:
+    pokreniSimulacijuHendler(mongo, {portfolio}) => {info} // + pretplati se na report
+        portfolio: {pfID, live(=false), [kolekcije], strategija}
+pokreniLive:
+    pokreniLiveHendler(mongo, {portfolio}) => {info} // + pretplati se na report
+        portfolio: {pfID, live(=true), [kolekcije], strategija}
+
+*/
 
 // express router
 app.post('/', masterHendler);
