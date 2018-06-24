@@ -27,7 +27,6 @@ import { handleRunSim } from './hendleri/handleRunSim.js';
 class App extends Component {
 	constructor(props) {
 		super(props);
-		// bajndamo hendlere
 		this.hendleri = {
 			handlePlay: handlePlay.bind(this),
 			handleRez: handleRez.bind(this),
@@ -45,7 +44,7 @@ class App extends Component {
 			{ ime: 'Baza', handleClick: () => this.hendleri.handleView('Baza'), ikona: ikonaSearch },
 		]
 		this.state = {
-			stat: 'Offline',
+			status: 'Offline',
 			view: 'Livechart',
 			mainCont: {},
 			sideCont: {},
@@ -69,20 +68,38 @@ class App extends Component {
 					profit: 14,
 				},
 			],
-		};
-	};
+		}
+	}
 
 	render() {
 		return (
 		<div id="App">
 			<header id="App-header">
-				<Title logo={logo} />
-				<Rolodex karte={this.state.rolodex} hendleri={this.hendleri} />
-				<Status ikona={this.state.stat === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} stat={this.state.stat} hendleri={this.hendleri} />
+				<Title 
+					logo={logo} 
+				/>
+				<Rolodex 
+					karte={this.state.rolodex} 
+					hendleri={this.hendleri} 
+				/>
+				<Status 
+					ikona={this.state.status === 'Online' ? ikonaNetworkOn : ikonaNetworkOff} 
+					status={this.state.status} 
+					hendleri={this.hendleri} 
+				/>
 			</header>
 			<div id="App-main">
-				<MainContainer view={this.state.view} content={this.state.mainCont} hendleri={this.hendleri} />
-				<SideContainer view={this.state.view} content={this.state.sideCont} menu={this.menu} hendleri={this.hendleri} />
+				<MainContainer 
+					view={this.state.view} 
+					content={this.state.mainCont} 
+					hendleri={this.hendleri} 
+				/>
+				<SideContainer 
+					view={this.state.view} 
+					content={this.state.sideCont} 
+					menu={this.menu} 
+					hendleri={this.hendleri} 
+				/>
 			</div>
 		</div>
 		);

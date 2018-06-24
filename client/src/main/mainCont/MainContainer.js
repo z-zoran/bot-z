@@ -14,12 +14,36 @@ export class MainContainer extends Component {
 				<p>Čekaj malo</p>
 			</div>;
 		let displej = 
-			this.props.view === 'Livechart' ? <Livechart hendleri={this.props.hendleri} /> :
-			this.props.view === 'Simchart' ? <Simchart hendleri={this.props.hendleri} /> :
-			this.props.view === 'Backtest' ? <Backtest hendleri={this.props.hendleri} /> :
-			this.props.view === 'Portfolio' ? <Portfolio hendleri={this.props.hendleri} /> :
-			this.props.view === 'Notes' ? <Notes hendleri={this.props.hendleri} /> :
-			this.props.view === 'Baza' ? <Baza hendleri={this.props.hendleri} /> : difolt;
+			this.props.view === 'Livechart' ? 
+				<Livechart 
+					content={this.props.content} 
+					hendleri={this.props.hendleri} 
+				/> :
+			this.props.view === 'Simchart' ? 
+				<Simchart 
+					content={this.props.content} 
+					hendleri={this.props.hendleri} 
+				/> :
+			this.props.view === 'Backtest' ? 
+				<Backtest 
+					content={this.props.content} 
+					hendleri={this.props.hendleri} 
+				/> :
+			this.props.view === 'Portfolio' ? 
+				<Portfolio 
+					content={this.props.content} 
+					hendleri={this.props.hendleri} 
+				/> :
+			this.props.view === 'Notes' ? 
+				<Notes 
+					content={this.props.content} 
+					hendleri={this.props.hendleri} 
+				/> :
+			this.props.view === 'Baza' ? 
+				<Baza 
+					content={this.props.content} 
+					hendleri={this.props.hendleri} 
+				/> : difolt;
 		return (
 			<div id="Main">
 				{displej}

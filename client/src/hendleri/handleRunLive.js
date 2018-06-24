@@ -3,9 +3,9 @@ export function handleRunLive(/*kolekcija, start, koliko*/) {
 
     // UBACITI SERVER LOGIKU
 
-    if (this.state.stat === 'Offline') {
-        this.setState({stat: 'Online'})
-    } else if (this.state.stat === 'Online') {
-        this.setState({stat: 'Offline'})
+    if (this.state.status === 'Offline') {
+        this.setState({status: 'Online'})
+    } else if (this.state.status === 'Online') {
+        this.setState({status: 'Offline'})
     }
 }

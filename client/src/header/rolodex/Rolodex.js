@@ -8,9 +8,9 @@ export class Rolodex extends Component {
 			<div id="Header-rolodex">
 				{this.props.karte.map(kartica => 
 					<Karta 
-						key={kartica.timestamp.toString()} 
+						key={kartica.timestamp} 
 						content={kartica} 
-						handleClick={() => this.props.hendleri.handleRolodex(kartica.timestamp.toString())}
+						handleClick={() => this.props.hendleri.handleRolodex(kartica.timestamp)}
 					/>
 				)}
 			</div>

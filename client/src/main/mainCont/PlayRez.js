@@ -10,11 +10,21 @@ export class PlayRez extends Component {
 			<div id="Play-rez">
 				{this.rezolucije.map(rez => 
 					<label className="Play-rez-cont" defaultChecked={this.props.rez} >
-						<input className="Play-rez-radio" type="radio" name="rez" value={rez} onClick={() => this.props.handleChange(rez)} checked={this.props.rez === rez} />
-						<span className="Play-rez-tekst">{rez.slice(3, rez.length) + 'min'}</span>
+						<input 
+							className="Play-rez-radio" 
+							type="radio" name="rez" 
+							value={rez} 
+							onClick={() => this.props.handleChange(rez)} 
+							checked={this.props.rez === rez} 
+						/>
+						<span className="Play-rez-tekst">
+							{rez.slice(3, rez.length) + 'min'}
+						</span>
 					</label>
 				)}
-				<span>{'Rezolucija: ' + this.props.rez.slice(3, this.props.rez.length) + 'min'}</span>
+				<span>
+					{'Rezolucija: ' + this.props.rez.slice(3, this.props.rez.length) + 'min'}
+				</span>
 			</div>
 		);
 	}
