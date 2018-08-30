@@ -3,15 +3,19 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+
 // MONGO podaci
 const mongo = {
     Client: require('mongodb').MongoClient,
     dbUrl: 'mongodb://localhost:27017',
     dbName: 'baza',
 }
+
 // import hendleri
 const dajKendloveHendler = require('./hendleri/dajKendloveHendler.js');
-const napraviBektest = require('./hendleri/napraviBektest.js');
+const napraviBektestHendler = require('./hendleri/napraviBektestHendler.js');
+const dohvatiNotesHendler = require('./hendleri/dohvatiNotesHendler.js');
+const postajNotesHendler = require('./hendleri/postajNotesHendler.js');
 
 /* SERVER API */
 
@@ -23,21 +27,22 @@ async function masterHendler(request, response) {
     switch (request.body.zahtjev) {
         case 'dajKendlove':
             let kendlovi = await dajKendloveHendler(mongo, request.body);
-            response.json(kendlovi);
-            break;
+            response.json(kendlovi); break;
         case 'napraviBektest':
             let rezultati = await napraviBektestHendler(mongo, request.body);
-            response.json(rezultati);
+            response.json(rezultati); break;
         case 'viewNotes':
             let notes = await dohvatiNotesHendler(mongo, request.body);
-            response.json(notes);
+            response.json(notes); break;
         case 'postNotes':
             let notes = await postajNotesHendler(mongo, request.body);
-            response.json(notes);
+            response.json(notes); break;
         default:
             response.json('Nije dobar zahtjev ili nešto: ' + JSON.stringify(request.body))
     }
 }
+
+
 /**** API ****
 
 report:

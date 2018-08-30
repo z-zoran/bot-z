@@ -1,8 +1,8 @@
 "use strict";
 
-module.exports = async function postajNotes(mongo, arg) {
+module.exports = async function dohvatiNotesHendler(mongo, arg) {
     
-    // UBACITI LOGIKU POSTANJA NOTESA
+    // UBACITI LOGIKU DOHVAĆANJA NOTESA
 
     let client, db, array;
     try {

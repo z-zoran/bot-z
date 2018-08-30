@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = async function napraviBektest(mongo, arg) {
+module.exports = async function napraviBektestHendler(mongo, arg) {
     
     // UBACITI LOGIKU BEKTESTANJA
 
